@@ -15,7 +15,7 @@ from ._util import fnum
 from .config import get_settings
 from .errors import GeoError
 from .io.raster import extract_patch, native_pixel_size
-from .io.sources import resolve_uris
+from .io.sources import materialize, resolve_bbox, resolve_uris
 from .models import Range, ScreeningCriteria, ScreenRequest, TerrainProfile, Tolerances
 from .profile import MIN_GRID_PX, landcover_summary, limitations, provenance
 from .scale import default_scales, is_supported
@@ -58,7 +58,8 @@ def _nan(fn, a):
 
 def screen_region(request: ScreenRequest) -> dict[str, Any]:
     settings = get_settings()
-    dataset, bbox = request.dataset, request.bbox
+    dataset = materialize(request.dataset)
+    bbox = resolve_bbox(dataset, request.bbox)
     uris = resolve_uris(dataset, bbox)
     native = native_pixel_size(uris, bbox)
 

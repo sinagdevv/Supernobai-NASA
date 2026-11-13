@@ -30,7 +30,8 @@ Interactive docs: http://localhost:8000/docs. OpenAPI schema: http://localhost:8
 ```bash
 .venv/Scripts/python -m pytest
 .venv/Scripts/python -m pytest -m network
-.venv/Scripts/python scripts/validation_demo.py --out data/validation
+.venv/Scripts/python scripts/validation_demo.py
+.venv/Scripts/python scripts/moon_vs_earth.py
 ```
 
 The default test run uses synthetic rasters with known answers and needs no internet. The
@@ -69,16 +70,38 @@ terrawindow-geo profile --dataset data/lunar/site.tif --body moon --native-bbox 
 |---|---|
 | Copernicus DEM GLO-30 (public COGs on AWS) | `{"id": "copernicus-glo30"}` |
 | ESA WorldCover 10 m 2021 | used automatically for land cover on Earth |
-| Anything from Layer 2 (lunar, Mars, regional DEMs) | `{"uri": "<https URL or path inside the data folder>", "body": "moon"}` |
+| Anything Layer 2 has fetched (lunar sites, Earth regions) | `{"id": "lola-5mpp-site01"}`; no bbox needed, the whole raster is used |
+| Any other raster | `{"uri": "<https URL or path inside the data store>", "body": "moon"}` |
+
+Layer 2 ([backend/data_integration](../data_integration/README.md)) fetches and validates data
+into the shared store `backend/data/` and lists it in `manifest.json`. Layer 3 resolves ids
+through that manifest and takes the body, citation and limitations from it.
 
 Any GeoTIFF/COG that GDAL can read works. Through the API, local files must be inside the data
-folder (`TWGEO_DATA_DIR`, default `backend/geoprocessing/data/`, not versioned); the library has
-no such restriction. Lunar polar products already in a metric projection are processed on their
+store (`TWGEO_DATA_DIR`, else `TERRAWINDOW_DATA_DIR`, default `backend/data/`, not versioned);
+the library has no such restriction. Lunar polar products already in a metric projection are processed on their
 own grid; use `"crs": "native"` in the bbox to address them in projected metres. If a raster
 stores heights in kilometres, set `"vertical_scale": 1000`.
 
-No lunar raster ships with this layer. Lunar reference profiles need a file from Layer 2
-(for example the PGDA south-polar products listed in the proposal).
+## Moon versus Earth, end to end
+
+`scripts/moon_vs_earth.py` fetches NASA's LOLA 5 m model of lunar south-polar Site01 (Connecting
+ridge) through Layer 2, cuts three Earth regions from GLO-30, and compares them at 30 m and coarser.
+
+| 30 m scale | slope mean | slope median | slope p90 | steeper than 15° | RMS height |
+|---|---|---|---|---|---|
+| Moon, Site01 Connecting ridge | 12.29° | 12.09° | 20.02° | 32.0 % | 0.86 m |
+| Earth, SP Crater lava field (16 km box) | 4.51° | 2.44° | 11.09° | 6.6 % | 0.63 m |
+| Earth, Imperial Valley cropland (control) | 0.47° | 0.22° | 0.93° | 0.0 % | 0.13 m |
+
+Taken as a whole 16 km box, the SP Crater area is much gentler than Connecting ridge: its
+30 m roughness is within tolerance but its slopes and relief are not. Screening the wider San
+Francisco Volcanic Field in 3 km patches against ranges derived from the lunar site keeps 5 of
+342 patches. That is the tool working as intended: a named analog region is not automatically a
+match, and the matching terrain is a small part of it.
+
+`scripts/validate_lunar_slope.py` compares Layer 3 slope with the slope raster NASA publishes
+alongside the same site (proposal Test 1).
 
 ## Method
 
@@ -128,7 +151,7 @@ Imperial Valley, California, as a deliberately unsuitable control. Result on GLO
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `TWGEO_DATA_DIR` | `./data` | Folder the API may read local rasters from |
+| `TWGEO_DATA_DIR` | `TERRAWINDOW_DATA_DIR`, else `backend/data` | The Layer 2 store; the API may read local rasters only from here |
 | `TWGEO_CACHE_DIR` | `<data dir>/cache` | Where API results are cached as JSON |
 | `TWGEO_CACHE` | `1` | Set `0` to disable the cache |
 | `TWGEO_CORS_ORIGINS` | `http://localhost:3000,http://127.0.0.1:3000` | Allowed browser origins |

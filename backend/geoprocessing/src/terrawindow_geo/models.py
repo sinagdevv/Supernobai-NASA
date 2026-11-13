@@ -58,7 +58,7 @@ class DatasetRef(BaseModel):
 
 class PatchRequest(BaseModel):
     dataset: DatasetRef
-    bbox: BBox
+    bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     scales_m: list[float] | None = Field(None, description="Analysis grid spacings in metres. Default: 30/60/120/240 where supported.")
     relief_windows_m: list[float] = [300.0, 1000.0]
     slope_thresholds_deg: list[float] = DEFAULT_SLOPE_THRESHOLDS
@@ -109,7 +109,7 @@ class ScreeningCriteria(BaseModel):
 
 class ScreenRequest(BaseModel):
     dataset: DatasetRef
-    bbox: BBox
+    bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     patch_size_m: float = Field(3000.0, gt=0)
     scale_m: float | None = Field(None, description="Analysis grid spacing. Default: the finest supported common scale (30 m for GLO-30).")
     criteria: ScreeningCriteria = ScreeningCriteria()
@@ -120,7 +120,7 @@ class ScreenRequest(BaseModel):
 
 class OverlayRequest(BaseModel):
     dataset: DatasetRef
-    bbox: BBox
+    bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     layer: Literal["slope", "hillshade", "elevation"] = "slope"
     scale_m: float | None = None
     sun_azimuth_deg: float = 315.0

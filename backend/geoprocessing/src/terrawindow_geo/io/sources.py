@@ -7,6 +7,7 @@ URIs the HTTP API is allowed to open.
 
 from __future__ import annotations
 
+import json
 import math
 from pathlib import Path
 from urllib.parse import urlparse
@@ -40,6 +41,25 @@ REGISTRY: dict[str, DatasetInfo] = {
         license="CC BY 4.0",
     ),
 }
+
+
+def stored_datasets() -> dict[str, dict]:
+    """Datasets Layer 2 has registered in the store's manifest.json (empty if there is none)."""
+    path = get_settings().data_dir / "manifest.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8")).get("datasets", {})
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def materialize(dataset: DatasetRef) -> DatasetRef:
+    """Fill in body and vertical scale for an id that Layer 2 registered in the store."""
+    if dataset.id is None or dataset.id in REGISTRY:
+        return dataset
+    record = stored_datasets().get(dataset.id)
+    if record is None:
+        return dataset
+    return dataset.model_copy(update={"body": record.get("body", dataset.body), "vertical_scale": record.get("vertical_scale", 1.0)})
 
 
 def _tiles(bbox: BBox, step: int) -> list[tuple[int, int]]:
@@ -98,11 +118,14 @@ def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
             raise GeoError("invalid_request", "dataset.uris is empty.")
         return list(dataset.uris)
     if dataset.id not in REGISTRY:
+        stored = stored_datasets()
+        if dataset.id in stored:
+            return [str((get_settings().data_dir / stored[dataset.id]["path"]).resolve())]
         raise GeoError(
             "dataset_not_found",
-            f"Unknown dataset id '{dataset.id}'.",
+            f"Unknown dataset id '{dataset.id}'. Built-in ids and datasets fetched by Layer 2 are accepted.",
             status=404,
-            details={"known_ids": sorted(REGISTRY)},
+            details={"known_ids": sorted([*REGISTRY, *stored])},
         )
     if bbox.crs != "geographic":
         raise GeoError("invalid_request", "Registry datasets need a geographic (lon/lat) bbox.")
@@ -110,11 +133,36 @@ def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
     return glo30_urls(padded) if dataset.id == GLO30 else worldcover_urls(padded)
 
 
+def resolve_bbox(dataset: DatasetRef, bbox: BBox | None) -> BBox:
+    """The requested bbox, or the full extent of a single-file dataset when none was given."""
+    if bbox is not None:
+        return bbox
+    if dataset.id in REGISTRY:
+        raise GeoError("invalid_request", f"'{dataset.id}' is a global dataset: a bbox is required.")
+    import rasterio
+    from rasterio.errors import RasterioIOError
+
+    from .raster import GDAL_ENV
+
+    uris = resolve_uris(dataset, BBox(west=0, south=0, east=1, north=1, crs="native"))
+    if len(uris) != 1:
+        raise GeoError("invalid_request", "A bbox is required when the dataset has more than one raster.")
+    try:
+        with rasterio.Env(**GDAL_ENV), rasterio.open(uris[0]) as ds:
+            b = ds.bounds
+    except RasterioIOError as exc:
+        raise GeoError("source_unavailable", "The source raster could not be opened.", status=404, details={"sources": [str(exc).splitlines()[0][:160]]}) from None
+    return BBox(west=b.left, south=b.bottom, east=b.right, north=b.top, crs="native")
+
+
 def describe(dataset: DatasetRef) -> tuple[str, str | None]:
     """(display name, citation) for provenance."""
     if dataset.id in REGISTRY:
         info = REGISTRY[dataset.id]
         return info.name, info.citation
+    record = stored_datasets().get(dataset.id) if dataset.id else None
+    if record:
+        return record.get("name", dataset.id), record.get("citation")
     return dataset.name or "User-supplied raster", None
 
 

@@ -27,13 +27,18 @@ type BBox = {
 };
 
 type DatasetRef =                    // exactly one of id / uri / uris
-  | { id: "copernicus-glo30"; body?: "earth" }
+  | { id: string }                   // "copernicus-glo30", or any id from GET /v1/datasets stored_datasets
   | { uri: string;  body?: "earth" | "moon" | "mars"; name?: string; vertical_scale?: number }
   | { uris: string[]; body?: "earth" | "moon" | "mars"; name?: string; vertical_scale?: number };
 ```
 
-`uri` is an `https://` GeoTIFF/COG, or a path relative to the engine's data folder
-(for example `"lunar/site.tif"`), which is where Layer 2 should drop prepared rasters.
+Prefer `id`. `GET /v1/datasets` returns `stored_datasets`: everything Layer 2 has fetched and
+validated (for example `lola-5mpp-site01`, `sp-crater-copernicus-glo30`), each with `body`,
+`ready`, `citation` and a `summary` (pixel size, extent, centre). For a stored id the body is
+known and `bbox` may be omitted to use the whole raster; `copernicus-glo30` is global and always
+needs a `bbox`.
+
+`uri` is an `https://` GeoTIFF/COG, or a path relative to the data store.
 
 ## POST /v1/patches/profile
 
@@ -116,8 +121,7 @@ Each side is either a patch request to compute or a `TerrainProfile` you already
 
 ```json
 {
-  "reference": { "dataset": { "uri": "lunar/site.tif", "body": "moon" },
-                 "bbox": { "west": -2000, "south": -2000, "east": 2000, "north": 2000, "crs": "native" } },
+  "reference": { "dataset": { "id": "lola-5mpp-site01" } },
   "candidate": { "dataset": { "id": "copernicus-glo30" },
                  "bbox": { "west": -111.67, "south": 35.55, "east": -111.59, "north": 35.62 } },
   "scales_m": [30, 60],

@@ -17,7 +17,7 @@ def _flag(name: str, default: bool) -> bool:
 
 @dataclass(frozen=True)
 class Settings:
-    # Local rasters requested through the API must live under this folder (Layer 2 drop zone).
+    # The Layer 2 data store. Local rasters requested through the API must live under it.
     data_dir: Path
     cache_dir: Path
     cache_enabled: bool
@@ -29,9 +29,20 @@ class Settings:
     max_screen_cells: int
 
 
+def _default_data_dir() -> Path:
+    """The store shared with Layer 2: TWGEO_DATA_DIR, else TERRAWINDOW_DATA_DIR, else backend/data."""
+    env = os.environ.get("TWGEO_DATA_DIR") or os.environ.get("TERRAWINDOW_DATA_DIR")
+    if env:
+        return Path(env).resolve()
+    backend = Path(__file__).resolve().parents[3]  # src/terrawindow_geo/config.py -> backend/
+    if backend.name == "backend":
+        return backend / "data"
+    return (Path.cwd() / "data").resolve()
+
+
 @lru_cache
 def get_settings() -> Settings:
-    data_dir = Path(os.environ.get("TWGEO_DATA_DIR", "data")).resolve()
+    data_dir = _default_data_dir()
     cache_dir = Path(os.environ.get("TWGEO_CACHE_DIR", str(data_dir / "cache"))).resolve()
     origins = os.environ.get("TWGEO_CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000")
     return Settings(

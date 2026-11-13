@@ -12,7 +12,7 @@ from .models import OverlayRequest, OverlayResponse
 from .profile import extract_dem, provenance
 from .scale import default_scales
 from .io.raster import native_pixel_size
-from .io.sources import resolve_uris
+from .io.sources import materialize, resolve_bbox, resolve_uris
 from .terrain.slope import hillshade, slope_aspect
 
 # Colour ramps as (position 0..1, R, G, B). Slope: pale yellow to dark red; elevation: green to white.
@@ -34,6 +34,8 @@ def _colorize(values: np.ndarray, lo: float, hi: float, ramp) -> np.ndarray:
 
 
 def render_overlay(request: OverlayRequest) -> OverlayResponse:
+    dataset = materialize(request.dataset)
+    request = request.model_copy(update={"dataset": dataset, "bbox": resolve_bbox(dataset, request.bbox)})
     scale = request.scale_m
     if scale is None:
         scale = default_scales(native_pixel_size(resolve_uris(request.dataset, request.bbox), request.bbox))[0]

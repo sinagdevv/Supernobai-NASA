@@ -10,7 +10,7 @@ from .. import __version__
 from ..cache import cached
 from ..compare import compare_profiles
 from ..discovery import screen_region
-from ..io.sources import REGISTRY, check_api_access, localize
+from ..io.sources import REGISTRY, check_api_access, localize, stored_datasets
 from ..models import (
     CompareRequest,
     ComparisonResult,
@@ -41,9 +41,19 @@ def health() -> dict[str, str]:
 
 @router.get("/v1/datasets", response_model=dict[str, Any], tags=["meta"])
 def datasets() -> dict[str, Any]:
-    """Built-in datasets, plus the analysis scales the engine uses by default."""
+    """Built-in datasets, datasets Layer 2 has put in the store, and the default analysis scales."""
+    stored = [
+        {
+            "id": key, "name": d.get("name", key), "body": d.get("body"), "kind": d.get("kind"),
+            "nominal_resolution_m": d.get("nominal_resolution_m"), "citation": d.get("citation"), "license": d.get("license"),
+            "ready": d.get("ready"), "summary": (d.get("validation") or {}).get("summary"), "region": d.get("region"),
+            "products": sorted(d.get("products", {})),
+        }
+        for key, d in stored_datasets().items()
+    ]
     return {
         "datasets": [d.model_dump() for d in REGISTRY.values()],
+        "stored_datasets": stored,
         "default_scales_m": COMMON_SCALES_M,
         "custom_sources": "Any GeoTIFF/COG via dataset.uri: an http(s) URL, or a path inside the engine's data folder.",
     }

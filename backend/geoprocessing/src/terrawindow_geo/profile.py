@@ -11,7 +11,7 @@ from . import landcover as lc
 from ._util import fnum, stats
 from .errors import GeoError
 from .io.raster import Patch, extract_patch, native_pixel_size
-from .io.sources import WORLDCOVER, describe, resolve_uris
+from .io.sources import WORLDCOVER, describe, materialize, resolve_bbox, resolve_uris, stored_datasets
 from .models import (
     BBox,
     DatasetRef,
@@ -50,8 +50,10 @@ BASE_LIMITATIONS = [
 ]
 
 
-def extract_dem(dataset: DatasetRef, bbox: BBox, scale_m: float | None = None) -> Patch:
+def extract_dem(dataset: DatasetRef, bbox: BBox | None = None, scale_m: float | None = None) -> Patch:
     """Elevation patch on a metric grid. Layer 4 can use this for horizon and shadow modelling."""
+    dataset = materialize(dataset)
+    bbox = resolve_bbox(dataset, bbox)
     uris = resolve_uris(dataset, bbox)
     return extract_patch(uris, bbox, body=dataset.body, resolution_m=scale_m, vertical_scale=dataset.vertical_scale)
 
@@ -81,7 +83,11 @@ def limitations(dataset: DatasetRef, patch: Patch) -> list[str]:
     out.insert(1, f"Source data has a native pixel size of about {patch.native_pixel_size_m:.0f} m.")
     if dataset.id == "copernicus-glo30":
         out.append("Copernicus GLO-30 is a surface model: vegetation and buildings raise elevations and add apparent roughness.")
-    if dataset.body != "earth":
+    record = stored_datasets().get(dataset.id) if dataset.id else None
+    for note in (record or {}).get("limitations", []):
+        if note not in out:
+            out.append(note)
+    if dataset.body != "earth" and not record:
         out.append("Interpolated or shadowed areas in planetary elevation models can look smoother than the real surface.")
     return out
 
@@ -105,7 +111,8 @@ def classes_unavailable(exc: GeoError):
 
 
 def build_profile(request: PatchRequest) -> TerrainProfile:
-    dataset, bbox = request.dataset, request.bbox
+    dataset = materialize(request.dataset)
+    bbox = resolve_bbox(dataset, request.bbox)
     uris = resolve_uris(dataset, bbox)
     native = native_pixel_size(uris, bbox)
     scales, skipped = choose_scales(request.scales_m, native)
