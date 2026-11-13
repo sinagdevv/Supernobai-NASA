@@ -101,7 +101,15 @@ Francisco Volcanic Field in 3 km patches against ranges derived from the lunar s
 match, and the matching terrain is a small part of it.
 
 `scripts/validate_lunar_slope.py` compares Layer 3 slope with the slope raster NASA publishes
-alongside the same site (proposal Test 1).
+alongside the same site (proposal Test 1). Over 10.2 million pixels at 5 m:
+
+| | mean | median | p90 |
+|---|---|---|---|
+| NASA published slope | 12.60° | 12.29° | 20.64° |
+| Layer 3 slope | 12.58° | 12.28° | 20.58° |
+
+Mean difference -0.03°, median absolute difference 0.10°, 95 % of pixels within 0.77°,
+correlation 0.998.
 
 ## Method
 
