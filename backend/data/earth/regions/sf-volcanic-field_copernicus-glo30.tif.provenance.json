@@ -1,0 +1,119 @@
+{
+  "dataset_id": "copernicus-glo30",
+  "dataset_name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data)",
+  "product": "surface",
+  "quantity": "elevation",
+  "unit": "metres",
+  "body": "earth",
+  "source_urls": [
+    "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N35_00_W112_00_DEM/Copernicus_DSM_COG_10_N35_00_W112_00_DEM.tif"
+  ],
+  "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+  "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+  "license": "Copernicus DEM licence: free of charge, attribution required.",
+  "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+  "retrieved_at": "2026-11-13T14:49:10+00:00",
+  "retrieved_by": "terrawindow-data/0.1.0",
+  "file": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
+  "bytes": 9031617,
+  "sha256": "b030f02c81c13ae1b04f6f927b1e99513854996f37d38928f2ba2c84bf62f1bd",
+  "validation": {
+    "ready": true,
+    "checks": [
+      {
+        "check": "readable",
+        "status": "pass",
+        "observed": "GTiff, 2340 x 1800, 1 band(s), float32",
+        "detail": ""
+      },
+      {
+        "check": "crs_present",
+        "status": "pass",
+        "observed": "WGS 84",
+        "detail": ""
+      },
+      {
+        "check": "body_matches",
+        "status": "pass",
+        "observed": 6378137.0,
+        "detail": ""
+      },
+      {
+        "check": "horizontal_unit",
+        "status": "pass",
+        "observed": "degrees",
+        "detail": ""
+      },
+      {
+        "check": "resolution_as_catalogued",
+        "status": "pass",
+        "observed": 30.922,
+        "detail": ""
+      },
+      {
+        "check": "nodata_declared",
+        "status": "warn",
+        "observed": null,
+        "detail": "No nodata value; voids cannot be told from data."
+      },
+      {
+        "check": "has_data",
+        "status": "pass",
+        "observed": 1.0,
+        "detail": ""
+      },
+      {
+        "check": "values_plausible_in_metres",
+        "status": "pass",
+        "observed": [
+          1306.17,
+          3845.55
+        ],
+        "detail": ""
+      }
+    ],
+    "summary": {
+      "pixel_size_m": 30.922,
+      "valid_fraction": 1.0,
+      "value_range": [
+        1306.17,
+        3845.55
+      ],
+      "crs": "EPSG:4326",
+      "width": 2340,
+      "height": 1800,
+      "dtype": "float32",
+      "nodata": null,
+      "bounds_native": [
+        -112.0,
+        35.25,
+        -111.35,
+        35.75
+      ],
+      "extent_km": [
+        58.91,
+        55.66
+      ],
+      "center_lonlat": [
+        -111.67514,
+        35.50014
+      ]
+    }
+  },
+  "limitations": [
+    "A surface model: vegetation and buildings are included in the heights.",
+    "About 30 m pixels do not resolve rover-scale obstacles.",
+    "Tiles over open ocean do not exist."
+  ],
+  "region": {
+    "name": "sf-volcanic-field",
+    "bbox_lonlat": [
+      -112.0,
+      35.25,
+      -111.35,
+      35.75
+    ]
+  },
+  "missing_tiles": [],
+  "processing": "Pixels copied on the source grid; no resampling."
+}

@@ -1,0 +1,120 @@
+{
+  "dataset_id": "copernicus-glo30",
+  "dataset_name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data)",
+  "product": "surface",
+  "quantity": "elevation",
+  "unit": "metres",
+  "body": "earth",
+  "source_urls": [
+    "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N32_00_W116_00_DEM/Copernicus_DSM_COG_10_N32_00_W116_00_DEM.tif",
+    "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N33_00_W116_00_DEM/Copernicus_DSM_COG_10_N33_00_W116_00_DEM.tif"
+  ],
+  "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+  "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+  "license": "Copernicus DEM licence: free of charge, attribution required.",
+  "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+  "retrieved_at": "2026-11-13T14:48:31+00:00",
+  "retrieved_by": "terrawindow-data/0.1.0",
+  "file": "earth/regions/imperial-valley_copernicus-glo30.tif",
+  "bytes": 837755,
+  "sha256": "6a4c1077a6fe025cc94db93e79cecd77a8c2d80aa8c87553adc778f75dbd22e2",
+  "validation": {
+    "ready": true,
+    "checks": [
+      {
+        "check": "readable",
+        "status": "pass",
+        "observed": "GTiff, 612 x 522, 1 band(s), float32",
+        "detail": ""
+      },
+      {
+        "check": "crs_present",
+        "status": "pass",
+        "observed": "WGS 84",
+        "detail": ""
+      },
+      {
+        "check": "body_matches",
+        "status": "pass",
+        "observed": 6378137.0,
+        "detail": ""
+      },
+      {
+        "check": "horizontal_unit",
+        "status": "pass",
+        "observed": "degrees",
+        "detail": ""
+      },
+      {
+        "check": "resolution_as_catalogued",
+        "status": "pass",
+        "observed": 30.922,
+        "detail": ""
+      },
+      {
+        "check": "nodata_declared",
+        "status": "warn",
+        "observed": null,
+        "detail": "No nodata value; voids cannot be told from data."
+      },
+      {
+        "check": "has_data",
+        "status": "pass",
+        "observed": 1.0,
+        "detail": ""
+      },
+      {
+        "check": "values_plausible_in_metres",
+        "status": "pass",
+        "observed": [
+          -55.31,
+          -0.37
+        ],
+        "detail": ""
+      }
+    ],
+    "summary": {
+      "pixel_size_m": 30.922,
+      "valid_fraction": 1.0,
+      "value_range": [
+        -55.31,
+        -0.37
+      ],
+      "crs": "EPSG:4326",
+      "width": 612,
+      "height": 522,
+      "dtype": "float32",
+      "nodata": null,
+      "bounds_native": [
+        -115.6,
+        32.86,
+        -115.43,
+        33.005
+      ],
+      "extent_km": [
+        15.88,
+        16.14
+      ],
+      "center_lonlat": [
+        -115.515,
+        32.9325
+      ]
+    }
+  },
+  "limitations": [
+    "A surface model: vegetation and buildings are included in the heights.",
+    "About 30 m pixels do not resolve rover-scale obstacles.",
+    "Tiles over open ocean do not exist."
+  ],
+  "region": {
+    "name": "imperial-valley",
+    "bbox_lonlat": [
+      -115.6,
+      32.86,
+      -115.43,
+      33.005
+    ]
+  },
+  "missing_tiles": [],
+  "processing": "Pixels copied on the source grid; no resampling."
+}

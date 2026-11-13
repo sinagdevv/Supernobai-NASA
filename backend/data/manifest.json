@@ -1,0 +1,494 @@
+{
+  "version": 1,
+  "datasets": {
+    "lola-5mpp-site01": {
+      "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif",
+      "name": "LOLA 5 m/pix south-pole site model: Connecting ridge (Site01)",
+      "body": "moon",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 5.0,
+      "citation": "Barker, M. K., et al. (2021). Improved LOLA elevation maps for south pole landing sites: Error estimates and their impact on illumination conditions. Planetary and Space Science, 203, 105119. https://doi.org/10.1016/j.pss.2020.105119",
+      "license": "NASA data, public domain; cite the dataset paper.",
+      "source_page": "https://pgda.gsfc.nasa.gov/products/78",
+      "vertical_datum": "Height above a 1737.4 km sphere, MOON_ME frame (DE421); south polar stereographic, metres.",
+      "products": {
+        "surface": {
+          "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif",
+          "quantity": "surface height above the 1737.4 km reference sphere",
+          "unit": "metres",
+          "sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e"
+        },
+        "slope": {
+          "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_slp.tif",
+          "quantity": "slope published with the dataset",
+          "unit": "degrees",
+          "sha256": "3a90035a4946b4a04b7332c52f0b2b1cff71648bd8c105e14d8a7e15c6bcfe8e"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 3200 x 3200, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "unnamed",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 1737400.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "metre",
+            "detail": ""
+          },
+          {
+            "check": "square_pixels",
+            "status": "pass",
+            "observed": [
+              5.0,
+              5.0
+            ],
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 5.0,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "pass",
+            "observed": NaN,
+            "detail": ""
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              -519.15,
+              1959.12
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 5.0,
+          "valid_fraction": 1.0,
+          "value_range": [
+            -519.15,
+            1959.12
+          ],
+          "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "width": 3200,
+          "height": 3200,
+          "dtype": "float32",
+          "nodata": NaN,
+          "bounds_native": [
+            -19000.0,
+            -20000.0,
+            -3000.0,
+            -4000.0
+          ],
+          "extent_km": [
+            16.0,
+            16.0
+          ],
+          "center_lonlat": [
+            -137.48955,
+            -89.46316
+          ]
+        }
+      },
+      "limitations": [
+        "Surface heights fill pixels with no laser return by interpolation; the counts product shows where.",
+        "Interpolated areas are smoother than the real surface, which lowers slope and roughness there.",
+        "5 m pixels do not resolve rover-scale rocks or small craters."
+      ],
+      "registered_at": "2026-11-13T14:56:34+00:00",
+      "site": {
+        "site": "Site01",
+        "place": "Connecting ridge"
+      }
+    },
+    "sp-crater-copernicus-glo30": {
+      "path": "earth/regions/sp-crater_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'sp-crater'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/sp-crater_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "e5c7daf214defcb02be2a4a2d8895bf45ca2d94a9a4306bf4e35433238bea7c2"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 648 x 522, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              1627.87,
+              2263.34
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            1627.87,
+            2263.34
+          ],
+          "crs": "EPSG:4326",
+          "width": 648,
+          "height": 522,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -111.72,
+            35.51,
+            -111.54,
+            35.655
+          ],
+          "extent_km": [
+            16.3,
+            16.14
+          ],
+          "center_lonlat": [
+            -111.63014,
+            35.58264
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "sp-crater",
+        "bbox_lonlat": [
+          -111.72,
+          35.51,
+          -111.54,
+          35.655
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T14:48:16+00:00"
+    },
+    "imperial-valley-copernicus-glo30": {
+      "path": "earth/regions/imperial-valley_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'imperial-valley'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/imperial-valley_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "6a4c1077a6fe025cc94db93e79cecd77a8c2d80aa8c87553adc778f75dbd22e2"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 612 x 522, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              -55.31,
+              -0.37
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            -55.31,
+            -0.37
+          ],
+          "crs": "EPSG:4326",
+          "width": 612,
+          "height": 522,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -115.6,
+            32.86,
+            -115.43,
+            33.005
+          ],
+          "extent_km": [
+            15.88,
+            16.14
+          ],
+          "center_lonlat": [
+            -115.515,
+            32.9325
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "imperial-valley",
+        "bbox_lonlat": [
+          -115.6,
+          32.86,
+          -115.43,
+          33.005
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T14:48:31+00:00"
+    },
+    "sf-volcanic-field-copernicus-glo30": {
+      "path": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'sf-volcanic-field'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "b030f02c81c13ae1b04f6f927b1e99513854996f37d38928f2ba2c84bf62f1bd"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 2340 x 1800, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              1306.17,
+              3845.55
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            1306.17,
+            3845.55
+          ],
+          "crs": "EPSG:4326",
+          "width": 2340,
+          "height": 1800,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -112.0,
+            35.25,
+            -111.35,
+            35.75
+          ],
+          "extent_km": [
+            58.91,
+            55.66
+          ],
+          "center_lonlat": [
+            -111.67514,
+            35.50014
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "sf-volcanic-field",
+        "bbox_lonlat": [
+          -112.0,
+          35.25,
+          -111.35,
+          35.75
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T14:49:10+00:00"
+    }
+  }
+}

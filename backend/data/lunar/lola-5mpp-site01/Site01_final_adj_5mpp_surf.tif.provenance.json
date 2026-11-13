@@ -1,0 +1,117 @@
+{
+  "dataset_id": "lola-5mpp-site01",
+  "dataset_name": "LOLA 5 m/pix south-pole site model: Connecting ridge (Site01)",
+  "product": "surface",
+  "quantity": "surface height above the 1737.4 km reference sphere",
+  "unit": "metres",
+  "body": "moon",
+  "source_urls": [
+    "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif"
+  ],
+  "source_page": "https://pgda.gsfc.nasa.gov/products/78",
+  "citation": "Barker, M. K., et al. (2021). Improved LOLA elevation maps for south pole landing sites: Error estimates and their impact on illumination conditions. Planetary and Space Science, 203, 105119. https://doi.org/10.1016/j.pss.2020.105119",
+  "license": "NASA data, public domain; cite the dataset paper.",
+  "vertical_datum": "Height above a 1737.4 km sphere, MOON_ME frame (DE421); south polar stereographic, metres.",
+  "retrieved_at": "2026-11-13T14:44:45+00:00",
+  "retrieved_by": "terrawindow-data/0.1.0",
+  "file": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif",
+  "bytes": 40980810,
+  "sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+  "validation": {
+    "ready": true,
+    "checks": [
+      {
+        "check": "readable",
+        "status": "pass",
+        "observed": "GTiff, 3200 x 3200, 1 band(s), float32",
+        "detail": ""
+      },
+      {
+        "check": "crs_present",
+        "status": "pass",
+        "observed": "unnamed",
+        "detail": ""
+      },
+      {
+        "check": "body_matches",
+        "status": "pass",
+        "observed": 1737400.0,
+        "detail": ""
+      },
+      {
+        "check": "horizontal_unit",
+        "status": "pass",
+        "observed": "metre",
+        "detail": ""
+      },
+      {
+        "check": "square_pixels",
+        "status": "pass",
+        "observed": [
+          5.0,
+          5.0
+        ],
+        "detail": ""
+      },
+      {
+        "check": "resolution_as_catalogued",
+        "status": "pass",
+        "observed": 5.0,
+        "detail": ""
+      },
+      {
+        "check": "nodata_declared",
+        "status": "pass",
+        "observed": NaN,
+        "detail": ""
+      },
+      {
+        "check": "has_data",
+        "status": "pass",
+        "observed": 1.0,
+        "detail": ""
+      },
+      {
+        "check": "values_plausible_in_metres",
+        "status": "pass",
+        "observed": [
+          -519.15,
+          1959.12
+        ],
+        "detail": ""
+      }
+    ],
+    "summary": {
+      "pixel_size_m": 5.0,
+      "valid_fraction": 1.0,
+      "value_range": [
+        -519.15,
+        1959.12
+      ],
+      "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "width": 3200,
+      "height": 3200,
+      "dtype": "float32",
+      "nodata": NaN,
+      "bounds_native": [
+        -19000.0,
+        -20000.0,
+        -3000.0,
+        -4000.0
+      ],
+      "extent_km": [
+        16.0,
+        16.0
+      ],
+      "center_lonlat": [
+        -137.48955,
+        -89.46316
+      ]
+    }
+  },
+  "limitations": [
+    "Surface heights fill pixels with no laser return by interpolation; the counts product shows where.",
+    "Interpolated areas are smoother than the real surface, which lowers slope and roughness there.",
+    "5 m pixels do not resolve rover-scale rocks or small craters."
+  ]
+}
