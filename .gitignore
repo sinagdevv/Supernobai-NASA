@@ -8,6 +8,7 @@ build/
 dist/
 
 # Layer 3 runtime data (rasters and cached results are not versioned)
+backend/data/
 backend/geoprocessing/data/
 *.tif
 *.tiff

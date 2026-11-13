@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terrawindow-data"
+version = "0.1.0"
+description = "TERRAWINDOW Layer 2: scientific data integration (catalog, retrieval, validation, provenance)"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.0",
+    "rasterio>=1.4",
+    "pyproj>=3.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+terrawindow-data = "terrawindow_data.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["network: needs internet access (deselected by default)"]
+addopts = "-m 'not network'"
