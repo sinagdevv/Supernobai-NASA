@@ -57,6 +57,8 @@ class DatasetRef(BaseModel):
 
 
 class PatchRequest(BaseModel):
+    model_config = {"json_schema_extra": {"examples": [{"dataset": {"id": "copernicus-glo30"}, "bbox": {"west": -111.67, "south": 35.55, "east": -111.59, "north": 35.62}, "scales_m": [30, 60]}]}}
+
     dataset: DatasetRef
     bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     scales_m: list[float] | None = Field(None, description="Analysis grid spacings in metres. Default: 30/60/120/240 where supported.")
@@ -108,6 +110,8 @@ class ScreeningCriteria(BaseModel):
 
 
 class ScreenRequest(BaseModel):
+    model_config = {"json_schema_extra": {"examples": [{"dataset": {"id": "copernicus-glo30"}, "bbox": {"west": -111.75, "south": 35.5, "east": -111.55, "north": 35.65}, "patch_size_m": 3000, "criteria": {"slope_mean_deg": {"max": 8}}}]}}
+
     dataset: DatasetRef
     bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     patch_size_m: float = Field(3000.0, gt=0)
@@ -119,6 +123,8 @@ class ScreenRequest(BaseModel):
 
 
 class OverlayRequest(BaseModel):
+    model_config = {"json_schema_extra": {"examples": [{"dataset": {"id": "copernicus-glo30"}, "bbox": {"west": -111.67, "south": 35.55, "east": -111.59, "north": 35.62}, "layer": "hillshade", "sun_azimuth_deg": 120, "sun_elevation_deg": 7}]}}
+
     dataset: DatasetRef
     bbox: BBox | None = Field(None, description="Omit to use the whole raster (single-file datasets only, e.g. a stored lunar site).")
     layer: Literal["slope", "hillshade", "elevation"] = "slope"
@@ -130,6 +136,8 @@ class OverlayRequest(BaseModel):
 
 class CompareRequest(BaseModel):
     """Give each side as a ready profile or as a patch request to compute."""
+
+    model_config = {"json_schema_extra": {"examples": [{"reference": {"dataset": {"id": "copernicus-glo30"}, "bbox": {"west": -111.67, "south": 35.55, "east": -111.59, "north": 35.62}}, "candidate": {"dataset": {"id": "copernicus-glo30"}, "bbox": {"west": -115.56, "south": 32.9, "east": -115.48, "north": 32.97}}, "scales_m": [30, 60]}]}}
 
     reference: PatchRequest | None = None
     reference_profile: "TerrainProfile | None" = None
