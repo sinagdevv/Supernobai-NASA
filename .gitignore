@@ -1,0 +1,25 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Layer 3 runtime data (rasters and cached results are not versioned)
+backend/geoprocessing/data/
+*.tif
+*.tiff
+*.aux.xml
+
+# Node / frontend
+node_modules/
+.next/
+
+# Local tooling
+.env
+.env.*
+.remember/
+.claude/
+.DS_Store
