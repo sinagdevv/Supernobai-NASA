@@ -13,7 +13,7 @@
   "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
   "license": "Copernicus DEM licence: free of charge, attribution required.",
   "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
-  "retrieved_at": "2026-11-13T14:48:31+00:00",
+  "retrieved_at": "2026-11-13T15:21:41+00:00",
   "retrieved_by": "terrawindow-data/0.1.0",
   "file": "earth/regions/imperial-valley_copernicus-glo30.tif",
   "bytes": 837755,

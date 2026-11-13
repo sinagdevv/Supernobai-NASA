@@ -124,7 +124,7 @@
         "Interpolated areas are smoother than the real surface, which lowers slope and roughness there.",
         "5 m pixels do not resolve rover-scale rocks or small craters."
       ],
-      "registered_at": "2026-11-13T14:56:34+00:00",
+      "registered_at": "2026-11-13T15:21:10+00:00",
       "site": {
         "site": "Site01",
         "place": "Connecting ridge"
@@ -248,7 +248,7 @@
         ],
         "parent_dataset": "copernicus-glo30"
       },
-      "registered_at": "2026-11-13T14:48:16+00:00"
+      "registered_at": "2026-11-13T15:21:23+00:00"
     },
     "imperial-valley-copernicus-glo30": {
       "path": "earth/regions/imperial-valley_copernicus-glo30.tif",
@@ -368,7 +368,7 @@
         ],
         "parent_dataset": "copernicus-glo30"
       },
-      "registered_at": "2026-11-13T14:48:31+00:00"
+      "registered_at": "2026-11-13T15:21:41+00:00"
     },
     "sf-volcanic-field-copernicus-glo30": {
       "path": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
@@ -488,7 +488,7 @@
         ],
         "parent_dataset": "copernicus-glo30"
       },
-      "registered_at": "2026-11-13T14:49:10+00:00"
+      "registered_at": "2026-11-13T15:22:14+00:00"
     }
   }
 }
