@@ -31,7 +31,7 @@ GDAL_ENV = dict(
 MAX_REGION_DEGREES = 3.0
 
 
-def prepare_region(dataset_id: str, name: str, west: float, south: float, east: float, north: float, *, sources: list[str] | None = None) -> dict:
+def prepare_region(dataset_id: str, name: str, west: float, south: float, east: float, north: float, *, sources: list[str] | None = None, reference: bool = False) -> dict:
     """Write backend/data/earth/regions/<name>_<dataset>.tif and register it as '<name>-<dataset>'.
 
     sources: override the tile URLs (used by tests with local files). Returns the manifest record.
@@ -83,7 +83,7 @@ def prepare_region(dataset_id: str, name: str, west: float, south: float, east: 
     used = [u for u in urls if u not in missing]
     prov = provenance_record(
         entry, product=entry.primary, quantity=entry.kind, unit="metres" if entry.kind == "elevation" else "class code",
-        source=used, path=path, validation=validation,
+        source=used, path=path, validation=validation, reference=reference,
         extra={"region": {"name": name, "bbox_lonlat": [west, south, east, north]}, "missing_tiles": missing,
                "processing": "Pixels copied on the source grid; no resampling."},
     )
@@ -104,6 +104,7 @@ def prepare_region(dataset_id: str, name: str, west: float, south: float, east: 
         "limitations": list(entry.limitations),
         "region": {"name": name, "bbox_lonlat": [west, south, east, north], "parent_dataset": entry.id},
         "registered_at": _now(),
+        "reference_check": prov.get("reference_check", {"status": "no_reference"}),
     }
-    register(region_id, record)
+    register(region_id, record, reference=reference)
     return {"id": region_id, **record}

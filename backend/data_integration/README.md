@@ -79,15 +79,35 @@ Default location `backend/data/` (not versioned). Override with `TERRAWINDOW_DAT
 
 ```
 backend/data/
-  manifest.json
-  lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif
-  lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif.provenance.json
-  earth/regions/sp-crater_copernicus-glo30.tif
-  earth/regions/sp-crater_copernicus-glo30.tif.provenance.json
+  manifest.json                                              reference index (version-controlled)
+  lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif.provenance.json   reference provenance (version-controlled)
+  lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif      the raster (never committed)
+  earth/regions/sp-crater_copernicus-glo30.tif               the raster (never committed)
+  local/manifest.json                                        this machine's registrations (not committed)
+  local/provenance/<path>.provenance.json                    this machine's retrieval records (not committed)
 ```
 
-Teammates rebuild the same store by running the same `fetch` and `region` commands; the SHA-256
-in each provenance file confirms they got identical data.
+Three kinds of file, kept apart:
+
+| Kind | Files | Changed by |
+|---|---|---|
+| Reference: what the dataset is and where it came from | `manifest.json`, `*.provenance.json` beside the rasters | only `--update-reference`, and visible in git |
+| Rasters | `*.tif` | `fetch`, `region` (git-ignored) |
+| Local state: validation result, timestamps, this machine's retrieval record | `local/` | every `fetch` and `region` (git-ignored) |
+
+So following the README on a fresh checkout leaves `git status` clean. `load_manifest()` returns the reference overlaid, per
+dataset id, by the local entries; Layer 3 reads that same merge. Whether a dataset is *usable* is decided by Layer 3 from the file
+itself (`terrawindow-geo check`), not from either manifest.
+
+Teammates rebuild the same store by running the same `fetch` and `region` commands. Each run is compared with the reference
+provenance (SHA-256, size, source URLs; timestamps never count) and prints one of:
+
+- `matches`: identical to the reference record.
+- `differs`: the file is not byte-identical to what the reference describes. It passed validation, but read the warning: for a
+  region cut locally, a different GDAL build can change the bytes of an identical pixel grid. The reference is left untouched.
+- `none yet`: the dataset is not in the reference. Add it with `--update-reference` when the whole team should have it.
+
+External stores (`TERRAWINDOW_DATA_DIR`) work the same way and simply have no reference until you create one.
 
 ## Manifest: the contract with Layer 3
 

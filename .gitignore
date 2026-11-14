@@ -9,6 +9,8 @@ dist/
 
 # Layer 3 runtime data (rasters and cached results are not versioned)
 backend/data/
+# Layer 2 local state (this machine's registrations and retrieval records); the reference manifest and provenance are tracked on purpose
+backend/data/local/
 backend/geoprocessing/data/
 *.tif
 *.tiff

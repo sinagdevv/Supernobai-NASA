@@ -61,9 +61,12 @@ npm ci
 npm run dev
 ```
 
-Fetching rewrites the tracked `manifest.json` and `*.provenance.json` files (timestamps, hashes). To keep your working tree clean
-while experimenting, set `TERRAWINDOW_DATA_DIR` to a folder outside the repository for both the `terrawindow-data` commands and the
-service. Rasters (`*.tif`) are never committed.
+Setting up data never dirties your working tree. `backend/data/manifest.json` and the `*.provenance.json` files beside the rasters are
+the **version-controlled reference** (what each dataset is, where it came from, its checksum). `terrawindow-data` writes what happens
+on your machine (validation result, timestamps) to `backend/data/local/`, which is not committed, and the service reads the two
+together. Each setup is compared with the reference and reports `matches` or `differs` (a different checksum is flagged, never
+overwritten). To change the reference on purpose, add `--update-reference`. Rasters (`*.tif`) are never committed. Set
+`TERRAWINDOW_DATA_DIR` to keep the whole store outside the repository.
 
 Check that the data is really there before using it:
 

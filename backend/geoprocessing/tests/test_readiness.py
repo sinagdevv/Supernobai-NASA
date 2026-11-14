@@ -110,3 +110,19 @@ def test_check_command_exit_codes(mixed, capsys):
     assert main(["check"]) == 0
     _store(mixed, {})
     assert main(["check"]) == 1  # an empty store is a setup problem, not a pass
+
+
+def test_the_service_reads_the_reference_manifest_overlaid_by_the_local_one(tmp_path, plane_tif):
+    """Layer 2 writes a normal setup to local/, so a dataset set up on this machine must be visible without touching the tracked manifest."""
+    from terrawindow_geo.io.sources import stored_datasets
+
+    base = {"name": "x", "body": "earth", "kind": "elevation", "ready": True}
+    _store(tmp_path, {"tracked": {**base, "path": "gone.tif"}, "both": {**base, "path": "gone.tif"}})
+    (tmp_path / "local").mkdir()
+    (tmp_path / "local" / "manifest.json").write_text(json.dumps({"version": 1, "datasets": {"here": {**base, "path": "plane.tif"}, "both": {**base, "path": "plane.tif"}}}))
+    merged = stored_datasets()
+    assert set(merged) == {"tracked", "both", "here"}
+    assert merged["both"]["path"] == "plane.tif"  # local replaces the reference entry of the same id
+    stored = {d["id"]: d for d in TestClient(create_app()).get("/v1/datasets").json()["stored_datasets"]}
+    assert stored["here"]["ready"] and stored["both"]["ready"] and not stored["tracked"]["ready"]
+    assert TestClient(create_app()).post("/v1/patches/profile", json={"dataset": {"id": "here"}, "scales_m": [30]}).status_code == 200

@@ -86,7 +86,9 @@ stores heights in kilometres, set `"vertical_scale": 1000`.
 ## Moon versus Earth, end to end
 
 `scripts/moon_vs_earth.py` fetches NASA's LOLA 5 m model of lunar south-polar Site01 (Connecting
-ridge) through Layer 2, cuts three Earth regions from GLO-30, and compares them at 30 m and coarser.
+ridge) through Layer 2, cuts three Earth regions from GLO-30, and compares them at 30 m and coarser. Results go to
+`backend/data/local/results/` (not committed). The committed `backend/data/results/` is the team's recorded run, behind the table
+below; update it deliberately with `--out backend/data/results`.
 
 | 30 m scale | slope mean | slope median | slope p90 | steeper than 15° | RMS height |
 |---|---|---|---|---|---|

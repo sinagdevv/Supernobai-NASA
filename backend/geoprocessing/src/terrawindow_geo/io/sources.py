@@ -44,13 +44,21 @@ REGISTRY: dict[str, DatasetInfo] = {
 }
 
 
-def stored_datasets() -> dict[str, dict]:
-    """Datasets Layer 2 has registered in the store's manifest.json (empty if there is none)."""
-    path = get_settings().data_dir / "manifest.json"
+def _manifest(path) -> dict[str, dict]:
     try:
         return json.loads(path.read_text(encoding="utf-8")).get("datasets", {})
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def stored_datasets() -> dict[str, dict]:
+    """Datasets in the Layer 2 store: the version-controlled manifest.json overlaid, per id, by local/manifest.json.
+
+    Layer 2 writes a normal setup to local/ so it never dirties a clean checkout, and this is the same merge its
+    load_manifest() performs. Layer 3 does not import Layer 2, so the few lines are repeated here on purpose.
+    """
+    root = get_settings().data_dir
+    return {**_manifest(root / "manifest.json"), **_manifest(root / "local" / "manifest.json")}
 
 
 def materialize(dataset: DatasetRef) -> DatasetRef:

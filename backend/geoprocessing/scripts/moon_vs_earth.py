@@ -2,7 +2,7 @@
 
 Layer 2 fetches and validates the data; Layer 3 profiles, compares and screens it.
 
-    python scripts/moon_vs_earth.py [--site lola-5mpp-site01] [--out <store>/results]
+    python scripts/moon_vs_earth.py [--site lola-5mpp-site01] [--out DIR]
 
 Reference : NASA LOLA 5 m/pix model of a lunar south-polar site (default Site01, Connecting ridge).
 Candidates: SP Crater lava field, Arizona (established analog) and Imperial Valley cropland,
@@ -61,7 +61,9 @@ def main() -> int:
     parser.add_argument("--site", default="lola-5mpp-site01")
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
-    out = Path(args.out) if args.out else data_dir() / "results"
+    # Default to the untracked local/ part of the store: the committed <store>/results are the team's recorded run, and a routine
+    # re-run must not overwrite them. Pass --out <store>/results to update that record on purpose.
+    out = Path(args.out) if args.out else data_dir() / "local" / "results"
     out.mkdir(parents=True, exist_ok=True)
 
     ensure_data(args.site)
