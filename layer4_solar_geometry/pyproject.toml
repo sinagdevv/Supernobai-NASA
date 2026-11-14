@@ -1,0 +1,16 @@
+[project]
+name = "rehearsal"
+version = "0.1.0"
+description = "TERRAWINDOW Layer 4: SPICE planetary solar geometry and terrain illumination"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pyproj>=3.6", "pyyaml", "spiceypy>=7.0.0", "tzdata>=2024.1"]
+
+[project.optional-dependencies]
+performance = ["numba>=0.59"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
