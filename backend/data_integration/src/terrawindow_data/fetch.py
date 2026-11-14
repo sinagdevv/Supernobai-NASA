@@ -10,7 +10,7 @@ from pathlib import Path
 
 from . import __version__
 from .catalog import CatalogEntry, get_entry
-from .store import data_dir, register, relative
+from .store import data_dir, provenance_path, read_provenance, register, relative
 from .validate import validate_raster
 
 USER_AGENT = f"terrawindow-data/{__version__}"
@@ -47,7 +47,26 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def provenance_record(entry: CatalogEntry, *, product: str, quantity: str, unit: str, source: list[str], path: Path, validation: dict, extra: dict | None = None) -> dict:
+# What must match for a local retrieval to be the same data as the reference record describes. Timestamps never count.
+REFERENCE_FIELDS = ("sha256", "bytes", "source_urls")
+
+
+def compare_to_reference(record: dict, reference: dict | None) -> dict:
+    """Is this retrieval the one the version-controlled provenance describes? Reported, never enforced.
+
+    `matches`: same checksum, size and sources. `differs`: at least one differs (for a region cut locally, a different GDAL build
+    can change the bytes of an identical pixel grid, so this is a flag to read, not an error). `no_reference`: nothing to compare to.
+    """
+    if reference is None:
+        return {"status": "no_reference"}
+    differing = [f for f in REFERENCE_FIELDS if record.get(f) != reference.get(f)]
+    if not differing:
+        return {"status": "matches"}
+    return {"status": "differs", "fields": differing, "reference_sha256": reference.get("sha256"), "reference_bytes": reference.get("bytes")}
+
+
+def provenance_record(entry: CatalogEntry, *, product: str, quantity: str, unit: str, source: list[str], path: Path, validation: dict, extra: dict | None = None, reference: bool = False) -> dict:
+    """Describe a retrieved file and write the record: under local/ by default, beside the raster (version-controlled) with reference=True."""
     record = {
         "dataset_id": entry.id,
         "dataset_name": entry.name,
@@ -69,15 +88,21 @@ def provenance_record(entry: CatalogEntry, *, product: str, quantity: str, unit:
         "limitations": list(entry.limitations),
     }
     record.update(extra or {})
-    path.with_name(path.name + ".provenance.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+    if not reference:
+        ref_path = provenance_path(record["file"], reference=True)
+        record["reference_check"] = compare_to_reference(record, json.loads(ref_path.read_text(encoding="utf-8")) if ref_path.exists() else None)
+    target = provenance_path(record["file"], reference=reference)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(record, indent=2), encoding="utf-8")
     return record
 
 
-def fetch_dataset(dataset_id: str, products: list[str] | None = None, *, force: bool = False, progress=None) -> dict:
+def fetch_dataset(dataset_id: str, products: list[str] | None = None, *, force: bool = False, progress=None, reference: bool = False) -> dict:
     """Download a file dataset, validate it, write provenance and register it in the manifest.
 
     products: which rasters to get (default: the primary one). Returns the manifest record.
-    Files already in the store with a provenance record are reused unless force=True.
+    Files already in the store with a provenance record (local or reference) are reused unless force=True.
+    Records go to the local, uncommitted part of the store; reference=True writes the version-controlled files instead.
     """
     entry = get_entry(dataset_id)
     if entry.access != "file":
@@ -95,14 +120,15 @@ def fetch_dataset(dataset_id: str, products: list[str] | None = None, *, force: 
     for key in wanted:
         product = available[key]
         path = folder / product.url.rsplit("/", 1)[1]
-        sidecar = path.with_name(path.name + ".provenance.json")
-        if path.exists() and sidecar.exists() and not force:
-            fetched[key] = json.loads(sidecar.read_text(encoding="utf-8"))
+        rel = relative(path)
+        known = read_provenance(rel)
+        if path.exists() and known is not None and not force:
+            fetched[key] = known
             continue
         download(product.url, path, progress=progress)
         kind = entry.kind if key == entry.primary else "derived"
         validation = validate_raster(str(path), body=entry.body, kind=kind, nominal_resolution_m=entry.nominal_resolution_m)
-        fetched[key] = provenance_record(entry, product=key, quantity=product.quantity, unit=product.unit, source=[product.url], path=path, validation=validation)
+        fetched[key] = provenance_record(entry, product=key, quantity=product.quantity, unit=product.unit, source=[product.url], path=path, validation=validation, reference=reference)
 
     # Keep products fetched on an earlier call.
     from .store import load_manifest
@@ -126,7 +152,8 @@ def fetch_dataset(dataset_id: str, products: list[str] | None = None, *, force: 
         "validation": primary["validation"],
         "limitations": list(entry.limitations),
         "registered_at": _now(),
+        "reference_check": primary.get("reference_check", {"status": "no_reference"}),
         **({"site": entry.extra} if entry.extra else {}),
     }
-    register(entry.id, record)
+    register(entry.id, record, reference=reference)
     return record

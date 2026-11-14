@@ -12,6 +12,7 @@ import math
 from pathlib import Path
 from urllib.parse import urlparse
 
+from .. import readiness
 from ..config import get_settings
 from ..errors import GeoError
 from ..models import BBox, DatasetInfo, DatasetRef
@@ -43,13 +44,21 @@ REGISTRY: dict[str, DatasetInfo] = {
 }
 
 
-def stored_datasets() -> dict[str, dict]:
-    """Datasets Layer 2 has registered in the store's manifest.json (empty if there is none)."""
-    path = get_settings().data_dir / "manifest.json"
+def _manifest(path) -> dict[str, dict]:
     try:
         return json.loads(path.read_text(encoding="utf-8")).get("datasets", {})
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def stored_datasets() -> dict[str, dict]:
+    """Datasets in the Layer 2 store: the version-controlled manifest.json overlaid, per id, by local/manifest.json.
+
+    Layer 2 writes a normal setup to local/ so it never dirties a clean checkout, and this is the same merge its
+    load_manifest() performs. Layer 3 does not import Layer 2, so the few lines are repeated here on purpose.
+    """
+    root = get_settings().data_dir
+    return {**_manifest(root / "manifest.json"), **_manifest(root / "local" / "manifest.json")}
 
 
 def materialize(dataset: DatasetRef) -> DatasetRef:
@@ -109,6 +118,10 @@ def _padded(bbox: BBox, frac: float = 0.05) -> BBox:
     )
 
 
+# availability status -> (error code, HTTP status)
+_UNAVAILABLE = {"missing": ("source_unavailable", 404), "unreadable": ("source_unreadable", 422), "not_validated": ("dataset_not_validated", 409)}
+
+
 def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
     """Turn a dataset reference into the list of raster URIs covering `bbox`."""
     if dataset.uri is not None:
@@ -120,6 +133,11 @@ def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
     if dataset.id not in REGISTRY:
         stored = stored_datasets()
         if dataset.id in stored:
+            verdict = readiness.check(dataset.id, stored[dataset.id])
+            if verdict["status"] != "available":
+                code, status = _UNAVAILABLE[verdict["status"]]
+                raise GeoError(code, f"Dataset '{dataset.id}' cannot be used: {verdict['detail']}", status=status,
+                               details={"dataset_id": dataset.id, "availability": verdict["status"], "setup": verdict["setup"]})
             return [str((get_settings().data_dir / stored[dataset.id]["path"]).resolve())]
         raise GeoError(
             "dataset_not_found",

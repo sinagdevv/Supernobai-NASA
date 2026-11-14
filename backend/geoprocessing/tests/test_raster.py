@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import rasterio
 from affine import Affine
+from rasterio.crs import CRS
 
 from conftest import UTM12N, box, utm_box, utm_grid, write_tif
 from terrawindow_geo.errors import GeoError
@@ -119,3 +120,61 @@ def test_patch_size_limit(plane_tif, monkeypatch):
 def test_native_pixel_size_from_metadata(plane_tif, geographic_tif):
     assert native_pixel_size([plane_tif], utm_box(0, 0, 10, 10)) == 10.0
     assert native_pixel_size([geographic_tif], box(**GEO_BOX)) == pytest.approx(30.9, abs=0.2)
+
+
+# ---------------------------------------------------------------- planetary grids that are not true-scale in metres
+
+
+def _mars_eqc():
+    return CRS.from_proj4("+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +R=3396190 +units=m +no_defs")
+
+
+def _eqc_plane(tmp_path, lat0, slope=0.1, n=120, res=463.0935415503709):
+    """Mars equirectangular grid (standard parallel 0, like the USGS MOLA mosaic) centred at lat0.
+    Height rises `slope` metres per metre of TRUE ground distance eastward, so the right answer is atan(slope) at any latitude."""
+    R = 3396190.0
+    x0 = R * math.radians(77.5) - n * res / 2
+    y0 = R * math.radians(lat0) + n * res / 2
+    transform = Affine(res, 0, x0, 0, -res, y0)
+    cc, rr = np.meshgrid(np.arange(n) + 0.5, np.arange(n) + 0.5)
+    x, y = transform @ (cc, rr)
+    lat = y / R  # radians
+    # ground east distance from the western edge: R cos(lat) d(lon), with lon = x / R
+    z = 1000 + slope * (x - x0) * np.cos(lat)
+    return write_tif(tmp_path / f"eqc_{lat0}.tif", z, transform, _mars_eqc(), dtype="float64")
+
+
+@pytest.mark.parametrize("lat0", [0.0, 18.4, 60.0])
+def test_equirectangular_mars_slope_is_true_ground_slope_at_any_latitude(tmp_path, lat0):
+    """Regression for the metre-unit trap: the 463 m pixel is only 463 m east-west on the equator."""
+    from terrawindow_geo.models import BBox, DatasetRef, PatchRequest
+    from terrawindow_geo.profile import build_profile
+
+    tif = _eqc_plane(tmp_path, lat0)
+    request = PatchRequest(dataset=DatasetRef(uri=tif, body="mars"), bbox=None, scales_m=[463.0935415503709 * 2])
+    profile = build_profile(request)
+    scale = profile.scales[0]
+    assert scale.status == "assessed"
+    assert scale.slope.stats.mean == pytest.approx(math.degrees(math.atan(0.1)), abs=0.25), (lat0, scale.slope.stats.mean)
+    # the working grid is a local azimuthal one on the Mars sphere, not the source projection, once the source is not true-scale
+    if lat0 > 0:
+        assert "Azimuthal_Equidistant" in profile.provenance.working_crs
+
+
+def test_native_pixel_size_reports_ground_spacing_not_projected_spacing(tmp_path):
+    from terrawindow_geo.io.raster import native_pixel_size
+    from terrawindow_geo.models import BBox
+
+    tif = _eqc_plane(tmp_path, 60.0)
+    native = native_pixel_size([tif], BBox(west=77.0, south=59.9, east=78.0, north=60.1))
+    # east-west ground spacing is 463 * cos(60) = 232 m, north-south is 463 m; the coarser axis is reported
+    assert native == pytest.approx(463.09, abs=1.0)
+
+
+def test_true_scale_projections_are_still_used_unchanged(plane_tif):
+    """The lunar polar stereographic tiles and UTM data keep their exact source grid (no resampling)."""
+    from terrawindow_geo.io.raster import extract_patch
+    from terrawindow_geo.models import BBox
+
+    patch = extract_patch([plane_tif], BBox(west=440200, south=3940000 - 1800, east=441800, north=3940000 - 200, crs="native"))
+    assert patch.resampling.startswith("exact copy")

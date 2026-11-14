@@ -1,0 +1,652 @@
+{
+  "version": 1,
+  "datasets": {
+    "lola-5mpp-site01": {
+      "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif",
+      "name": "LOLA 5 m/pix south-pole site model: Connecting ridge (Site01)",
+      "body": "moon",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 5.0,
+      "citation": "Barker, M. K., et al. (2021). Improved LOLA elevation maps for south pole landing sites: Error estimates and their impact on illumination conditions. Planetary and Space Science, 203, 105119. https://doi.org/10.1016/j.pss.2020.105119",
+      "license": "NASA data, public domain; cite the dataset paper.",
+      "source_page": "https://pgda.gsfc.nasa.gov/products/78",
+      "vertical_datum": "Height above a 1737.4 km sphere, MOON_ME frame (DE421); south polar stereographic, metres.",
+      "products": {
+        "surface": {
+          "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_surf.tif",
+          "quantity": "surface height above the 1737.4 km reference sphere",
+          "unit": "metres",
+          "sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e"
+        },
+        "slope": {
+          "path": "lunar/lola-5mpp-site01/Site01_final_adj_5mpp_slp.tif",
+          "quantity": "slope published with the dataset",
+          "unit": "degrees",
+          "sha256": "3a90035a4946b4a04b7332c52f0b2b1cff71648bd8c105e14d8a7e15c6bcfe8e"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 3200 x 3200, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "unnamed",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 1737400.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "metre",
+            "detail": ""
+          },
+          {
+            "check": "square_pixels",
+            "status": "pass",
+            "observed": [
+              5.0,
+              5.0
+            ],
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 5.0,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "pass",
+            "observed": NaN,
+            "detail": ""
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              -519.15,
+              1959.12
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 5.0,
+          "valid_fraction": 1.0,
+          "value_range": [
+            -519.15,
+            1959.12
+          ],
+          "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "width": 3200,
+          "height": 3200,
+          "dtype": "float32",
+          "nodata": NaN,
+          "bounds_native": [
+            -19000.0,
+            -20000.0,
+            -3000.0,
+            -4000.0
+          ],
+          "extent_km": [
+            16.0,
+            16.0
+          ],
+          "center_lonlat": [
+            -137.48955,
+            -89.46316
+          ]
+        }
+      },
+      "limitations": [
+        "Surface heights fill pixels with no laser return by interpolation; the counts product shows where.",
+        "Interpolated areas are smoother than the real surface, which lowers slope and roughness there.",
+        "5 m pixels do not resolve rover-scale rocks or small craters."
+      ],
+      "registered_at": "2026-11-13T15:21:10+00:00",
+      "site": {
+        "site": "Site01",
+        "place": "Connecting ridge"
+      }
+    },
+    "sp-crater-copernicus-glo30": {
+      "path": "earth/regions/sp-crater_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'sp-crater'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/sp-crater_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "e5c7daf214defcb02be2a4a2d8895bf45ca2d94a9a4306bf4e35433238bea7c2"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 648 x 522, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              1627.87,
+              2263.34
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            1627.87,
+            2263.34
+          ],
+          "crs": "EPSG:4326",
+          "width": 648,
+          "height": 522,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -111.72,
+            35.51,
+            -111.54,
+            35.655
+          ],
+          "extent_km": [
+            16.3,
+            16.14
+          ],
+          "center_lonlat": [
+            -111.63014,
+            35.58264
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "sp-crater",
+        "bbox_lonlat": [
+          -111.72,
+          35.51,
+          -111.54,
+          35.655
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T15:21:23+00:00"
+    },
+    "imperial-valley-copernicus-glo30": {
+      "path": "earth/regions/imperial-valley_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'imperial-valley'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/imperial-valley_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "6a4c1077a6fe025cc94db93e79cecd77a8c2d80aa8c87553adc778f75dbd22e2"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 612 x 522, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              -55.31,
+              -0.37
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            -55.31,
+            -0.37
+          ],
+          "crs": "EPSG:4326",
+          "width": 612,
+          "height": 522,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -115.6,
+            32.86,
+            -115.43,
+            33.005
+          ],
+          "extent_km": [
+            15.88,
+            16.14
+          ],
+          "center_lonlat": [
+            -115.515,
+            32.9325
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "imperial-valley",
+        "bbox_lonlat": [
+          -115.6,
+          32.86,
+          -115.43,
+          33.005
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T15:21:41+00:00"
+    },
+    "sf-volcanic-field-copernicus-glo30": {
+      "path": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
+      "name": "Copernicus DEM GLO-30 (public COGs on AWS Open Data): region 'sf-volcanic-field'",
+      "body": "earth",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 30.0,
+      "citation": "European Space Agency (2024). Copernicus Global Digital Elevation Model. Distributed by OpenTopography. https://doi.org/10.5069/G9028PQB",
+      "license": "Copernicus DEM licence: free of charge, attribution required.",
+      "source_page": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "vertical_datum": "Orthometric height, EGM2008 geoid; WGS84 geographic grid.",
+      "products": {
+        "surface": {
+          "path": "earth/regions/sf-volcanic-field_copernicus-glo30.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "b030f02c81c13ae1b04f6f927b1e99513854996f37d38928f2ba2c84bf62f1bd"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 2340 x 1800, 1 band(s), float32",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "WGS 84",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 6378137.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "degrees",
+            "detail": ""
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 30.922,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              1306.17,
+              3845.55
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 30.922,
+          "valid_fraction": 1.0,
+          "value_range": [
+            1306.17,
+            3845.55
+          ],
+          "crs": "EPSG:4326",
+          "width": 2340,
+          "height": 1800,
+          "dtype": "float32",
+          "nodata": null,
+          "bounds_native": [
+            -112.0,
+            35.25,
+            -111.35,
+            35.75
+          ],
+          "extent_km": [
+            58.91,
+            55.66
+          ],
+          "center_lonlat": [
+            -111.67514,
+            35.50014
+          ]
+        }
+      },
+      "limitations": [
+        "A surface model: vegetation and buildings are included in the heights.",
+        "About 30 m pixels do not resolve rover-scale obstacles.",
+        "Tiles over open ocean do not exist."
+      ],
+      "region": {
+        "name": "sf-volcanic-field",
+        "bbox_lonlat": [
+          -112.0,
+          35.25,
+          -111.35,
+          35.75
+        ],
+        "parent_dataset": "copernicus-glo30"
+      },
+      "registered_at": "2026-11-13T15:22:14+00:00"
+    },
+    "jezero-mola-megdr128": {
+      "path": "mars/regions/jezero_mola-megdr128.tif",
+      "name": "MGS MOLA MEGDR topography, 128 pixels/degree (463 m), PDS4: region 'jezero'",
+      "body": "mars",
+      "kind": "elevation",
+      "vertical_scale": 1.0,
+      "nominal_resolution_m": 463.06,
+      "citation": "Smith, D. E., Zuber, M. T., Neumann, G. A., Guinness, E. A., & Slavney, S. (2003). Mars Global Surveyor Laser Altimeter Mission Experiment Gridded Data Record, MGS-M-MOLA-5-MEGDR-L3-V1.0. NASA Planetary Data System (PDS4 bundle urn:nasa:pds:mgs_mola_topography_derived). Instrument: Smith, D. E., et al. (2001). Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars. Journal of Geophysical Research, 106(E10), 23689-23722. https://doi.org/10.1029/2000JE001364",
+      "license": "NASA data, public domain; cite the PDS dataset and Smith et al. (2001).",
+      "source_page": "https://pds-geosciences.wustl.edu/missions/mgs/megdr.html",
+      "vertical_datum": "Topography in metres: planetary radius minus the MOLA areoid radius (a gravity equipotential surface, degree and order 50); planetocentric, east-positive, IAU 2000; simple cylindrical (equirectangular) projection on a 3,396 km sphere.",
+      "products": {
+        "surface": {
+          "path": "mars/regions/jezero_mola-megdr128.tif",
+          "quantity": "elevation",
+          "unit": "metres",
+          "sha256": "1d686bfbb4a5bdd87779f0a7809998a279564033d4b3096489d34f4e1f9e62f3"
+        }
+      },
+      "ready": true,
+      "validation": {
+        "ready": true,
+        "checks": [
+          {
+            "check": "readable",
+            "status": "pass",
+            "observed": "GTiff, 282 x 256, 1 band(s), int16",
+            "detail": ""
+          },
+          {
+            "check": "crs_present",
+            "status": "pass",
+            "observed": "Equirectangular Mars",
+            "detail": ""
+          },
+          {
+            "check": "body_matches",
+            "status": "pass",
+            "observed": 3396000.0,
+            "detail": ""
+          },
+          {
+            "check": "horizontal_unit",
+            "status": "pass",
+            "observed": "metre",
+            "detail": ""
+          },
+          {
+            "check": "square_pixels",
+            "status": "pass",
+            "observed": [
+              463.0577,
+              463.0577
+            ],
+            "detail": ""
+          },
+          {
+            "check": "ground_scale",
+            "status": "warn",
+            "observed": [
+              1.0539,
+              1.0
+            ],
+            "detail": "The projection is not true-scale here: a pixel covers 439 x 463 m on the ground. Layer 3 resamples onto a local metric grid."
+          },
+          {
+            "check": "resolution_as_catalogued",
+            "status": "pass",
+            "observed": 463.058,
+            "detail": ""
+          },
+          {
+            "check": "nodata_declared",
+            "status": "warn",
+            "observed": null,
+            "detail": "No nodata value; voids cannot be told from data."
+          },
+          {
+            "check": "has_data",
+            "status": "pass",
+            "observed": 1.0,
+            "detail": ""
+          },
+          {
+            "check": "values_plausible_in_metres",
+            "status": "pass",
+            "observed": [
+              -3466.0,
+              -514.0
+            ],
+            "detail": ""
+          }
+        ],
+        "summary": {
+          "pixel_size_m": 463.058,
+          "ground_pixel_size_m": [
+            439.37,
+            463.06
+          ],
+          "valid_fraction": 1.0,
+          "value_range": [
+            -3466.0,
+            -514.0
+          ],
+          "crs": "PROJCS[\"Equirectangular Mars\",GEOGCS[\"GCS_Mars\",DATUM[\"D_Mars\",SPHEROID[\"Mars\",3396000,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",180],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+          "width": 282,
+          "height": 256,
+          "dtype": "int16",
+          "nodata": null,
+          "bounds_native": [
+            -6140607.724,
+            1031692.483,
+            -6010025.462,
+            1150235.246
+          ],
+          "extent_km": [
+            130.58,
+            118.54
+          ],
+          "center_lonlat": [
+            77.5,
+            18.40625
+          ]
+        }
+      },
+      "limitations": [
+        "Each pixel is the median of the laser shots in a 1/128 degree bin; where a bin holds no shot the producer interpolated a value (PDS: about 55 % of bins near the equator hold at least one shot, with gaps up to 12 km between ground tracks), so slopes there are smoothed. There is no void value: interpolated pixels cannot be told from measured ones.",
+        "463 m pixels cannot resolve rover-scale slopes, rocks, or wheel traction; metrics describe regional terrain only.",
+        "Vertical: about 40 cm resolution; the PDS catalog estimates about 30 m absolute long-wavelength radial orbit error and about 400 m ground-spot location uncertainty at 400 km range. USGS puts the total elevation uncertainty at no better than 3 m (areoid error included).",
+        "The equirectangular pixel is only 463 m east-west on the equator (463 m x cos(latitude) on the ground); Layer 3 resamples it onto a local metric grid.",
+        "Not the USGS Astropedia 463 m mosaic: that product is a half-pixel-shifted, 2 x 2-averaged resampling of this data and is smoother."
+      ],
+      "details": {
+        "instrument": "Mars Orbiter Laser Altimeter (MOLA), Mars Global Surveyor",
+        "product_type": "MEGDR median topography ('megt'), 128 pixels/degree, one PDS4 product per 44 x 90 degree tile",
+        "pds3_dataset_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0",
+        "pds4_bundle": "urn:nasa:pds:mgs_mola_topography_derived",
+        "pds4_product_example": "urn:nasa:pds:mgs_mola_topography_derived:data_meg128:megt44n000hb (version 1.1)",
+        "pds_archive": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/",
+        "acquired": "MOLA mapping and extended mission to 2001-06-30 (product label: 1997-09-15 to 2001-06-30); product created 2003",
+        "processing": "Crossover-adjusted PEDR shots binned to 1/128 degree; areoid from the Goddard Mars potential model GMM3 (mgm1025), degree and order 50 (per the product label).",
+        "storage": "big-endian int16 metres, no nodata, read through the PDS4 label (GDAL PDS4 driver)"
+      },
+      "region": {
+        "name": "jezero",
+        "bbox_lonlat": [
+          76.4,
+          17.4,
+          78.6,
+          19.4
+        ],
+        "parent_dataset": "mola-megdr128"
+      },
+      "registered_at": "2026-11-14T13:13:16+00:00",
+      "reference_check": {
+        "status": "no_reference"
+      }
+    }
+  }
+}

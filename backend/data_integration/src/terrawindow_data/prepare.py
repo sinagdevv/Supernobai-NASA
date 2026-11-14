@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 
 import numpy as np
+import pyproj
 import rasterio
 from rasterio.errors import RasterioIOError
 from rasterio.merge import merge
@@ -23,7 +24,7 @@ from .validate import validate_raster
 GDAL_ENV = dict(
     AWS_NO_SIGN_REQUEST="YES",
     GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR",
-    CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif,.tiff,.TIF",
+    CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif,.tiff,.TIF,.xml,.img",
     GDAL_HTTP_MAX_RETRY="3",
     GDAL_HTTP_RETRY_DELAY="1",
     GDAL_HTTP_TIMEOUT="30",
@@ -31,7 +32,7 @@ GDAL_ENV = dict(
 MAX_REGION_DEGREES = 3.0
 
 
-def prepare_region(dataset_id: str, name: str, west: float, south: float, east: float, north: float, *, sources: list[str] | None = None) -> dict:
+def prepare_region(dataset_id: str, name: str, west: float, south: float, east: float, north: float, *, sources: list[str] | None = None, reference: bool = False) -> dict:
     """Write backend/data/earth/regions/<name>_<dataset>.tif and register it as '<name>-<dataset>'.
 
     sources: override the tile URLs (used by tests with local files). Returns the manifest record.
@@ -58,12 +59,17 @@ def prepare_region(dataset_id: str, name: str, west: float, south: float, east: 
             raise FileNotFoundError(f"No {dataset_id} tile covers this region (open ocean, or the source is unreachable).")
         try:
             first = opened[0]
+            left, bottom, right, top = west, south, east, north
+            if first.crs is not None and first.crs.is_projected:  # lon/lat -> the source's own coordinates (e.g. the Mars equirectangular tiles)
+                src_crs = pyproj.CRS.from_wkt(first.crs.to_wkt())
+                to_src = pyproj.Transformer.from_crs(src_crs.geodetic_crs, src_crs, always_xy=True)
+                left, bottom, right, top = to_src.transform_bounds(west, south, east, north, densify_pts=21)
             if len(opened) == 1:
-                window = from_bounds(west, south, east, north, first.transform).round_offsets().round_lengths()
+                window = from_bounds(left, bottom, right, top, first.transform).round_offsets().round_lengths()
                 data = first.read(1, window=window, boundless=True, fill_value=first.nodata or 0)[np.newaxis]
                 transform = first.window_transform(window)
             else:
-                data, transform = merge(opened, bounds=(west, south, east, north))
+                data, transform = merge(opened, bounds=(left, bottom, right, top))
             profile = dict(
                 driver="GTiff", height=data.shape[1], width=data.shape[2], count=1, dtype=data.dtype,
                 crs=first.crs, transform=transform, nodata=first.nodata, compress="deflate", tiled=True,
@@ -83,9 +89,9 @@ def prepare_region(dataset_id: str, name: str, west: float, south: float, east: 
     used = [u for u in urls if u not in missing]
     prov = provenance_record(
         entry, product=entry.primary, quantity=entry.kind, unit="metres" if entry.kind == "elevation" else "class code",
-        source=used, path=path, validation=validation,
+        source=used, path=path, validation=validation, reference=reference,
         extra={"region": {"name": name, "bbox_lonlat": [west, south, east, north]}, "missing_tiles": missing,
-               "processing": "Pixels copied on the source grid; no resampling."},
+               "processing": "Pixels copied on the source grid; no resampling.", **({"details": entry.extra["details"]} if entry.extra.get("details") else {})},
     )
     record = {
         "path": prov["file"],
@@ -102,8 +108,10 @@ def prepare_region(dataset_id: str, name: str, west: float, south: float, east: 
         "ready": validation["ready"],
         "validation": validation,
         "limitations": list(entry.limitations),
+        **({"details": entry.extra["details"]} if entry.extra.get("details") else {}),
         "region": {"name": name, "bbox_lonlat": [west, south, east, north], "parent_dataset": entry.id},
         "registered_at": _now(),
+        "reference_check": prov.get("reference_check", {"status": "no_reference"}),
     }
-    register(region_id, record)
+    register(region_id, record, reference=reference)
     return {"id": region_id, **record}

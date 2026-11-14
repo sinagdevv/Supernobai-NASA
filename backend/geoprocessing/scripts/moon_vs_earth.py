@@ -2,7 +2,7 @@
 
 Layer 2 fetches and validates the data; Layer 3 profiles, compares and screens it.
 
-    python scripts/moon_vs_earth.py [--site lola-5mpp-site01] [--out <store>/results]
+    python scripts/moon_vs_earth.py [--site lola-5mpp-site01] [--out DIR]
 
 Reference : NASA LOLA 5 m/pix model of a lunar south-polar site (default Site01, Connecting ridge).
 Candidates: SP Crater lava field, Arizona (established analog) and Imperial Valley cropland,
@@ -32,13 +32,18 @@ REGIONS = {
 }
 
 
+def present(stored: dict, dataset_id: str) -> bool:
+    """Listed in the manifest AND its raster is on disk: on a fresh checkout the reference manifest lists datasets whose rasters are not there yet."""
+    return dataset_id in stored and (data_dir() / stored[dataset_id]["path"]).is_file()
+
+
 def ensure_data(site: str) -> None:
     stored = load_manifest()["datasets"]
-    if site not in stored:
+    if not present(stored, site):
         print(f"fetching {site} ...")
         fetch_dataset(site)
     for name, bbox in REGIONS.items():
-        if f"{name}-copernicus-glo30" not in stored:
+        if not present(stored, f"{name}-copernicus-glo30"):
             print(f"cutting region {name} from Copernicus GLO-30 ...")
             prepare_region("copernicus-glo30", name, *bbox)
 
@@ -61,7 +66,9 @@ def main() -> int:
     parser.add_argument("--site", default="lola-5mpp-site01")
     parser.add_argument("--out", default=None)
     args = parser.parse_args()
-    out = Path(args.out) if args.out else data_dir() / "results"
+    # Default to the untracked local/ part of the store: the committed <store>/results are the team's recorded run, and a routine
+    # re-run must not overwrite them. Pass --out <store>/results to update that record on purpose.
+    out = Path(args.out) if args.out else data_dir() / "local" / "results"
     out.mkdir(parents=True, exist_ok=True)
 
     ensure_data(args.site)

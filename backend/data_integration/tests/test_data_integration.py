@@ -138,7 +138,7 @@ def test_fetch_validates_records_provenance_and_registers(fake_download, isolate
     assert record["body"] == "moon" and record["ready"] and set(record["products"]) == {"surface", "uncertainty"}
 
     surface = isolated_store / record["path"]
-    prov = json.loads((surface.parent / (surface.name + ".provenance.json")).read_text())
+    prov = store.read_provenance(record["path"])  # a normal setup writes local provenance, not the version-controlled sidecar
     assert prov["source_urls"] == ["https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/Site01/Site01_final_adj_5mpp_surf.tif"]
     assert prov["sha256"] == fetch.sha256_of(surface) and prov["bytes"] == surface.stat().st_size
     assert "Barker" in prov["citation"] and prov["retrieved_at"] and prov["validation"]["ready"] and prov["limitations"]
@@ -213,7 +213,7 @@ def test_region_is_cut_on_the_source_grid_and_registered(earth_tiles, isolated_s
         assert (z[:, :50] == 100).all() and (z[:, 50:] == 200).all()  # values copied, not resampled
     stored = store.load_manifest()["datasets"]["test-site-copernicus-glo30"]
     assert stored["region"]["bbox_lonlat"] == [10.05, 50.02, 10.15, 50.08] and stored["body"] == "earth"
-    prov = json.loads((isolated_store / (record["path"] + ".provenance.json")).read_text())
+    prov = store.read_provenance(record["path"])
     assert prov["source_urls"] == [west, east] and prov["missing_tiles"] == ["missing.tif"] and "no resampling" in prov["processing"]
 
 

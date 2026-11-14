@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#101318" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="TERRAWINDOW — Mission-specific Earth analog discovery and rehearsal planning. A NASA Space Apps Challenge prototype (frontend demonstration, illustrative data)." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>TERRAWINDOW — Earth analog discovery &amp; rehearsal planning</title>
+    <!-- First paint already matches what follows (the intro's ink, or the app's), so nothing flashes before the stylesheet and scripts arrive. -->
+    <style id="boot-bg">html { background: #101318 }</style>
+    <script>
+      try {
+        if (!sessionStorage.getItem('tw-intro-seen') && !/^#\/app\//.test(location.hash)) document.getElementById('boot-bg').textContent = 'html { background: #0b0e12 }'
+      } catch (e) { /* storage blocked: keep the app colour */ }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
