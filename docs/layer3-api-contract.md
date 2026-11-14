@@ -17,6 +17,14 @@ Calls that read remote tiles take 5-20 s the first time and are served from a di
 | `POST /v1/patches/compare` | Comparison Dashboard | `ComparisonResult` |
 | `POST /v1/discovery/screen` | Earth Analog Explorer | GeoJSON `FeatureCollection` |
 | `POST /v1/patches/overlay` | map layers | PNG (base64) + corner coordinates |
+| `GET /v1/suitability/metrics` | mission-planning UI | supported Layer 3/4 metrics, units, and statuses |
+| `POST /v1/suitability/assess` | mission-planning UI | evidence-linked Layer 5 assessment |
+
+Layer 5 builds a real Layer 3 profile from the candidate request and can consume
+a caller-supplied serialized Layer 4 result; it does not recalculate Layer 4
+science. See [Layer 5 documentation](./LAYER5_DOCUMENTATION.md) for the request,
+metric catalog, assessment rules, evidence contract, and limitations. No
+frontend implementation is currently present in this repository.
 
 ## Shared request types
 
@@ -105,7 +113,7 @@ type TerrainProfile = {
     grid_shape: [number, number];
     slope: null | {
       unit: "degrees"; baseline_m: number; stats: Stats; rms_slope_deg: number | null;
-      fraction_steeper_than: Record<string, number>;          // key = threshold in degrees, e.g. "15"
+      fraction_steeper_than: Record<string, number | null>;   // null when no valid slope samples exist
       histogram: { bin_edges_deg: number[]; fractions: number[] };  // 1-degree bins, 0-90
     };
     roughness: null | { unit: "metres"; window_m: number; rms_height_m: Stats; tri_m: Stats };
@@ -132,6 +140,8 @@ type Provenance = {
 UI notes:
 - When `scales[i].status` is `insufficient_coverage`, `slope` and `roughness` are `null`. Show
   "not enough data", not zero.
+- A `null` `fraction_steeper_than` value means no valid slope samples were available; a numeric
+  `0` means valid samples were evaluated and none exceeded the threshold.
 - `skipped` explains anything missing (a scale finer than the data, a patch too small for a scale).
 - Plot the slope histogram from `bin_edges_deg` / `fractions`. Only overlay two sites' histograms
   when their `scale_m` matches.

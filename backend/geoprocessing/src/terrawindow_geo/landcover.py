@@ -28,7 +28,13 @@ def summarize(classes: np.ndarray, rule: LandCoverRule | None = None, dataset: s
     total = classes.size
     if codes.size == 0:
         return LandCoverSummary(
-            dataset=dataset, valid_fraction=0.0, classes=[], dominant_class=None, reason="No land-cover data over this patch."
+            dataset=dataset,
+            valid_fraction=0.0,
+            classes=[],
+            dominant_class=None,
+            reason="No land-cover data over this patch.",
+            valid_cell_count=0,
+            total_cell_count=int(total),
         )
     values, counts = np.unique(codes, return_counts=True)
     fractions = counts / codes.size
@@ -42,9 +48,19 @@ def summarize(classes: np.ndarray, rule: LandCoverRule | None = None, dataset: s
         valid_fraction=round(codes.size / total, 4),
         classes=listed,
         dominant_class=listed[0].code,
+        valid_cell_count=int(codes.size),
+        total_cell_count=int(total),
     )
     if rule is not None:
-        excluded = float(sum(c.fraction for c in listed if c.code in rule.excluded_classes))
+        excluded_count = int(
+            sum(
+                count
+                for code, count in zip(values, counts)
+                if int(code) in rule.excluded_classes
+            )
+        )
+        excluded = excluded_count / codes.size
+        summary.excluded_cell_count = excluded_count
         summary.excluded_fraction = round(excluded, 4)
         if excluded > rule.max_excluded_fraction:
             worst = max((c for c in listed if c.code in rule.excluded_classes), key=lambda c: c.fraction)

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-model href="https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1N00.sch" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+
+<Product_Collection xmlns="http://pds.nasa.gov/pds4/pds/v1" 
+  xmlns:pds="http://pds.nasa.gov/pds4/pds/v1" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://pds.nasa.gov/pds4/pds/v1 https://pds.nasa.gov/pds4/pds/v1/PDS4_PDS_1N00.xsd">
+  
+  <Identification_Area>
+    <logical_identifier>urn:nasa:pds:mgs_mola_topography_derived:data_meg032</logical_identifier>
+    <version_id>2.0</version_id>
+    <title>MGS MOLA Mission Experiment Gridded Data Record (MEGDR) Map Data - 32 pixels per degree</title>
+    <information_model_version>1.23.0.0</information_model_version>
+    <product_class>Product_Collection</product_class>
+    <Citation_Information>
+      <publication_year>2026</publication_year>
+      <description>Data Collection for the migrated MOLA Topography PDS4 bundle - MEGDR data products at 32 pixels per degree.</description>
+      <List_Author>
+        <Person>
+          <contributor_type>Producer</contributor_type>
+          <given_name>David E.</given_name>
+          <family_name>Smith</family_name>
+          <Affiliation>
+            <organization_name>Goddard Space Flight Center, MOLA Team</organization_name>
+          </Affiliation>
+        </Person>
+        <Person>
+          <contributor_type>DataCurator</contributor_type>
+          <given_name>Madison N.</given_name>
+          <family_name>Hughes</family_name>
+          <Affiliation>
+            <organization_name>Washington University in St. Louis</organization_name>
+          </Affiliation>
+        </Person>
+      </List_Author>
+    </Citation_Information>
+    <Modification_History>
+      <Modification_Detail>
+        <modification_date>2026-08-25</modification_date>
+        <version_id>1.0</version_id>
+        <description>Initial PDS4 version</description>
+      </Modification_Detail>
+      <Modification_Detail>
+        <modification_date>2026-09-15</modification_date>
+        <version_id>2.0</version_id>
+        <description>Inventory updated for 3 revised member product label(s): 3 had swapped cart:pixel_resolution and cart:pixel_scale values corrected. No products added or removed.</description>
+      </Modification_Detail>
+    </Modification_History>
+  </Identification_Area>
+<Context_Area>
+  <Time_Coordinates>
+    <start_date_time>1997-09-15T19:10:00.000Z</start_date_time>
+    <stop_date_time>2001-06-30T11:10:40.000Z</stop_date_time>
+  </Time_Coordinates>
+  <Primary_Result_Summary>
+    <purpose>Science</purpose>
+    <processing_level>Derived</processing_level>
+    <Science_Facets>
+      <discipline_name>Geosciences</discipline_name>
+    </Science_Facets>
+  </Primary_Result_Summary>
+  <Investigation_Area>
+    <name>Mars Global Surveyor</name>
+    <type>Mission</type>
+    <Internal_Reference>
+      <lid_reference>urn:nasa:pds:context:investigation:mission.mars_global_surveyor</lid_reference>
+      <reference_type>collection_to_investigation</reference_type>
+    </Internal_Reference>
+  </Investigation_Area>
+  <Observing_System>
+    <name>MOLA</name>
+    <Observing_System_Component>
+      <name>MARS GLOBAL SURVEYOR</name>
+      <type>Host</type>
+      <Internal_Reference>
+        <lid_reference>urn:nasa:pds:context:instrument_host:spacecraft.mgs</lid_reference>
+        <reference_type>is_instrument_host</reference_type>
+      </Internal_Reference>
+    </Observing_System_Component>
+    <Observing_System_Component>
+      <name>MARS ORBITER LASER ALTIMETER for MGS</name>
+      <type>Instrument</type>
+      <Internal_Reference>
+        <lid_reference>urn:nasa:pds:context:instrument:mgs.mola</lid_reference>
+        <reference_type>is_instrument</reference_type>
+      </Internal_Reference>
+    </Observing_System_Component>
+  </Observing_System>
+  <Target_Identification>
+    <name>Mars</name>
+    <type>Planet</type>
+    <Internal_Reference>
+      <lid_reference>urn:nasa:pds:context:target:planet.mars</lid_reference>
+      <reference_type>collection_to_target</reference_type>
+    </Internal_Reference>
+  </Target_Identification>
+</Context_Area>
+<Collection>
+  <collection_type>Data</collection_type>
+</Collection>
+  <File_Area_Inventory>
+    <File>
+      <file_name>collection_data_meg032_inventory.csv</file_name>
+    </File>
+    <Inventory>
+      <local_identifier>inventory</local_identifier>
+      <offset unit="byte">0</offset>
+      <parsing_standard_id>PDS DSV 1</parsing_standard_id>
+      <records>3</records>
+      <record_delimiter>Carriage-Return Line-Feed</record_delimiter>
+      <field_delimiter>Comma</field_delimiter>
+      <Record_Delimited>
+        <fields>2</fields>
+        <groups>0</groups>
+        <maximum_record_length unit="byte">256</maximum_record_length>
+        <Field_Delimited>
+          <name>Member Status</name>
+          <field_number>1</field_number>
+          <data_type>ASCII_String</data_type>
+          <maximum_field_length unit="byte">1</maximum_field_length>
+          <description> This column specifies the Member Status of the files that comprise the collection. </description>
+        </Field_Delimited>
+        <Field_Delimited>
+          <name>LIDVID_LID</name>
+          <field_number>2</field_number>
+          <data_type>ASCII_LIDVID_LID</data_type>
+          <maximum_field_length unit="byte">255</maximum_field_length>
+          <description> This column specifies the LIDVID of the files that comprise the collection. </description>
+        </Field_Delimited>
+      </Record_Delimited>
+      <reference_type>inventory_has_member_product</reference_type>
+    </Inventory>
+  </File_Area_Inventory>
+</Product_Collection>

@@ -50,12 +50,23 @@ def hillshade(z: np.ndarray, pixel_size_m: float, sun_azimuth_deg: float = 315.0
 def slope_metrics(slope_deg: np.ndarray, pixel_size_m: float, thresholds_deg: list[float]) -> SlopeMetrics:
     v = slope_deg[np.isfinite(slope_deg)]
     counts, _ = np.histogram(v, bins=HIST_EDGES)
-    total = max(1, v.size)
+    total = v.size
+    histogram_denominator = max(1, total)
     rms = np.degrees(np.arctan(np.sqrt(np.mean(np.tan(np.radians(v)) ** 2)))) if v.size else None
     return SlopeMetrics(
         baseline_m=2 * pixel_size_m,
         stats=stats(slope_deg, 3),
         rms_slope_deg=fnum(rms, 3),
-        fraction_steeper_than={f"{t:g}": round(float((v > t).sum() / total), 4) for t in thresholds_deg},
-        histogram=Histogram(bin_edges_deg=HIST_EDGES.tolist(), fractions=[round(float(c / total), 5) for c in counts]),
+        fraction_steeper_than={
+            f"{t:g}": (
+                round(float((v > t).sum() / total), 4) if total else None
+            )
+            for t in thresholds_deg
+        },
+        histogram=Histogram(
+            bin_edges_deg=HIST_EDGES.tolist(),
+            fractions=[
+                round(float(c / histogram_denominator), 5) for c in counts
+            ],
+        ),
     )

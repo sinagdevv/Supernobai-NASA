@@ -1,0 +1,6 @@
+# Configurable lunar south-pole target envelope.
+# Source for the ~7 deg ceiling: Chappell (2024), as cited in the proposal.
+min_elevation_deg: 0.0      # geometric horizon (sun centre)
+max_elevation_deg: 7.0      # lunar-reference ceiling
+min_window_minutes: 10      # drop windows shorter than this
+step_minutes: 1             # time resolution of the sun series

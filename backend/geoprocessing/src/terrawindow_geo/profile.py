@@ -62,6 +62,7 @@ def provenance(dataset: DatasetRef, patch: Patch) -> Provenance:
     from . import __version__
 
     name, citation = describe(dataset)
+    record = stored_datasets().get(dataset.id, {}) if dataset.id else {}
     return Provenance(
         dataset_id=dataset.id,
         dataset_name=name,
@@ -72,6 +73,9 @@ def provenance(dataset: DatasetRef, patch: Patch) -> Provenance:
         working_crs=patch.crs.to_string(),
         working_pixel_size_m=round(patch.pixel_size_m, 3),
         resampling=patch.resampling,
+        vertical_scale_applied=dataset.vertical_scale,
+        source_vertical_reference=record.get("vertical_reference"),
+        dataset_version=record.get("version"),
         methods=METHODS,
         engine_version=__version__,
         generated_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -188,7 +192,8 @@ def build_profile(request: PatchRequest) -> TerrainProfile:
     if not coverage.sufficient:
         notes.append(
             f"Only {coverage.valid_fraction:.0%} of the patch has elevation data (minimum {coverage.min_required:.0%}); "
-            "metrics are withheld rather than computed on partial data."
+            "coverage-dependent terrain morphology and relief metrics may be withheld; "
+            "the elevation summary describes valid cells only."
         )
 
     return TerrainProfile(
@@ -201,6 +206,9 @@ def build_profile(request: PatchRequest) -> TerrainProfile:
             width_m=w * base.pixel_size_m,
             height_m=h * base.pixel_size_m,
             area_km2=round(w * h * base.pixel_size_m**2 / 1e6, 4),
+            grid_shape=[h, w],
+            grid_transform=[float(value) for value in base.transform],
+            grid_crs_wkt=base.crs.to_wkt(),
         ),
         provenance=provenance(dataset, base),
         coverage=coverage,
