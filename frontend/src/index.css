@@ -1,0 +1,332 @@
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import '@fontsource-variable/newsreader/opsz.css';
+@import 'tailwindcss';
+@import 'maplibre-gl/dist/maplibre-gl.css' layer(base);
+
+/* ───────────────────────────── Design tokens ─────────────────────────────
+   Dark surfaces = immersive exploration. Paper surfaces = reading & reports.
+   Amber  = illumination / selected rehearsal windows / essential action.
+   Cyan   = Earth reference + comparison data only.
+   Suitability is always glyph + label + colour (never colour alone).        */
+@theme {
+  --font-sans: 'Geist Variable', -apple-system, 'SF Pro Text', system-ui, 'Segoe UI', sans-serif;
+  /* Editorial display: optical-size serif for headlines; the app chrome stays sans. */
+  --font-display: 'Newsreader Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  --color-ink-950: #0b0e12;
+  --color-ink-900: #101318;
+  --color-ink-850: #151a20;
+  --color-ink-800: #1b2027;
+  --color-ink-700: #252b34;
+  --color-ink-600: #343b46;
+  --color-ink-500: #4a525e;
+
+  --color-silver-500: #7b838e;
+  --color-silver-400: #a9afb7;
+  --color-silver-300: #c5cad0;
+  --color-silver-200: #dfe2e5;
+
+  --color-paper: #f4f3ef;
+  --color-paper-2: #eceae3;
+  --color-paper-3: #dedbd2;
+  --color-graphite: #1b2027;
+  --color-graphite-soft: #4b535e;
+
+  --color-amber: #e4a95b;
+  --color-amber-deep: #85500a; /* AA on paper */
+  --color-amber-soft: rgb(228 169 91 / 0.14);
+  --color-cyan: #80b7c4;
+  --color-cyan-deep: #2f6f7e; /* AA on paper */
+  --color-cyan-soft: rgb(128 183 196 / 0.14);
+
+  --color-ok: #93c49a;
+  --color-ok-deep: #2f6b3a;
+  --color-bad: #e08d82;
+  --color-bad-deep: #a23a2e;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-pop: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -8px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.4);
+  --shadow-paper: 0 1px 2px rgb(16 19 24 / 0.06), 0 12px 32px -12px rgb(16 19 24 / 0.18);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-fast: 140ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+}
+
+:root {
+  --line: rgb(255 255 255 / 0.075);
+  --line-strong: rgb(255 255 255 / 0.16);
+  --topbar-h: 56px;
+  --tabbar-h: 0px;
+  /* chart series */
+  --series-moon: #c5cad0;
+  --series-earth: #80b7c4;
+  --series-ref: #e4a95b;
+  /* logo colours: lunar / window / Earth */
+  --mark-a: #c5cad0;
+  --mark-b: #e4a95b;
+  --mark-c: #80b7c4;
+  color-scheme: dark;
+}
+@media (max-width: 767px) {
+  :root {
+    --tabbar-h: calc(60px + env(safe-area-inset-bottom));
+  }
+}
+
+html {
+  background: var(--color-ink-900);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  font-synthesis: none;
+  scroll-padding-top: calc(var(--topbar-h) + 16px);
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+body {
+  margin: 0;
+  background: var(--color-ink-900);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+#root {
+  min-height: 100dvh;
+}
+
+/* Mobile-native baseline: press feedback is ours, controls aren't selectable, taps fire immediately. */
+button, [role='button'], [role='tab'], [role='radio'], [role='switch'], summary, a.btn {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+@media (pointer: coarse) {
+  input, textarea, select { font-size: 16px; }
+}
+
+/* Translucent chrome (Apple-style material): blur + tint, frosted-solid when transparency is reduced. */
+.glass {
+  background: rgb(16 19 24 / 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: var(--color-ink-900); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --line: rgb(255 255 255 / 0.3); --line-strong: rgb(255 255 255 / 0.55); }
+}
+
+/* Focus: one visible ring everywhere */
+:focus-visible {
+  outline: 2px solid var(--color-amber);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+.paper :focus-visible {
+  outline-color: var(--color-amber-deep);
+}
+
+::selection {
+  background: rgb(228 169 91 / 0.35);
+}
+
+/* Display type: tighter tracking as size grows, optical sizing on, hanging punctuation off. */
+@layer components {
+  .font-display {
+    font-optical-sizing: auto;
+    font-weight: 450;
+    letter-spacing: -0.022em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+}
+p {
+  text-wrap: pretty;
+}
+
+/* Technical figures */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-silver-400);
+}
+.paper .eyebrow {
+  color: var(--color-graphite-soft);
+}
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+
+/* Paper surface (dossier, reports, readable analysis) */
+.paper {
+  background: var(--color-paper);
+  color: var(--color-graphite);
+  --line: rgb(16 19 24 / 0.12);
+  --line-strong: rgb(16 19 24 / 0.28);
+  color-scheme: light;
+  --mark-a: #4b535e;
+  --mark-b: #c98524;
+  --mark-c: #2f6f7e;
+}
+
+/* Range sliders — native input, restyled. Set style={{'--fill': '40%'}} for the amber progress. */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--color-amber) var(--fill, 0%), var(--color-ink-600) var(--fill, 0%));
+}
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-ink-600);
+}
+input[type='range']::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-amber);
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  border: 2px solid var(--color-ink-900);
+  box-shadow: 0 0 0 1px var(--color-silver-400), 0 2px 6px rgb(0 0 0 / 0.5);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  border: 2px solid var(--color-ink-900);
+  box-shadow: 0 0 0 1px var(--color-silver-400);
+}
+input[type='range']:active::-webkit-slider-thumb {
+  transform: scale(1.12);
+}
+
+/* MapLibre chrome */
+.maplibregl-ctrl-group {
+  background: var(--color-ink-800) !important;
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow-pop) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button {
+  width: 44px !important;
+  height: 44px !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--line) !important;
+}
+.maplibregl-ctrl-group button span {
+  filter: invert(1) brightness(1.4);
+}
+.maplibregl-ctrl-attrib {
+  background: rgb(11 14 18 / 0.72) !important;
+  color: var(--color-silver-400) !important;
+  font-size: 10px !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--color-silver-300) !important;
+}
+.maplibregl-canvas {
+  outline: none;
+}
+
+/* Reduced motion: collapse CSS motion; Motion for React honours it via <MotionConfig reducedMotion="user"> */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print: dossier becomes a clean report */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+  .print-avoid-break {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
+
+/* Native dialog entrance */
+.tw-dialog[open] {
+  animation: tw-pop var(--duration-base) var(--ease-out);
+}
+.tw-dialog[open]::backdrop {
+  animation: tw-fade var(--duration-base) var(--ease-out);
+}
+@keyframes tw-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+@keyframes tw-fade {
+  from { opacity: 0; }
+}
+
+/* Landing to workspace (see lib/transition.ts): a short cross-fade; the lockup is shared between both headers. */
+.vt-lockup { view-transition-name: tw-lockup; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; animation-timing-function: var(--ease-out); }
+::view-transition-group(tw-lockup) { animation-duration: 220ms; animation-timing-function: var(--ease-out); }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+/* Reserve the scrollbar gutter so locking scroll during the intro never shifts the layout the intro is measuring. */
+html { scrollbar-gutter: stable; }
