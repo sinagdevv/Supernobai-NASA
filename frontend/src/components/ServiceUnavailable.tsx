@@ -9,7 +9,7 @@ const SETUP_DOCS = 'https://github.com/sinagdevv/Supernobai-NASA#getting-started
  * running it. It says what is missing and what the panel would show, offers a retry, and keeps developer setup behind a disclosure.
  * `preview` is a real image rendered once by Layer 3 from the stored Jezero region: a look at the dataset, never a measurement.
  */
-export function ServiceUnavailable({ kind, title, context, onRetry, setup, preview }: { kind: 'offline' | 'checking' | 'dataset'; title: string; context: ReactNode; onRetry?: () => void; setup?: string; preview?: { src: string; alt: string; caption: string } }) {
+export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, onRetry, setup, preview }: { kind: 'offline' | 'checking' | 'dataset'; title: string; /** The level that follows the heading above it on the page, so levels never skip. */ heading?: 'h2' | 'h3'; context: ReactNode; onRetry?: () => void; setup?: string; preview?: { src: string; alt: string; caption: string } }) {
   const checking = kind === 'checking'
   return (
     <div role="status" className="grid gap-6 rounded-[var(--radius-lg)] border border-[var(--line-strong)] bg-ink-850 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,15rem)] md:p-6">
@@ -18,7 +18,7 @@ export function ServiceUnavailable({ kind, title, context, onRetry, setup, previ
           <i aria-hidden className={`h-1.5 w-1.5 rounded-full ${checking ? 'bg-silver-500' : 'bg-bad'}`} />
           {checking ? 'Checking service' : kind === 'dataset' ? 'Dataset not retrieved' : 'Service unavailable'}
         </p>
-        <h3 className="font-display mt-3 text-[24px] leading-[1.1] md:text-[28px]">{title}</h3>
+        <H className="font-display mt-3 text-[24px] leading-[1.1] md:text-[28px]">{title}</H>
         <p className="mt-3 max-w-[34rem] text-[15px] leading-[1.55] text-silver-300">{context}</p>
         {onRetry && !checking && <Button className="mt-5" onClick={onRetry}><RotateCw size={15} aria-hidden /> Try again</Button>}
         <details className="mt-5 text-[13px] text-silver-400">

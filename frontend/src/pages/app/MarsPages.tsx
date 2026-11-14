@@ -33,7 +33,7 @@ export function MarsDossier() {
       <h1 className="font-display mt-3 text-[38px] font-medium md:text-[54px]">Terrain evidence dossier</h1>
       <p className="mt-2 max-w-2xl text-[15px] text-silver-300">A preliminary summary of measured terrain. It is not a mission assessment and carries no certification.</p>
 
-      <Section n="01" tag="measured" title="Planetary reference"><MarsReference /></Section>
+      <Section n="01" tag="measured" title="Planetary reference"><MarsReference heading="h3" /></Section>
       <Section n="02" tag="scope" title="Mission objective">
         <p className="max-w-2xl text-[15px] text-silver-300">Regional terrain characterisation for Martian rover mobility. A screening of terrain statistics only; it does not assess whether a rover could traverse the ground.</p>
       </Section>

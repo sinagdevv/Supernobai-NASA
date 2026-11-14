@@ -30,7 +30,8 @@ function Tile({ label, value, sub }: { label: string; value: ReactNode; sub: str
   )
 }
 
-export default function MarsReference() {
+/** `heading` is the level for the unavailable-state title: h2 when the page title is the h1 above it (Mission), h3 inside a section (Dossier). */
+export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3' }) {
   const { state, recheck } = useBackend()
   const mars = state.status === 'online' ? state.stored.filter((d) => d.body === 'mars') : []
   const ready = mars.find((d) => d.ready)
@@ -63,14 +64,14 @@ export default function MarsReference() {
   const context = <>Jezero region of Mars · NASA MOLA topography · 463 m pixels · 76.4°E to 78.6°E, 17.4°N to 19.4°N.</>
   if (state.status !== 'online') {
     return (
-      <ServiceUnavailable kind={state.status === 'checking' ? 'checking' : 'offline'} title="Measured terrain isn't available right now"
+      <ServiceUnavailable heading={heading} kind={state.status === 'checking' ? 'checking' : 'offline'} title="Measured terrain isn't available right now"
         context={<>{state.status === 'checking' ? 'Looking for the terrain service.' : 'This session cannot reach the terrain service, so no Martian measurements are shown and nothing is substituted.'} {context}</>}
         onRetry={recheck} preview={JEZERO_PREVIEW} setup="cd backend/geoprocessing && python -m uvicorn terrawindow_geo.api.app:app --port 8000" />
     )
   }
   if (!ready) {
     return (
-      <ServiceUnavailable kind="dataset" title="The Jezero region isn't on this machine"
+      <ServiceUnavailable heading={heading} kind="dataset" title="The Jezero region isn't on this machine"
         context={<>{blocked ? `It is listed but cannot be used: ${blocked.availability.detail}` : 'The terrain service is running, but the Martian elevation dataset has not been retrieved.'} {context}</>}
         onRetry={recheck} preview={JEZERO_PREVIEW} setup={blocked?.availability.setup ?? 'terrawindow-data region mola-megdr128 jezero 76.4 17.4 78.6 19.4'} />
     )
