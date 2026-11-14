@@ -47,7 +47,12 @@ class DatasetRef(BaseModel):
     uris: list[str] | None = None
     name: str | None = None
     body: Body = "earth"
-    vertical_scale: float = Field(1.0, description="Multiply stored raster values by this to get metres (e.g. 1000 for km).")
+    vertical_scale: float = Field(
+        1.0,
+        gt=0,
+        allow_inf_nan=False,
+        description="Multiply stored raster values by this to get metres (e.g. 1000 for km).",
+    )
 
     @model_validator(mode="after")
     def _one_source(self) -> "DatasetRef":
@@ -182,7 +187,9 @@ class SlopeMetrics(BaseModel):
     baseline_m: float = Field(description="Horizontal distance the 3x3 slope kernel spans (2 x grid spacing).")
     stats: Stats
     rms_slope_deg: float | None
-    fraction_steeper_than: dict[str, float] = Field(description="Key is the threshold in degrees.")
+    fraction_steeper_than: dict[str, float | None] = Field(
+        description="Key is the threshold in degrees; null when no valid slope samples exist."
+    )
     histogram: Histogram
 
 
@@ -221,6 +228,8 @@ class Coverage(BaseModel):
     sufficient: bool
     largest_void_fraction: float
     missing_sources: list[str] = []
+    valid_cell_count: int | None = None
+    total_cell_count: int | None = None
 
 
 class ElevationSummary(BaseModel):
@@ -246,6 +255,9 @@ class LandCoverSummary(BaseModel):
     excluded_fraction: float | None = None
     screen: ScreenStatus = "not_assessed"
     reason: str | None = None
+    valid_cell_count: int | None = None
+    total_cell_count: int | None = None
+    excluded_cell_count: int | None = None
 
 
 class PatchInfo(BaseModel):
@@ -257,6 +269,9 @@ class PatchInfo(BaseModel):
     width_m: float
     height_m: float
     area_km2: float
+    grid_shape: list[int] | None = None
+    grid_transform: list[float] | None = None
+    grid_crs_wkt: str | None = None
 
 
 class Provenance(BaseModel):
@@ -269,7 +284,10 @@ class Provenance(BaseModel):
     working_crs: str
     working_pixel_size_m: float
     resampling: str
-    vertical_unit: str = "metres (as stored in the source raster)"
+    vertical_unit: str = "metres after applying vertical_scale"
+    vertical_scale_applied: float = 1.0
+    source_vertical_reference: str | None = None
+    dataset_version: str | None = None
     methods: dict[str, str]
     engine_version: str
     generated_at: str
