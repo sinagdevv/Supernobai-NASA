@@ -32,13 +32,18 @@ EARTH = {
 }
 
 
+def present(stored: dict, dataset_id: str) -> bool:
+    """Listed in the manifest AND its raster is on disk: on a fresh checkout the reference manifest lists datasets whose rasters are not there yet."""
+    return dataset_id in stored and (data_dir() / stored[dataset_id]["path"]).is_file()
+
+
 def ensure_data() -> None:
     stored = load_manifest()["datasets"]
-    if MARS not in stored:
+    if not present(stored, MARS):
         print("cutting the Jezero region from the PDS4 MEGDR tile ...")
         prepare_region("mola-megdr128", "jezero", *MARS_BBOX)
     for name, bbox in EARTH.items():
-        if f"{name}-copernicus-glo30" not in stored:
+        if not present(stored, f"{name}-copernicus-glo30"):
             print(f"cutting region {name} from Copernicus GLO-30 ...")
             prepare_region("copernicus-glo30", name, *bbox)
 
