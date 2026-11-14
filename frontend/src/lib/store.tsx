@@ -3,6 +3,7 @@ import { DEFAULT_MISSION } from '../data/mission'
 import { SITES } from '../data/sites'
 import type { Assessment, Mission, Status, TerrainClass } from '../data/types'
 import { assessSite } from './assess'
+import { usePlanet } from './planet'
 
 export interface Filters {
   terrain: TerrainClass[]
@@ -56,6 +57,7 @@ export const useApp = () => {
 const ORDER: Record<Status, number> = { potential: 0, 'not-assessed': 1, 'not-suitable': 2 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { planet } = usePlanet()
   const [mission, setM] = useState<Mission>(DEFAULT_MISSION)
   const [selectedId, select] = useState<string | null>(null)
   const [compareIds, setCompare] = useState<string[]>([])
@@ -88,13 +90,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return SITES.filter((s) => {
       if (filters.terrain.length && !filters.terrain.includes(s.terrain)) return false
       if (s.dem.resM > filters.maxDemRes) return false
-      if (filters.statuses.length && !filters.statuses.includes(assessments.get(s.id)!.overall)) return false
+      // The status filter and the ranking are lunar assessments: for Mars the list is a neutral, alphabetical list of Earth terrain.
+      if (planet === 'moon' && filters.statuses.length && !filters.statuses.includes(assessments.get(s.id)!.overall)) return false
       if (q && !`${s.name} ${s.place}`.toLowerCase().includes(q)) return false
       return true
     })
-      .sort((a, b) => ORDER[assessments.get(a.id)!.overall] - ORDER[assessments.get(b.id)!.overall] || a.name.localeCompare(b.name))
+      .sort((a, b) => (planet === 'moon' ? ORDER[assessments.get(a.id)!.overall] - ORDER[assessments.get(b.id)!.overall] : 0) || a.name.localeCompare(b.name))
       .map((s) => s.id)
-  }, [filters, assessments])
+  }, [filters, assessments, planet])
 
   const value: AppState = {
     mission, setMission, resetMission, selectedId, select, compareIds, toggleCompare, filters, setFilters,

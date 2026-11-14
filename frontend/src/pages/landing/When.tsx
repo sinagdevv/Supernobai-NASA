@@ -1,3 +1,4 @@
+import { usePlanet } from '../../lib/planet'
 import { useMotionValueEvent, useReducedMotion, useScroll } from 'motion/react'
 import { useEffect, useMemo, useRef, memo } from 'react'
 import { ChapterText, Plate, Swatch, useBox, useMedia } from '../../components/landing/kit'
@@ -117,6 +118,7 @@ function Instrument({ progress, still }: { progress: ReturnType<typeof useScroll
 
 function WhenSection({ pinned }: { pinned: boolean }) {
   const reduce = !!useReducedMotion()
+  const mars = usePlanet().planet === 'mars'
   const wrap = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: wrap, offset: pinned ? ['start start', 'end end'] : ['start 75%', 'end 45%'] })
   return (
@@ -127,6 +129,7 @@ function WhenSection({ pinned }: { pinned: boolean }) {
             <ChapterText id="when-title" n="02" q="When to test" title="Find the days the sun is right.">
               A few degrees of sun is a few minutes of an Earth morning. {reduce ? 'The figure shows the sun inside the band.' : 'Keep scrolling: the sun rises through the band and the shadows pull back.'}
             </ChapterText>
+            {mars && <p className="mono mt-5 flex items-start gap-2 text-[12px] leading-snug text-silver-300"><i aria-hidden className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />Lunar illustration. Mars windows are not computed: they need the solar-geometry engine (Layer 4) and a Martian model.</p>}
           </div>
           <div className="lg:col-span-8">
             <Instrument progress={scrollYProgress} still={reduce} />

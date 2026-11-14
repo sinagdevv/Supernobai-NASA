@@ -1,17 +1,18 @@
 import { motion } from 'motion/react'
-import { Crosshair, FileText, Info, Map as MapIcon, RotateCcw, Scale, Sun, type LucideIcon } from 'lucide-react'
+import { Crosshair, FileText, Map as MapIcon, RotateCcw, Scale, Sun, type LucideIcon } from 'lucide-react'
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Lockup, LogoMark } from '../brand/Logo'
 import { BASEMAP_CREDITS, DISCLAIMER, NOT_REPRODUCIBLE, SOURCES } from '../data/sources'
-import { shortName, siteById } from '../data/sites'
-import { regionById } from '../lib/assess'
 import { href, type Screen } from '../lib/router'
 import { prefetch, prefetchAll } from '../lib/screens'
 import { useBackend } from '../lib/api/backend'
 import { usePlanet } from '../lib/planet'
+import { contextStatus, PLANET_CONTEXT } from '../lib/status'
+import { PlanetSwitcher } from './PlanetSwitcher'
 import { useApp } from '../lib/store'
-import { PlanetSwitch } from './PlanetNotice'
 import { cx, Modal } from './ui'
+
+const STATE_DOT = { measured: 'bg-cyan', illustrative: 'bg-silver-400', pending: 'bg-amber', unavailable: 'bg-bad', checking: 'bg-silver-500' } as const
 
 const TABS: { id: Screen; label: string; short: string; Icon: LucideIcon }[] = [
   { id: 'mission', label: 'Mission', short: 'Mission', Icon: Crosshair },
@@ -37,7 +38,7 @@ export function AboutModal({ open, onClose }: { open: boolean; onClose: () => vo
           ) : (
             <p>{state.status === 'checking' ? 'Checking for the Layer 2/3 service…' : 'The Layer 2/3 service is not running, so the whole interface is showing illustrative demonstration data.'}</p>
           )}
-          <p className="mt-2 text-[13px] text-silver-400">Rehearsal-window and shadow computation (Layer 4) and mission criteria (Layer 5) are not implemented; those screens are demonstrations.</p>
+          <p className="mt-2 text-[13px] text-silver-400">On Mars, the Jezero terrain on Mission, Comparison and Dossier is measured when the service is connected. Rehearsal-window and shadow computation (Layer 4) and mission criteria (Layer 5) are not implemented on either planet; those screens are demonstrations or are marked pending.</p>
         </div>
         <div>
           <h3 className="eyebrow mb-2">Earth cannot reproduce</h3>
@@ -75,13 +76,15 @@ let lastNav = 0
 if (typeof window !== 'undefined') window.addEventListener('hashchange', () => { lastNav = performance.now() })
 
 export function AppShell({ screen, children }: { screen: Screen; children: ReactNode }) {
-  const { mission, selectedId, resetAll } = useApp()
+  const { resetAll } = useApp()
   const { planet } = usePlanet()
   const { state: backend } = useBackend()
+  const ctx = PLANET_CONTEXT[planet]
+  const marsReady = backend.status === 'online' && backend.stored.some((d) => d.body === 'mars' && d.ready)
+  const status = contextStatus(planet, screen, backend.status, marsReady)
   const [about, setAbout] = useState(false)
   const main = useRef<HTMLElement>(null)
   const nav = useRef<HTMLUListElement>(null)
-  const site = siteById(selectedId)
 
   useEffect(() => prefetchAll(), [])
 
@@ -122,16 +125,22 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
   }
 
   return (
-    <div className="flex min-h-dvh flex-col" style={{ paddingBottom: 'var(--tabbar-h)' }}>
+    <div className="tw-shell flex min-h-dvh flex-col" style={{ paddingBottom: 'var(--tabbar-h)' }}>
       <header className="no-print glass sticky top-0 z-40" style={{ height: 'var(--topbar-h)' }}>
-        <div className="mx-auto flex h-full max-w-[1920px] items-center gap-4 px-3 md:px-5">
+        {/* Level 1: the planet. Everything below it is about that planet. */}
+        <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-3 px-3 md:gap-5 md:px-5">
           <a href="#/" aria-label="TERRAWINDOW home" className="vt-lockup -ml-1 flex h-11 shrink-0 items-center rounded-md px-1 text-paper">
             <Lockup className="hidden h-[22px] md:block" />
             <LogoMark className="h-7 md:hidden" />
           </a>
-
-          {/* Independent tabs: every destination is always reachable; state is kept across them. */}
-          <nav aria-label="Workspace" data-tabs onKeyDown={onKey} className="hidden h-full min-w-0 flex-1 justify-center md:flex">
+          <PlanetSwitcher />
+          <div className="ml-auto flex items-center gap-1">
+            <button type="button" onClick={resetAll} className="grid h-11 w-11 place-items-center rounded-md text-silver-400 transition-[color,transform] hover:text-paper active:scale-[0.97]" aria-label="Reset demonstration state" title="Reset demonstration state"><RotateCcw size={16} aria-hidden /></button>
+          </div>
+        </div>
+        {/* Level 2: the tool, and what the data on it is. Independent tabs keep their state across planets. */}
+        <div className="mx-auto flex h-8 max-w-[1920px] items-center gap-4 px-3 md:h-11 md:px-5">
+          <nav aria-label="Workspace" data-tabs onKeyDown={onKey} className="hidden h-full min-w-0 md:flex">
             <ul ref={nav} className="flex h-full items-stretch gap-0.5 lg:gap-2">
               {TABS.map((t) => {
                 const on = t.id === screen
@@ -148,22 +157,19 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
               })}
             </ul>
           </nav>
-
-          <div className="ml-auto flex items-center gap-1 md:ml-0">
-            <PlanetSwitch />
-            {planet === 'moon' && <a href={href({ page: 'app', screen: 'mission' })} className="hidden min-h-11 max-w-[20rem] items-center gap-2 truncate rounded-md px-2 text-[13px] text-silver-300 transition-colors hover:text-paper xl:flex" title="Mission context">
-              <span className="truncate">{regionById(mission.regionId).name}</span>
-              {site && <><span aria-hidden className="text-silver-500">/</span><span className="truncate text-cyan">{shortName(site)}</span></>}
-            </a>}
-            <button type="button" onClick={() => setAbout(true)} className="flex min-h-11 items-center gap-2 rounded-md px-2.5 text-[13px] text-silver-300 transition-[color,transform] hover:text-paper active:scale-[0.97]" aria-label={backend.status === 'online' ? 'Data status: demonstration data, Layer 3 service connected. Open details.' : 'Data status: illustrative prototype data. Open details.'}>
-              <i aria-hidden className={cx('h-1.5 w-1.5 rounded-full', backend.status === 'online' ? 'bg-cyan' : 'bg-amber')} />
-              <span className="hidden xl:inline">{backend.status === 'online' ? 'Demo data · Layer 3 live' : 'Illustrative data'}</span>
-              <Info size={16} aria-hidden className="xl:hidden" />
+          <div className="ml-auto flex min-w-0 items-center gap-3">
+            <p className="mono flex min-w-0 items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase" aria-label={`Research context: ${ctx.title}, ${ctx.place}`}>
+              <i aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: planet === 'mars' ? '#c9876a' : 'var(--color-silver-300)' }} />
+              <span className="truncate"><span className="font-medium text-paper">{ctx.title}</span><span className="hidden sm:inline"> / {ctx.place}</span></span>
+            </p>
+            <button type="button" onClick={() => setAbout(true)} aria-label={`Data status: ${status.label}. ${status.detail} Open details.`} title={status.detail}
+              className="flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line-strong)] px-3 text-[12px] text-silver-200 transition-[color,transform,border-color] hover:border-silver-500 hover:text-paper active:scale-[0.97]">
+              <i aria-hidden className={cx('h-1.5 w-1.5 rounded-full', STATE_DOT[status.state])} />
+              {status.label}
             </button>
-            <button type="button" onClick={resetAll} className="grid h-11 w-11 place-items-center rounded-md text-silver-400 transition-[color,transform] hover:text-paper active:scale-[0.97]" aria-label="Reset demonstration state" title="Reset demonstration state"><RotateCcw size={16} aria-hidden /></button>
           </div>
         </div>
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-[var(--line)]" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-px transition-colors duration-[var(--duration-slow)]" style={{ background: planet === 'mars' ? 'rgb(201 135 106 / 0.45)' : 'rgb(197 202 208 / 0.28)' }} />
       </header>
 
       <main id="main" ref={main} tabIndex={-1} className="flex-1 outline-none">{children}</main>

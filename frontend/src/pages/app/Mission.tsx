@@ -7,7 +7,6 @@ import { cx, Segmented, Slider } from '../../components/ui'
 import { RegionProfile } from '../../components/mission/RegionProfile'
 import { OBJECTIVES, ROUGH_BASELINES } from '../../data/mission'
 import { siteById } from '../../data/sites'
-import { MarsNote } from '../../components/PlanetNotice'
 import MarsReference from '../../components/MarsReference'
 import { regionById } from '../../lib/assess'
 import { usePlanet } from '../../lib/planet'
@@ -41,26 +40,19 @@ const chip = (on: boolean, locked?: boolean) =>
 /** Mars: the measured reference region and what it can and cannot support. There are no limit sliders: nothing on Mars consumes them yet. */
 function MarsMission() {
   return (
-    <div className="mx-auto max-w-[920px] px-4 py-8 md:px-8 lg:py-12">
-      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Mission</h1>
-      <p className="mt-2 text-[15px] text-silver-300">The Martian reference region for rover mobility, as measured from MOLA topography.</p>
-      <div className="mt-6"><MarsNote>The terrain below is real MOLA data measured by the Layer 2/3 service. Mission criteria, rehearsal windows and suitability are not implemented for Mars (Layers 4 and 5 are pending), so nothing here is screened or scored.</MarsNote></div>
-      <div className="space-y-10">
-        <Area title="Mission reference">
-          <div role="radiogroup" aria-label="Mission objective" className="flex flex-wrap gap-2">
-            <button type="button" role="radio" aria-checked className={chip(true)}>Rover mobility &amp; navigation · regional terrain</button>
-            <button type="button" role="radio" aria-checked={false} aria-disabled title="Not implemented" className={chip(false, true)}><Lock size={13} aria-hidden />Geological field analog · roadmap</button>
-          </div>
-          <MarsReference />
-        </Area>
-        <Area title="What this supports" hint="Measured now, and what would be needed beyond it.">
-          <ul className="list-disc space-y-1.5 pl-5 text-[14px] text-silver-300">
-            <li><span className="font-medium text-paper">Supported:</span> elevation, slope distribution, roughness and relief at 463 m to 1.8 km, with coverage and provenance.</li>
-            <li><span className="font-medium text-paper">Needs finer data:</span> rover-scale slope, obstacles and traction need a HiRISE or CTX terrain model of the site; 463 m MOLA cannot show them.</li>
-            <li><span className="font-medium text-paper">Pending layers:</span> solar geometry (Layer 4) and mission suitability (Layer 5).</li>
-          </ul>
-        </Area>
-      </div>
+    <div className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 lg:py-12">
+      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Jezero region</h1>
+      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Regional terrain measured from NASA MOLA topography: elevation, slope and roughness at the scales the data can support.</p>
+      <div className="mt-8"><MarsReference /></div>
+      <section aria-label="What this supports" className="mt-10 grid gap-x-8 gap-y-5 border-t border-[var(--line)] pt-6 sm:grid-cols-3">
+        {[
+          ['Measured now', 'Elevation, slope, roughness and relief from 463 m to 1.8 km, with coverage and provenance.'],
+          ['Needs finer data', 'Rover-scale slope, rocks and traction need a HiRISE or CTX terrain model of the site.'],
+          ['Not built yet', 'Solar geometry (Layer 4) and mission suitability (Layer 5). Nothing here is screened or scored.'],
+        ].map(([t, b]) => (
+          <div key={t}><h2 className="text-[14px] font-medium text-paper">{t}</h2><p className="mt-1 text-[13px] leading-relaxed text-silver-400">{b}</p></div>
+        ))}
+      </section>
     </div>
   )
 }

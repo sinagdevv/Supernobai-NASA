@@ -77,6 +77,7 @@ export function Intro({ onDone, onDock }: Props) {
 
   const drawL = useMotionValue(0), drawE = useMotionValue(0)
   const mix = useMotionValue(0) // 0 = lunar relief, 1 = Martian
+  const labMoon = useMotionValue(0), labMars = useMotionValue(0), labEarth = useMotionValue(0) // scene captions: opacity only
   const ampL = useMotionValue(0), ampE = useMotionValue(0), dyE = useMotionValue(0)
   const fillL = useMotionValue(0), fillE = useMotionValue(0), chan = useMotionValue(0)
   const light = useMotionValue(0.35)
@@ -154,7 +155,7 @@ export function Intro({ onDone, onDock }: Props) {
     dyE.set(g.dy0)
     setGeo(g)
     // Dev builds only: lets QA freeze the sequence and inspect or compare any state.
-    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__twIntro = { done: () => finish(), dock: () => onDock(), stop: () => { frozen.current = true; controls.current.forEach((c) => c.stop()); controls.current = [] }, set: (k: string, v: number) => ({ mix, drawL, drawE, ampL, ampE, dyE, fillL, fillE, chan, light, toMark, toPlate, dolly, glow, bg, dock, fly, wordW, tag, rootOp } as Record<string, { set: (n: number) => void }>)[k]?.set(v) }
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__twIntro = { done: () => finish(), dock: () => onDock(), stop: () => { frozen.current = true; controls.current.forEach((c) => c.stop()); controls.current = [] }, set: (k: string, v: number) => ({ labMoon, labMars, labEarth, mix, drawL, drawE, ampL, ampE, dyE, fillL, fillE, chan, light, toMark, toPlate, dolly, glow, bg, dock, fly, wordW, tag, rootOp } as Record<string, { set: (n: number) => void }>)[k]?.set(v) }
     // Lock the page behind the intro; paint the root in the intro's ink so a reserved scrollbar gutter matches it.
     const root = document.documentElement
     const prev = { overflow: root.style.overflow, background: root.style.background }
@@ -214,6 +215,7 @@ export function Intro({ onDone, onDock }: Props) {
     for (const mv of [fillL, fillE, chan, drawL, drawE]) run(animate(mv, 1, { duration: d, ease: EASE_OUT }))
     run(animate(light, REST_EL[g.target], { duration: d, ease: EASE_OUT }))
     run(animate(mix, g.target === 'mars' ? 1 : 0, { duration: d, ease: EASE_OUT }))
+    for (const mv of [labMoon, labMars, labEarth]) run(animate(mv, 0, { duration: d * 0.5, ease: EASE_OUT }))
     run(animate(dolly, 1, { duration: d, ease: EASE_OUT }))
     run(animate(glow, 0, { duration: d, ease: EASE_OUT }))
     run(animate(bg, 0, { duration: d * 0.8, ease: EASE_OUT }))
@@ -221,7 +223,7 @@ export function Intro({ onDone, onDock }: Props) {
     run(animate(dock, 1, { duration: d * 0.78, ease: EASE_OUT }))
     await run(animate(toPlate, 1, { duration: d, delay: mode === 'fast' ? 0 : 0.06, ease: EASE_IO }))
     finish()
-  }, [bg, chan, dock, dolly, drawE, drawL, fillE, fillL, finish, fly, glow, light, mix, onDock, rootOp, run, stopAll, toMark, toPlate])
+  }, [bg, chan, dock, dolly, drawE, drawL, fillE, fillL, finish, fly, glow, labEarth, labMars, labMoon, light, mix, onDock, rootOp, run, stopAll, toMark, toPlate])
 
   const skip = useCallback(() => { if (!finished.current && !docking.current) void dockNow(reduce ? 'reduced' : 'fast') }, [dockNow, reduce])
 
@@ -239,6 +241,7 @@ export function Intro({ onDone, onDock }: Props) {
       }
       // 01 Lunar horizon
       run(animate(drawL, 1, { duration: 0.45, ease: EASE_OUT }))
+      run(animate(labMoon, 1, { duration: 0.3, delay: 0.22, ease: 'easeOut' }))
       run(animate(glow, 1, { duration: 0.7, ease: 'easeOut' }))
       run(animate(dolly, 1, { duration: 1.4, ease: EASE_OUT }))
       await sleep(0.12); if (!live) return
@@ -249,9 +252,13 @@ export function Intro({ onDone, onDock }: Props) {
       // 02 Mars: the same vertices, a different landform
       run(animate(mix, 1, { duration: 0.5, ease: EASE_IO }))
       run(animate(light, MARS_EL, { duration: 0.5, ease: EASE_IO }))
+      run(animate(labMoon, 0, { duration: 0.2, ease: 'easeOut' }))
+      run(animate(labMars, 1, { duration: 0.3, delay: 0.2, ease: 'easeOut' }))
       await sleep(0.62); if (!live) return
       // 03 Earth arrives beneath the selected planet's reference
       run(animate(drawE, 1, { duration: 0.35, ease: EASE_OUT }))
+      run(animate(labMars, 0, { duration: 0.2, ease: 'easeOut' }))
+      run(animate(labEarth, 1, { duration: 0.3, delay: 0.15, ease: 'easeOut' }))
       run(animate(ampE, 1, { duration: 0.45, ease: EASE_OUT }))
       run(animate(dyE, 0, { duration: 0.5, ease: EASE_IO }))
       run(animate(fillE, 1, { duration: 0.28, delay: 0.08, ease: 'easeOut' }))
@@ -260,6 +267,7 @@ export function Intro({ onDone, onDock }: Props) {
       await sleep(0.45); if (!live) return
       // 04 The window
       run(animate(chan, 1, { duration: 0.2, ease: 'easeOut' }))
+      run(animate(labEarth, 0, { duration: 0.18, ease: 'easeOut' }))
       await sleep(0.05); if (!live) return
       run(animate(wordW, WORDMARK_WIDTH + 4, { duration: 0.32, delay: 0.25, ease: EASE_OUT }))
       run(animate(tag, 1, { duration: 0.28, delay: 0.36, ease: 'easeOut' }))
@@ -282,7 +290,7 @@ export function Intro({ onDone, onDock }: Props) {
   const wmY = cy + markPx * 0.5 + 34
 
   return (
-    <motion.div ref={rootEl} role="dialog" aria-label="TERRAWINDOW introduction" aria-modal="false" onClick={skip} className="fixed inset-0 z-[200] cursor-pointer" style={{ opacity: rootOp }}>
+    <motion.div ref={rootEl} role="dialog" aria-label="TERRAWINDOW introduction" aria-modal="false" onPointerDown={skip} className="fixed inset-0 z-[200] cursor-pointer" style={{ opacity: rootOp }}>
       <motion.div aria-hidden className="absolute inset-0" style={{ background: INK, opacity: bg }} />
       {/* A low sun at the left horizon: the only atmosphere */}
       <motion.div aria-hidden className="absolute inset-0" style={{ opacity: moonGlow, background: 'radial-gradient(85% 58% at 6% 64%, rgb(228 169 91 / 0.17), transparent 64%)' }} />
@@ -300,6 +308,11 @@ export function Intro({ onDone, onDock }: Props) {
             <path data-k="lineL" fill="none" stroke="var(--color-silver-300)" strokeWidth="1.5" pathLength={1} strokeDasharray="1" strokeDashoffset="1" />
             <path data-k="lineE" fill="none" stroke="var(--color-cyan)" strokeWidth="1.5" pathLength={1} strokeDasharray="1" strokeDashoffset="1" />
           </g>
+
+          {/* One caption per scene, in the room above the terrain. Opacity only; each hands over to the next. */}
+          {([['MOON', labMoon, 'var(--color-silver-300)'], ['MARS', labMars, '#c9876a'], ['EARTH ANALOG', labEarth, 'var(--color-cyan)']] as const).map(([t, o, c]) => (
+            <motion.text key={t} x={Math.max(20, geo.w * 0.04)} y={geo.h * 0.3} fill={c} fontSize="12" letterSpacing="0.16em" style={{ opacity: o, fontFamily: 'var(--font-mono)' }}>{t}</motion.text>
+          ))}
 
           {/* The wordmark, and a copy of the finished mark that docks into the navigation */}
           <motion.g style={{ transform: groupTransform, transformOrigin: `${cx}px ${cy}px` }}>
@@ -325,7 +338,7 @@ export function Intro({ onDone, onDock }: Props) {
         </svg>
       )}
       <motion.div style={{ opacity: skipOpacity }} className="absolute right-4 bottom-4">
-        <button type="button" onClick={(e) => { e.stopPropagation(); skip() }} className="min-h-11 rounded-md px-4 text-[13px] text-silver-400 transition-[color,transform] hover:text-paper active:scale-[0.97]">
+        <button type="button" onClick={skip} className="min-h-11 rounded-md px-4 text-[13px] text-silver-400 transition-[color,transform] hover:text-paper active:scale-[0.97]">
           Skip
         </button>
       </motion.div>

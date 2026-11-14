@@ -6,6 +6,7 @@ import { FilterDrawer } from '../../components/map/FilterPanel'
 import { SiteDetail } from '../../components/map/SiteDetail'
 import { SiteList } from '../../components/map/SiteList'
 import { activeFilterCount, useMedia } from '../../components/map/shared'
+import { usePlanet } from '../../lib/planet'
 import { cx, StatusGlyph } from '../../components/ui'
 import { SITES, siteById } from '../../data/sites'
 import { LiveChip, LivePanel, PatchCard } from '../../components/map/LivePanel'
@@ -30,7 +31,9 @@ export default function Analogs() {
   const [hoverId, setHoverId] = useState<string | null>(null)
 
   const visibleIds = useMemo(() => new Set(results), [results])
-  const statuses = useMemo(() => new Map([...assessments].map(([id, a]) => [id, a.overall])), [assessments])
+  const mars = usePlanet().planet === 'mars'
+  // Mars has no suitability assessment: every marker is neutral rather than carrying a lunar verdict.
+  const statuses = useMemo(() => new Map([...assessments].map(([id, a]) => [id, mars ? 'not-assessed' : a.overall])), [assessments, mars])
   const selected = siteById(selectedId)
   const nFilters = activeFilterCount(filters)
 
@@ -145,7 +148,7 @@ export default function Analogs() {
         >
           <span aria-hidden className="mx-auto mt-2 h-1 w-9 rounded-full bg-ink-500" />
           <span className="flex flex-1 items-center gap-3 text-left">
-            {selected && <StatusGlyph status={assessments.get(selected.id)!.overall} size={18} />}
+            {selected && !mars && <StatusGlyph status={assessments.get(selected.id)!.overall} size={18} />}
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[15px] font-semibold text-paper">{summary}</span>
               <span className="block text-[12px] text-silver-400">{sheet === 'open' ? 'Tap or drag down to see the map' : selected ? 'Tap or drag up for evidence' : 'Tap or drag up to browse and compare'}</span>

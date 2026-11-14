@@ -120,7 +120,7 @@ export default function Dossier() {
             <Lockup className="h-6 text-graphite" />
             <p className="mono text-[12px] text-graphite-soft">Prototype 0.1 · demo snapshot</p>
           </div>
-          <p className="eyebrow mt-12">Research dossier</p>
+          <p className="eyebrow mt-12">Moon · South polar · Research dossier</p>
           <h1 className="font-display mt-3 max-w-[18ch] text-[40px] md:text-[54px]">Prototype preliminary assessment</h1>
           <p className="font-display mt-4 text-[20px] text-graphite-soft">{report.title}</p>
 

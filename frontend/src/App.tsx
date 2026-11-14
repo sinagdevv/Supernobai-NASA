@@ -29,7 +29,7 @@ function Screens({ screen }: { screen: Screen }) {
   return (
     <>
       {screen === 'mission' && <Mission />}
-      {screen === 'analogs' && (<>{mars ? (<div style={{ '--note-h': '64px' } as React.CSSProperties}><p role="note" className="flex h-16 items-center border-b border-[var(--line)] border-l-2 border-l-[var(--planet-ref)] px-4 text-[12px] leading-snug text-silver-300 md:px-5"><span><span className="font-medium text-paper">Mars · no assessment.</span> The map and Live terrain are real Earth data; candidate assessments still use lunar criteria, because no Mars criteria exist.</span></p><Analogs /></div>) : <Analogs />}</>)}
+      {screen === 'analogs' && <Analogs />}
       {screen === 'windows' && (mars ? <MarsUnavailable screen="windows" /> : <Windows />)}
       {screen === 'compare' && (mars ? <MarsCompare /> : <Compare />)}
       {screen === 'dossier' && (mars ? <MarsDossier /> : <Dossier />)}

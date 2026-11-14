@@ -112,10 +112,10 @@ export function HeroPlate({ ribbons, chrome }: { ribbons: boolean; chrome: boole
           <Swatch color="var(--planet-ref)">{copy.reference}</Swatch>
           <Swatch color="var(--color-amber)">Comparison window</Swatch>
           <Swatch color="var(--color-cyan)">Earth analog</Swatch>
-          <span className="mono ml-auto hidden text-[12px] text-silver-400 sm:inline">1.1 km transect</span>
+          <span className="mono ml-auto hidden text-[12px] text-silver-400 sm:inline">Schematic · not survey data</span>
         </>
       }
-      foot={<>Schematic profiles, illustrative; not survey data.{fine && <span className="text-silver-300"> Move across to scrub slope; height sets the sun.</span>}</>}
+      foot={fine ? <>Move across to read slope; height sets the sun.</> : <>Schematic profile, illustrative.</>}
     >
       <div ref={boxRef} {...{ [PLATE_ATTR]: '' }} className="relative aspect-[2/1] max-h-[520px] min-h-[300px] w-full touch-pan-y">
         {L && (
@@ -125,8 +125,14 @@ export function HeroPlate({ ribbons, chrome }: { ribbons: boolean; chrome: boole
                 <stop offset="0" stopOpacity="0.13" style={{ stopColor: 'rgb(var(--planet-glow))', transition: 'stop-color 480ms var(--ease-out)' }} />
                 <stop offset="1" stopOpacity="0" style={{ stopColor: 'rgb(var(--planet-glow))' }} />
               </radialGradient>
+              <linearGradient id="plate-haze" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#c48060" stopOpacity="0" />
+                <stop offset="0.55" stopColor="#c48060" stopOpacity="0.14" />
+                <stop offset="1" stopColor="#c48060" stopOpacity="0" />
+              </linearGradient>
             </defs>
             <rect width={box.w} height={box.h} fill="url(#plate-sky)" style={{ opacity: chrome ? 1 : 0, transition: 'opacity 700ms var(--ease-out)' }} />
+            <rect x="0" y={L.yBase - box.h * 0.3} width={box.w} height={box.h * 0.46} fill="url(#plate-haze)" style={{ opacity: chrome && planet === 'mars' ? 1 : 0, transition: 'opacity 480ms var(--ease-out)' }} />
             <ProfileRibbons L={L} el={REST_EL[planet]} apiRef={sun} morphRef={morph} ray rayOpacity={chrome ? 1 : 0} bandOpacity={ribbons ? 1 : 0} refFill="var(--planet-ref)" sunLabel={copy.sunLabel} />
 
             <g ref={scrub} style={{ opacity: 0, transition: 'opacity 140ms var(--ease-out)' }}>

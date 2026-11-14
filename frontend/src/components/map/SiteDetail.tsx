@@ -5,6 +5,7 @@ import { shortName, siteById } from '../../data/sites'
 import { NOT_REPRODUCIBLE } from '../../data/sources'
 import type { Assessment, Status } from '../../data/types'
 import { resolvable, rmsAt, shareBelow, STATUS_LABEL } from '../../lib/assess'
+import { usePlanet } from '../../lib/planet'
 import { go } from '../../lib/router'
 import { useApp } from '../../lib/store'
 import { GeoDot, ProfileThumb, RoughSpark, SlopeSpark, SunArc } from '../viz'
@@ -34,7 +35,55 @@ function Metric({ graphic, value, caption }: { graphic: ReactNode; value: string
   )
 }
 
+/** Mars: the Earth site as terrain, with the Mars assessment shown as pending. No lunar verdict, criteria, sun or ranking is shown. */
+function MarsSiteDetail({ id }: { id: string }) {
+  const { select } = useApp()
+  const site = siteById(id)
+  if (!site) return null
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="scroll-thin min-h-0 flex-1 overflow-y-auto">
+        <header className="px-4 pt-3 pb-4">
+          <Button variant="ghost" size="sm" className="-ml-3" onClick={() => select(null)}><ArrowLeft size={15} aria-hidden /> All candidates</Button>
+          <h2 className="font-display mt-1 text-[28px] leading-[1.06] text-paper">{shortName(site)}</h2>
+          <p className="text-[14px] text-silver-400">{site.place}</p>
+        </header>
+        <section aria-label="Terrain profile" className="px-4 pb-4">
+          <ProfileThumb seed={site.seed} w={320} h={46} sunEl={SUN_EL} className="h-[46px] w-full" label={`Terrain profile of ${site.name} (schematic)`} />
+          <p className="mt-1.5 text-[12px] text-silver-400">Schematic profile, illustrative. Measured terrain for Earth regions is under Live terrain on the map.</p>
+        </section>
+        <section aria-label="Location" className="flex items-center gap-3 border-t border-[var(--line)] px-4 py-3">
+          <GeoDot lat={site.lat} lon={site.lon} className="h-9 w-[72px] shrink-0 rounded-[var(--radius-xs)]" />
+          <p className="mono text-[12px] leading-relaxed text-silver-200">{fmtLat(site.lat)} {fmtLon(site.lon)}<br /><span className="text-silver-400">{site.elevM.toLocaleString('en-US')} m</span></p>
+          <p className="ml-auto text-right text-[12px] leading-snug text-silver-400">{site.terrain}</p>
+        </section>
+        <section aria-label="Mars assessment" className="border-t border-[var(--line)] px-4 py-4">
+          <p className="mono flex items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase"><i aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />Mars assessment pending</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-silver-300">No Mars criteria exist yet, so this site has no Mars verdict. Compare its measured terrain with the Jezero region on the Comparison screen.</p>
+          <div className="mt-1">
+            <Disclosure title={<span className="text-[13px] font-medium text-silver-200">Data &amp; limits</span>}>
+              <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
+                <dt className="text-silver-500">Grid</dt><dd className="text-silver-200">{site.dem.resM} m ({site.dem.name})</dd>
+                <dt className="text-silver-500">Values</dt><dd className="text-silver-200">Illustrative fixtures</dd>
+              </dl>
+              <p className="mt-3 text-[12px] text-silver-400">{site.summary}</p>
+              <ul className="mt-3 list-disc space-y-1 pl-4 text-[13px] text-silver-300">{site.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
+            </Disclosure>
+          </div>
+        </section>
+      </div>
+      <footer className="border-t border-[var(--line)] bg-ink-850 p-3">
+        <Button variant="primary" className="w-full" onClick={() => go({ page: 'app', screen: 'compare' })}>Compare with Jezero (measured) <ArrowRight size={16} aria-hidden /></Button>
+      </footer>
+    </div>
+  )
+}
+
 export function SiteDetail({ id }: { id: string }) {
+  return usePlanet().planet === 'mars' ? <MarsSiteDetail id={id} /> : <LunarSiteDetail id={id} />
+}
+
+function LunarSiteDetail({ id }: { id: string }) {
   const { select, assessments, mission, compareIds, toggleCompare, date } = useApp()
   const [crit, setCrit] = useState<string | null>(null)
   const site = siteById(id)

@@ -337,3 +337,7 @@ input[type='range']:active::-webkit-slider-thumb {
 }
 /* Reserve the scrollbar gutter so locking scroll during the intro never shifts the layout the intro is measuring. */
 html { scrollbar-gutter: stable; }
+
+/* Workspace header: row 1 is the planet (56 px), row 2 the tools and data status (44 px; 32 px on phones, where the tools move to the bottom bar). */
+.tw-shell { --topbar-h: 88px; }
+@media (min-width: 768px) { .tw-shell { --topbar-h: 100px; } }

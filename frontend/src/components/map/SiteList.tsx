@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { DEMO_HORIZON_DAYS } from '../../data/mission'
 import { shortName, siteById } from '../../data/sites'
 import { STATUS_LABEL } from '../../lib/assess'
+import { usePlanet } from '../../lib/planet'
 import { go, href } from '../../lib/router'
 import { useApp } from '../../lib/store'
 import { ProfileThumb, RoughSpark, SlopeSpark } from '../viz'
@@ -24,7 +25,9 @@ function Measure({ label, children }: { label: string; children: React.ReactNode
 export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string | null) => void; onPick: (id: string) => void; onFilters: () => void }) {
   const { results, assessments, selectedId, compareIds, toggleCompare, mission, filters, setFilters } = useApp()
   const [notice, setNotice] = useState('')
-  const [sort, setSort] = useState<Sort>('fit')
+  const [sortChoice, setSort] = useState<Sort>('fit')
+  const mars = usePlanet().planet === 'mars'
+  const sort: Sort = mars ? 'name' : sortChoice
   const nFilters = activeFilterCount(filters)
 
   useEffect(() => {
@@ -63,21 +66,25 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
           <h2 className="text-[14px] font-medium text-paper"><span className="mono">{results.length}</span> {results.length === 1 ? 'candidate' : 'candidates'}</h2>
           <div className="flex items-center gap-1">
             <label className="sr-only" htmlFor="site-sort">Sort candidates</label>
-            <select id="site-sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="min-h-11 rounded-[var(--radius-md)] bg-transparent px-2 text-[13px] text-silver-200 hover:bg-white/6">
+            {!mars && <select id="site-sort" value={sort} onChange={(e) => setSort(e.target.value as Sort)} className="min-h-11 rounded-[var(--radius-md)] bg-transparent px-2 text-[13px] text-silver-200 hover:bg-white/6">
               <option value="fit">Best screen first</option>
               <option value="sun">Most low-sun days</option>
               <option value="name">Name</option>
-            </select>
+            </select>}
             <button type="button" onClick={onFilters} className="hidden min-h-11 items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 text-[13px] font-medium text-silver-200 transition-[background-color,transform] hover:bg-white/6 active:scale-[0.97] lg:flex">
               <SlidersHorizontal size={15} aria-hidden /> Filters
               {nFilters > 0 && <span className="mono grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-[12px] leading-none text-ink-900" aria-label={`${nFilters} active`}>{nFilters}</span>}
             </button>
           </div>
         </div>
-        <p className="text-[12px] leading-snug text-silver-400">
-          Slope ≤ <span className="mono">{mission.slopeMax}°</span> · rough ≤ <span className="mono">{mission.roughMax.toFixed(1)} m</span> · sun <span className="mono">{mission.elMin}–{mission.elMax}°</span>{' '}
-          <a className="text-amber underline underline-offset-2" href={href({ page: 'app', screen: 'mission' })}>Edit</a>
-        </p>
+        {mars ? (
+          <p className="text-[12px] leading-snug text-silver-400">Earth terrain, alphabetical. Not assessed for Mars.</p>
+        ) : (
+          <p className="text-[12px] leading-snug text-silver-400">
+            Slope ≤ <span className="mono">{mission.slopeMax}°</span> · rough ≤ <span className="mono">{mission.roughMax.toFixed(1)} m</span> · sun <span className="mono">{mission.elMin}–{mission.elMax}°</span>{' '}
+            <a className="text-amber underline underline-offset-2" href={href({ page: 'app', screen: 'mission' })}>Edit</a>
+          </p>
+        )}
         {notice && <p role="status" className="rounded-[var(--radius-sm)] bg-amber-soft px-2 py-1 text-[12px] text-amber">{notice}</p>}
       </header>
 
@@ -104,8 +111,11 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
                       <span className="block truncate text-[15px] leading-tight font-medium text-paper">{shortName(s)}</span>
                       <span className="block truncate text-[13px] text-silver-400">{s.place}</span>
                     </span>
-                    <span className="shrink-0"><StatusGlyph status={a.overall} size={18} /></span>
+                    {!mars && <span className="shrink-0"><StatusGlyph status={a.overall} size={18} /></span>}
                   </span>
+                  {mars ? (
+                    <span className="mono mt-2 flex items-center justify-between gap-3 text-[12px] text-silver-400"><span className="truncate">{s.terrain}</span><span className="shrink-0">{s.dem.resM} m grid</span></span>
+                  ) : <>
                   <span className="sr-only">{STATUS_LABEL[a.overall]}. Slope, roughness and low-sun days shown below.</span>
                   <span aria-hidden className="mt-2.5 flex gap-3">
                     <Measure label="Slope"><SlopeSpark hist={s.slopeHist} limit={mission.slopeMax} w={64} h={20} className="h-5 w-full" /></Measure>
@@ -116,7 +126,7 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
                         <span className="mono mt-1 block text-[12px] leading-none whitespace-nowrap text-silver-300">{a.qualifyingDays}/{DEMO_HORIZON_DAYS} days</span>
                       </span>
                     </Measure>
-                  </span>
+                  </span></>}
                 </button>
                 <button type="button" onClick={() => onCompare(id)} aria-pressed={inCmp} aria-label={inCmp ? `Remove ${s.name} from comparison` : `Add ${s.name} to comparison`}
                   className={cx('absolute top-1 right-1 grid h-11 w-11 place-items-center rounded-full transition-[color,background-color,transform] active:scale-[0.92]', inCmp ? 'text-cyan' : 'text-silver-500 hover:bg-white/6 hover:text-paper')}>

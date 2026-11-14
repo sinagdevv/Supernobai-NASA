@@ -4,6 +4,7 @@ import { SITES, TERRAIN_CLASSES } from '../../data/sites'
 import type { Status } from '../../data/types'
 import { STATUS_LABEL } from '../../lib/assess'
 import { useApp } from '../../lib/store'
+import { usePlanet } from '../../lib/planet'
 import { Button, Slider, StatusGlyph } from '../ui'
 import { activeFilterCount, EMPTY_FILTERS } from './shared'
 
@@ -22,6 +23,7 @@ const toggle = <T,>(list: T[], v: T) => (list.includes(v) ? list.filter((x) => x
 /** Filter controls — used inline in the desktop sidebar and inside the mobile drawer. */
 export function FilterPanel({ onDone }: { onDone?: () => void }) {
   const { filters, setFilters, assessments, results } = useApp()
+  const mars = usePlanet().planet === 'mars'
   const active = activeFilterCount(filters)
   const countBy = (s: Status) => [...assessments.values()].filter((a) => a.overall === s).length
   return (
@@ -57,7 +59,7 @@ export function FilterPanel({ onDone }: { onDone?: () => void }) {
         <Slider label="Coarsest DEM grid allowed" value={filters.maxDemRes} min={1} max={30} unit=" m" onChange={(v) => setFilters({ maxDemRes: v })}
           hint="Hides sites whose elevation data is coarser than this. A 30 m grid cannot show what a 5 m grid can." />
 
-        <fieldset>
+        {!mars && <fieldset>
           <legend className="mb-1 text-[13px] font-medium text-silver-200">Assessment</legend>
           {STATUSES.map((s) => (
             <Check key={s} checked={filters.statuses.includes(s)} onChange={() => setFilters({ statuses: toggle(filters.statuses, s) })}>
@@ -67,7 +69,7 @@ export function FilterPanel({ onDone }: { onDone?: () => void }) {
             </Check>
           ))}
           <p className="mt-1 text-[12px] leading-snug text-silver-500">Screened criteria only — set in your mission workspace.</p>
-        </fieldset>
+        </fieldset>}
       </div>
 
       {onDone && (

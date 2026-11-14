@@ -4,10 +4,11 @@ import { memo, useState } from 'react'
 import { Lockup } from '../brand/Logo'
 import { HeroPlate } from '../components/landing/HeroPlate'
 import { Magnetic } from '../components/landing/kit'
-import { Button, cx, Segmented, StatusBadge, Tabs } from '../components/ui'
+import { PlanetSwitcher } from '../components/PlanetSwitcher'
+import { Button, cx, StatusBadge, Tabs } from '../components/ui'
 import { BASEMAP_CREDITS, DISCLAIMER, SOURCES } from '../data/sources'
 import type { Status } from '../data/types'
-import { PLANET_COPY, usePlanet, type Planet } from '../lib/planet'
+import { PLANET_COPY, usePlanet } from '../lib/planet'
 import { enterWorkspace } from '../lib/transition'
 import What from './landing/What'
 import When from './landing/When'
@@ -36,7 +37,7 @@ const Nav = memo(function Nav() {
 /* ───────────── Hero: the headline beside the observation plate ───────────── */
 function Hero({ show, ribbons }: { show: boolean; ribbons: boolean }) {
   const reduce = useReducedMotion()
-  const { planet, setPlanet } = usePlanet()
+  const { planet } = usePlanet()
   const copy = PLANET_COPY[planet]
   const item = (i: number) => ({ initial: reduce ? false : { opacity: 0, y: 10 }, animate: show ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }, transition: { duration: 0.5, delay: show ? 0.1 + i * 0.07 : 0, ease: EASE } })
   return (
@@ -44,7 +45,7 @@ function Hero({ show, ribbons }: { show: boolean; ribbons: boolean }) {
       <div className="mx-auto grid min-h-[min(100svh,900px)] max-w-[1680px] *:min-w-0 items-center gap-x-12 gap-y-10 px-4 pt-[88px] pb-12 md:px-8 lg:grid-cols-12 lg:pt-[72px]">
         <div className="lg:col-span-5">
           <motion.div {...item(0)} className="mb-6">
-            <Segmented<Planet> label="Planetary target" value={planet} onChange={setPlanet} options={[{ value: 'moon', label: 'Moon' }, { value: 'mars', label: 'Mars' }]} />
+            <PlanetSwitcher variant="hero" />
           </motion.div>
           <motion.h1 id="hero-title" {...item(0)} className="font-display text-[clamp(38px,4.5vw,84px)] leading-[0.98] tracking-[-0.032em]">
             {copy.headline[0]}<br />

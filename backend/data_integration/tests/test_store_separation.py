@@ -95,7 +95,10 @@ def test_different_bytes_are_flagged_and_never_overwrite_the_reference(checkout,
     assert check["reference_sha256"] == json.loads(before)["sha256"]
 
 
-def test_update_reference_is_the_deliberate_way_to_change_tracked_files(checkout):
+def test_update_reference_is_the_deliberate_way_to_change_tracked_files(checkout, monkeypatch):
+    # Records carry second-resolution timestamps: if the checkout commit and this fetch fall in the same second the files would be
+    # byte-identical and git would see no change. Fix the clock so the test does not depend on timing.
+    monkeypatch.setattr(fetch, "_now", lambda: "2099-01-01T00:00:00+00:00")
     assert cli(["fetch", "lola-5mpp-site01", "--update-reference"]) == 0
     changed = dirty(checkout)
     assert "manifest.json" in changed and "provenance.json" in changed  # on purpose, and visible in git

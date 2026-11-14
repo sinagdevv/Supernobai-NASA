@@ -5,6 +5,7 @@ import { explain } from '../lib/api/explain'
 import type { ComparisonCriterion, ComparisonResult, CriterionStatus, StoredDataset } from '../lib/api/types'
 import type { Status } from '../data/types'
 import { PLANET_COPY, type Planet } from '../lib/planet'
+import { JEZERO_PREVIEW, ServiceUnavailable } from './ServiceUnavailable'
 import { Button, StatusBadge, cx } from './ui'
 
 /*
@@ -154,15 +155,13 @@ export default function LiveEvidence({ planet = 'moon' }: { planet?: Planet }) {
       <p className="mb-4 max-w-3xl text-[14px] text-silver-300">{planet === 'moon' ? 'Everything above is demonstration data. ' : ''}This panel asks the Layer 2/3 service to compute slope and roughness statistics from stored elevation models, with their source and limits.{planet === 'mars' && ' Both sides are measured at the same 926 m scale, two Martian pixels; the 30 m Earth data are aggregated up to it, and nothing is refined. This describes regional terrain, not rover-scale obstacles, and is not a suitability assessment.'}</p>
 
       {state.status === 'offline' && (
-        <div className="max-w-3xl rounded-[var(--radius-md)] border border-dashed border-silver-500 p-4 text-[14px] text-silver-300">
-          <p>The geoprocessing service is not running, so no measured results can be shown. Nothing here is substituted.</p>
-          <p className="mono mt-2 text-[12px] text-silver-400">cd backend/geoprocessing &amp;&amp; python -m uvicorn terrawindow_geo.api.app:app --port 8000</p>
-          <Button className="mt-3" onClick={recheck}>Check again</Button>
-        </div>
+        <ServiceUnavailable kind="offline" title="Measured evidence isn't available right now" onRetry={recheck} preview={planet === 'mars' ? JEZERO_PREVIEW : undefined}
+          context="This session cannot reach the terrain service, so no measured results are shown and nothing is substituted." setup="cd backend/geoprocessing && python -m uvicorn terrawindow_geo.api.app:app --port 8000" />
       )}
 
       {state.status === 'online' && (moons.length === 0 || earths.length === 0) && (
-        <p className="max-w-3xl rounded-[var(--radius-md)] border border-dashed border-silver-500 p-4 text-[14px] text-silver-300">The service is online, but Layer 2 has not stored both a {copy.label === 'Moon' ? 'lunar' : 'Martian'} and an Earth dataset that passed validation. Fetch them first (see the README).</p>
+        <ServiceUnavailable kind="dataset" title="The datasets for this comparison aren't on this machine" onRetry={recheck} preview={planet === 'mars' ? JEZERO_PREVIEW : undefined}
+          context={<>The service is running, but Layer 2 has not stored both a {copy.label === 'Moon' ? 'lunar' : 'Martian'} and an Earth dataset that passed validation.</>} setup="terrawindow-data list" />
       )}
 
       {state.status === 'online' && moons.length > 0 && earths.length > 0 && (
