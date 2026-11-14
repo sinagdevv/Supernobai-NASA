@@ -73,24 +73,25 @@ flowchart TB
     SRC["Public datasets<br/>NASA LOLA<br/>Copernicus DEM<br/>ESA WorldCover"]
     L4["4 · Solar geometry and<br/>rehearsal-window engine · planned"]
     L5["5 · Mission suitability and<br/>evidence engine · planned"]
-    L6["6 · Data storage and<br/>research reporting · planned"]
+    L6["6 · Data storage and<br/>research reporting"]
 
     UI <-->|"typed JSON via /api"| API
     API -->|reads| STORE
     FETCH -->|writes| STORE
     SRC --> FETCH
+    STORE -->|provenance and checksums| L6
+    API -->|stored results| L6
     L4 -.-> L5
     L3 -.-> L5
-    L5 -.-> L6
     L5 -.-> UI
 
     classDef done stroke:#3b8ea0,stroke-width:2px
     classDef planned stroke:#7b838e,stroke-width:1.5px,stroke-dasharray:5 4
-    class UI,API,STORE,FETCH,SRC done
-    class L4,L5,L6 planned
+    class UI,API,STORE,FETCH,SRC,L6 done
+    class L4,L5 planned
 ```
 
-<sub>Solid outline: integrated. Dashed outline: planned, with no implementation in this repository.</sub>
+<sub>Solid outline: implemented. Dashed outline: planned, with no implementation in this repository.</sub>
 
 | Layer | Responsibility | Status | Where |
 |---|---|---|---|
@@ -99,9 +100,9 @@ flowchart TB
 | 3 | Geospatial processing engine and API | Implemented and integrated | [`backend/geoprocessing`](backend/geoprocessing), [API contract](docs/layer3-api-contract.md) |
 | 4 | Solar geometry and rehearsal-window engine | Not started in this repository | none |
 | 5 | Mission suitability and evidence engine | Not started in this repository | none |
-| 6 | Data storage and research reporting | Not started in this repository | none |
+| 6 | Data storage and research reporting | Implemented. Separate service; the frontend dossier is unchanged | [`backend/reporting`](backend/reporting) |
 
-Layers 4 to 6 are shown as planned because the repository contains no implementation of them. The frontend keeps their screens available as clearly labelled demonstrations and leaves integration points for them.
+Layers 4 and 5 have no implementation in this repository. The frontend keeps their screens available as clearly labelled demonstrations. Layer 6 records dataset provenance, analysis runs, and dossiers; it does not replace the file store or the processing cache.
 
 ## Technology stack
 
@@ -111,8 +112,8 @@ Versions are taken from `frontend/package.json` and `backend/*/pyproject.toml`.
 |---|---|
 | Frontend | React 19, TypeScript 6, Vite 8, Tailwind CSS 4, Motion, MapLibre GL JS 6, Recharts 3, lucide-react |
 | Typography | Geist, Geist Mono and Newsreader via Fontsource |
-| Backend | Python 3.12+, FastAPI, Uvicorn, Pydantic 2, rasterio, NumPy, SciPy, pyproj, Pillow |
-| Data | GeoTIFF and cloud-optimised GeoTIFF; a file-based store with a version-controlled reference manifest |
+| Backend | Python 3.12+, FastAPI, Uvicorn, Pydantic 2, rasterio, NumPy, SciPy, pyproj, Pillow, psycopg, fpdf2 |
+| Data | GeoTIFF and cloud-optimised GeoTIFF; a file-based store with a version-controlled reference manifest; PostgreSQL and PostGIS for the Layer 6 registry |
 | Quality | Vitest, ESLint, pytest |
 
 ## Getting started
@@ -166,7 +167,7 @@ The frontend works without the service, on demonstration data. The dev and previ
 
 | Command | Where | What it runs |
 |---|---|---|
-| `python -m pytest` | `backend/geoprocessing`, `backend/data_integration` | Backend suites (no network by default) |
+| `python -m pytest` | `backend/geoprocessing`, `backend/data_integration`, `backend/reporting` | Backend suites (no network by default; Layer 6 Postgres tests need `TERRAWINDOW_DATABASE_URL`) |
 | `npm test` | `frontend/` | Unit tests for the API boundary |
 | `npm run lint` | `frontend/` | ESLint |
 | `npm run build` | `frontend/` | Type-check, then a production build in `dist/` |
@@ -214,7 +215,7 @@ Listing a data resource implies no endorsement by, or affiliation with, any agen
 | 3 · Geospatial processing engine | Done |
 | 4 · Solar geometry and rehearsal-window engine | Planned. Replaces the browser's simplified solar model and adds terrain horizon shadows |
 | 5 · Mission suitability and evidence engine | Planned. Replaces the demonstration screening assumptions with mission-specific criteria |
-| 6 · Data storage and research reporting | Planned |
+| 6 · Data storage and research reporting | Done. Postgres registry, run checksums, and Markdown/PDF dossiers. The on-screen dossier is still demonstration data |
 | Mars | Locked roadmap item |
 
 ## Repository layout
@@ -223,11 +224,12 @@ Listing a data resource implies no endorsement by, or affiliation with, any agen
 frontend/                       Layer 1: React workspace; frontend/src/lib/api is the only boundary to the backend
 backend/data_integration/       Layer 2: catalog, retrieval, validation, provenance (terrawindow-data)
 backend/geoprocessing/          Layer 3: geospatial engine and FastAPI service (terrawindow-geo)
+backend/reporting/              Layer 6: run registry, candidate storage, integrity checks, dossiers (terrawindow-report)
 backend/data/                   Version-controlled reference manifest and provenance; rasters and local state are ignored
 docs/                           API contract and README media
 ```
 
-Further reading: [Layer 3 API contract](docs/layer3-api-contract.md) · [Layer 3 README](backend/geoprocessing/README.md) · [Layer 2 README](backend/data_integration/README.md)
+Further reading: [Layer 3 API contract](docs/layer3-api-contract.md) · [Layer 3 README](backend/geoprocessing/README.md) · [Layer 2 README](backend/data_integration/README.md) · [Layer 6 README](backend/reporting/README.md)
 
 ## Contributors
 
