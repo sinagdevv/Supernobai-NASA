@@ -168,3 +168,13 @@ Imperial Valley, California, as a deliberately unsuitable control. Result on GLO
 | `TWGEO_ALLOW_ANY_LOCAL_PATH` | `0` | Let the API read rasters outside the data folder |
 | `TWGEO_MAX_PATCH_PIXELS` | `16000000` | Largest grid one request may read |
 | `TWGEO_MAX_SCREEN_CELLS` | `2500` | Most patches one screening request may produce |
+
+## Planetary grids that are not true-scale
+
+A projected grid in metres is only a metric grid where the projection's own scale is 1. The Mars MOLA grid is equirectangular with its
+standard parallel at 0 degrees, so its pixel is 463 m east-west only on the equator. `io/raster.py` reads the projection's parallel and
+meridional scale at the patch centre (PROJ); beyond 0.5 % error the source is resampled onto a local azimuthal-equidistant grid on the
+dataset's own sphere, and `native_pixel_size_m` is the true ground spacing of the coarser axis. True-scale grids (UTM, the lunar polar
+stereographic sites) keep their exact source pixels. Mars at 463 m supports scales from 463 m up; finer scales are refused, never refined.
+`scripts/mars_vs_earth.py` runs the Jezero region against Earth regions at 926 m; `tests/test_mars_region.py` checks it against an
+independent slope calculation.

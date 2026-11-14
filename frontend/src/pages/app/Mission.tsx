@@ -7,7 +7,10 @@ import { cx, Segmented, Slider } from '../../components/ui'
 import { RegionProfile } from '../../components/mission/RegionProfile'
 import { OBJECTIVES, ROUGH_BASELINES } from '../../data/mission'
 import { siteById } from '../../data/sites'
+import { MarsNote } from '../../components/PlanetNotice'
+import MarsReference from '../../components/MarsReference'
 import { regionById } from '../../lib/assess'
+import { usePlanet } from '../../lib/planet'
 import { useApp } from '../../lib/store'
 
 function Area({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -35,7 +38,39 @@ const chip = (on: boolean, locked?: boolean) =>
   cx('inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border px-3 text-[14px] font-medium transition-[border-color,background-color,transform] duration-[var(--duration-fast)] ease-[var(--ease-out)] active:scale-[0.97]',
     on ? 'border-amber bg-amber-soft' : locked ? 'cursor-not-allowed border-dashed border-[var(--line-strong)] text-silver-500' : 'border-[var(--line)] hover:border-[var(--line-strong)]')
 
+/** Mars: the measured reference region and what it can and cannot support. There are no limit sliders: nothing on Mars consumes them yet. */
+function MarsMission() {
+  return (
+    <div className="mx-auto max-w-[920px] px-4 py-8 md:px-8 lg:py-12">
+      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Mission</h1>
+      <p className="mt-2 text-[15px] text-silver-300">The Martian reference region for rover mobility, as measured from MOLA topography.</p>
+      <div className="mt-6"><MarsNote>The terrain below is real MOLA data measured by the Layer 2/3 service. Mission criteria, rehearsal windows and suitability are not implemented for Mars (Layers 4 and 5 are pending), so nothing here is screened or scored.</MarsNote></div>
+      <div className="space-y-10">
+        <Area title="Mission reference">
+          <div role="radiogroup" aria-label="Mission objective" className="flex flex-wrap gap-2">
+            <button type="button" role="radio" aria-checked className={chip(true)}>Rover mobility &amp; navigation · regional terrain</button>
+            <button type="button" role="radio" aria-checked={false} aria-disabled title="Not implemented" className={chip(false, true)}><Lock size={13} aria-hidden />Geological field analog · roadmap</button>
+          </div>
+          <MarsReference />
+        </Area>
+        <Area title="What this supports" hint="Measured now, and what would be needed beyond it.">
+          <ul className="list-disc space-y-1.5 pl-5 text-[14px] text-silver-300">
+            <li><span className="font-medium text-paper">Supported:</span> elevation, slope distribution, roughness and relief at 463 m to 1.8 km, with coverage and provenance.</li>
+            <li><span className="font-medium text-paper">Needs finer data:</span> rover-scale slope, obstacles and traction need a HiRISE or CTX terrain model of the site; 463 m MOLA cannot show them.</li>
+            <li><span className="font-medium text-paper">Pending layers:</span> solar geometry (Layer 4) and mission suitability (Layer 5).</li>
+          </ul>
+        </Area>
+      </div>
+    </div>
+  )
+}
+
 export default function Mission() {
+  const { planet } = usePlanet()
+  return planet === 'mars' ? <MarsMission /> : <LunarMission />
+}
+
+function LunarMission() {
   const { mission: m, setMission, selectedId, date } = useApp()
   const region = regionById(m.regionId)
   const site = siteById(selectedId)
@@ -50,10 +85,7 @@ export default function Mission() {
         <div className="mt-8 space-y-10">
           <Area title="Mission reference">
             <div className="flex flex-wrap gap-2">
-              <div role="radiogroup" aria-label="Planetary target" className="flex gap-2">
-                <button type="button" role="radio" aria-checked className={chip(true)}>Moon · south pole</button>
-                <button type="button" role="radio" aria-checked={false} aria-disabled title="Long-term platform vision" className={chip(false, true)}><Lock size={13} aria-hidden />Mars · roadmap</button>
-              </div>
+              <span className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--line)] px-3 text-[14px] font-medium text-silver-300">Moon · south pole</span>
               <div role="radiogroup" aria-label="Mission objective" className="flex flex-wrap gap-2">
                 {OBJECTIVES.map((o) => (
                   <button key={o.id} type="button" role="radio" aria-checked={o.id === m.objectiveId} aria-disabled={!o.active} title={o.blurb} onClick={() => o.active && setMission({ objectiveId: o.id })} className={chip(o.id === m.objectiveId, !o.active)}>

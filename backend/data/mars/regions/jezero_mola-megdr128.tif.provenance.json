@@ -1,0 +1,154 @@
+{
+  "dataset_id": "mola-megdr128",
+  "dataset_name": "MGS MOLA MEGDR topography, 128 pixels/degree (463 m), PDS4",
+  "product": "surface",
+  "quantity": "elevation",
+  "unit": "metres",
+  "body": "mars",
+  "source_urls": [
+    "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg128/megt44n000hb.xml"
+  ],
+  "source_page": "https://pds-geosciences.wustl.edu/missions/mgs/megdr.html",
+  "citation": "Smith, D. E., Zuber, M. T., Neumann, G. A., Guinness, E. A., & Slavney, S. (2003). Mars Global Surveyor Laser Altimeter Mission Experiment Gridded Data Record, MGS-M-MOLA-5-MEGDR-L3-V1.0. NASA Planetary Data System (PDS4 bundle urn:nasa:pds:mgs_mola_topography_derived). Instrument: Smith, D. E., et al. (2001). Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars. Journal of Geophysical Research, 106(E10), 23689-23722. https://doi.org/10.1029/2000JE001364",
+  "license": "NASA data, public domain; cite the PDS dataset and Smith et al. (2001).",
+  "vertical_datum": "Topography in metres: planetary radius minus the MOLA areoid radius (a gravity equipotential surface, degree and order 50); planetocentric, east-positive, IAU 2000; simple cylindrical (equirectangular) projection on a 3,396 km sphere.",
+  "retrieved_at": "2026-11-14T13:13:16+00:00",
+  "retrieved_by": "terrawindow-data/0.1.0",
+  "file": "mars/regions/jezero_mola-megdr128.tif",
+  "bytes": 76459,
+  "sha256": "1d686bfbb4a5bdd87779f0a7809998a279564033d4b3096489d34f4e1f9e62f3",
+  "validation": {
+    "ready": true,
+    "checks": [
+      {
+        "check": "readable",
+        "status": "pass",
+        "observed": "GTiff, 282 x 256, 1 band(s), int16",
+        "detail": ""
+      },
+      {
+        "check": "crs_present",
+        "status": "pass",
+        "observed": "Equirectangular Mars",
+        "detail": ""
+      },
+      {
+        "check": "body_matches",
+        "status": "pass",
+        "observed": 3396000.0,
+        "detail": ""
+      },
+      {
+        "check": "horizontal_unit",
+        "status": "pass",
+        "observed": "metre",
+        "detail": ""
+      },
+      {
+        "check": "square_pixels",
+        "status": "pass",
+        "observed": [
+          463.0577,
+          463.0577
+        ],
+        "detail": ""
+      },
+      {
+        "check": "ground_scale",
+        "status": "warn",
+        "observed": [
+          1.0539,
+          1.0
+        ],
+        "detail": "The projection is not true-scale here: a pixel covers 439 x 463 m on the ground. Layer 3 resamples onto a local metric grid."
+      },
+      {
+        "check": "resolution_as_catalogued",
+        "status": "pass",
+        "observed": 463.058,
+        "detail": ""
+      },
+      {
+        "check": "nodata_declared",
+        "status": "warn",
+        "observed": null,
+        "detail": "No nodata value; voids cannot be told from data."
+      },
+      {
+        "check": "has_data",
+        "status": "pass",
+        "observed": 1.0,
+        "detail": ""
+      },
+      {
+        "check": "values_plausible_in_metres",
+        "status": "pass",
+        "observed": [
+          -3466.0,
+          -514.0
+        ],
+        "detail": ""
+      }
+    ],
+    "summary": {
+      "pixel_size_m": 463.058,
+      "ground_pixel_size_m": [
+        439.37,
+        463.06
+      ],
+      "valid_fraction": 1.0,
+      "value_range": [
+        -3466.0,
+        -514.0
+      ],
+      "crs": "PROJCS[\"Equirectangular Mars\",GEOGCS[\"GCS_Mars\",DATUM[\"D_Mars\",SPHEROID[\"Mars\",3396000,0]],PRIMEM[\"Reference_Meridian\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Equirectangular\"],PARAMETER[\"standard_parallel_1\",0],PARAMETER[\"central_meridian\",180],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH]]",
+      "width": 282,
+      "height": 256,
+      "dtype": "int16",
+      "nodata": null,
+      "bounds_native": [
+        -6140607.724,
+        1031692.483,
+        -6010025.462,
+        1150235.246
+      ],
+      "extent_km": [
+        130.58,
+        118.54
+      ],
+      "center_lonlat": [
+        77.5,
+        18.40625
+      ]
+    }
+  },
+  "limitations": [
+    "Each pixel is the median of the laser shots in a 1/128 degree bin; where a bin holds no shot the producer interpolated a value (PDS: about 55 % of bins near the equator hold at least one shot, with gaps up to 12 km between ground tracks), so slopes there are smoothed. There is no void value: interpolated pixels cannot be told from measured ones.",
+    "463 m pixels cannot resolve rover-scale slopes, rocks, or wheel traction; metrics describe regional terrain only.",
+    "Vertical: about 40 cm resolution; the PDS catalog estimates about 30 m absolute long-wavelength radial orbit error and about 400 m ground-spot location uncertainty at 400 km range. USGS puts the total elevation uncertainty at no better than 3 m (areoid error included).",
+    "The equirectangular pixel is only 463 m east-west on the equator (463 m x cos(latitude) on the ground); Layer 3 resamples it onto a local metric grid.",
+    "Not the USGS Astropedia 463 m mosaic: that product is a half-pixel-shifted, 2 x 2-averaged resampling of this data and is smoother."
+  ],
+  "region": {
+    "name": "jezero",
+    "bbox_lonlat": [
+      76.4,
+      17.4,
+      78.6,
+      19.4
+    ]
+  },
+  "missing_tiles": [],
+  "processing": "Pixels copied on the source grid; no resampling.",
+  "details": {
+    "instrument": "Mars Orbiter Laser Altimeter (MOLA), Mars Global Surveyor",
+    "product_type": "MEGDR median topography ('megt'), 128 pixels/degree, one PDS4 product per 44 x 90 degree tile",
+    "pds3_dataset_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0",
+    "pds4_bundle": "urn:nasa:pds:mgs_mola_topography_derived",
+    "pds4_product_example": "urn:nasa:pds:mgs_mola_topography_derived:data_meg128:megt44n000hb (version 1.1)",
+    "pds_archive": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/",
+    "acquired": "MOLA mapping and extended mission to 2001-06-30 (product label: 1997-09-15 to 2001-06-30); product created 2003",
+    "processing": "Crossover-adjusted PEDR shots binned to 1/128 degree; areoid from the Goddard Mars potential model GMM3 (mgm1025), degree and order 50 (per the product label).",
+    "storage": "big-endian int16 metres, no nodata, read through the PDS4 label (GDAL PDS4 driver)"
+  }
+}

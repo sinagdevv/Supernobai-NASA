@@ -4,9 +4,10 @@ import { memo, useState } from 'react'
 import { Lockup } from '../brand/Logo'
 import { HeroPlate } from '../components/landing/HeroPlate'
 import { Magnetic } from '../components/landing/kit'
-import { Button, cx, StatusBadge, Tabs } from '../components/ui'
+import { Button, cx, Segmented, StatusBadge, Tabs } from '../components/ui'
 import { BASEMAP_CREDITS, DISCLAIMER, SOURCES } from '../data/sources'
 import type { Status } from '../data/types'
+import { PLANET_COPY, usePlanet, type Planet } from '../lib/planet'
 import { enterWorkspace } from '../lib/transition'
 import What from './landing/What'
 import When from './landing/When'
@@ -21,7 +22,7 @@ const Nav = memo(function Nav() {
     <header className="glass fixed inset-x-0 top-0 z-30 border-b border-[var(--line)]">
       <div className="mx-auto flex h-14 max-w-[1680px] items-center justify-between px-4 md:px-8">
         <a href="#/" aria-label="TERRAWINDOW home" className="vt-lockup -ml-1 flex h-11 items-center rounded-md px-1 text-paper"><Lockup target className="h-[22px]" /></a>
-        <nav aria-label="Page sections" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Page sections" className="hidden items-center gap-1 lg:flex">
           {[['#where', 'Where'], ['#when', 'When'], ['#what', 'What'], ['#workspace', 'Workspace'], ['#transparency', 'Transparency']].map(([h, l]) => (
             <a key={h} href={h} className="flex min-h-11 items-center rounded-md px-3 text-[14px] text-silver-300 transition-colors hover:text-paper">{l}</a>
           ))}
@@ -35,17 +36,21 @@ const Nav = memo(function Nav() {
 /* ───────────── Hero: the headline beside the observation plate ───────────── */
 function Hero({ show, ribbons }: { show: boolean; ribbons: boolean }) {
   const reduce = useReducedMotion()
+  const { planet, setPlanet } = usePlanet()
+  const copy = PLANET_COPY[planet]
   const item = (i: number) => ({ initial: reduce ? false : { opacity: 0, y: 10 }, animate: show ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }, transition: { duration: 0.5, delay: show ? 0.1 + i * 0.07 : 0, ease: EASE } })
   return (
     <section aria-labelledby="hero-title" className="relative">
       <div className="mx-auto grid min-h-[min(100svh,900px)] max-w-[1680px] *:min-w-0 items-center gap-x-12 gap-y-10 px-4 pt-[88px] pb-12 md:px-8 lg:grid-cols-12 lg:pt-[72px]">
         <div className="lg:col-span-5">
+          <motion.div {...item(0)} className="mb-6">
+            <Segmented<Planet> label="Planetary target" value={planet} onChange={setPlanet} options={[{ value: 'moon', label: 'Moon' }, { value: 'mars', label: 'Mars' }]} />
+          </motion.div>
           <motion.h1 id="hero-title" {...item(0)} className="font-display text-[clamp(38px,4.5vw,84px)] leading-[0.98] tracking-[-0.032em]">
-            Find the Earth.<br />Test for the Moon.
+            {copy.headline[0]}<br />
+            <motion.span key={planet} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, ease: EASE }} className="inline-block">{copy.headline[1]}</motion.span>
           </motion.h1>
-          <motion.p {...item(1)} className="mt-6 max-w-[27rem] text-[17px] leading-[1.55] text-silver-300">
-            Discover terrestrial analog environments, explore potential rehearsal windows, and evaluate mission-specific testing conditions.
-          </motion.p>
+          <motion.p {...item(1)} className="mt-6 max-w-[27rem] text-[17px] leading-[1.55] text-silver-300">{copy.lede}</motion.p>
           <motion.div {...item(2)} className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
             <Magnetic><Button variant="primary" onClick={enter} className="px-5">Explore Earth Analogs <ArrowRight size={17} aria-hidden /></Button></Magnetic>
             <a href="#where" className="inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-silver-200 transition-colors hover:text-paper">How it works <ArrowDown size={15} aria-hidden /></a>
@@ -123,7 +128,7 @@ const Workspace = memo(function Workspace() {
           <p className="text-[16px]"><span className="font-medium">{s.title}.</span> <span className="text-silver-300">{s.body}</span></p>
           <a href={`#/app/${s.id}`} className="inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-amber hover:underline">Open {s.label} <ArrowRight size={15} aria-hidden /></a>
         </div>
-        <p className="mt-6 max-w-3xl border-t border-[var(--line)] pt-5 text-[14px] text-silver-400"><span className="font-medium text-amber">Working prototype:</span> lunar south-polar rover mobility and navigation under low-angle illumination. <span className="font-medium text-silver-300">Not implemented:</span> Mars, shown as a locked roadmap item.</p>
+        <p className="mt-6 max-w-3xl border-t border-[var(--line)] pt-5 text-[14px] text-silver-400"><span className="font-medium text-amber">Working prototype:</span> lunar south-polar rover mobility and navigation under low-angle illumination. <span className="font-medium text-silver-300">Mars:</span> an illustrative reference only. Its terrain is a schematic landform, and no Martian data, lighting model or assessment exists yet.</p>
       </div>
     </section>
   )

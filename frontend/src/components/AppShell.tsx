@@ -8,7 +8,9 @@ import { regionById } from '../lib/assess'
 import { href, type Screen } from '../lib/router'
 import { prefetch, prefetchAll } from '../lib/screens'
 import { useBackend } from '../lib/api/backend'
+import { usePlanet } from '../lib/planet'
 import { useApp } from '../lib/store'
+import { PlanetSwitch } from './PlanetNotice'
 import { cx, Modal } from './ui'
 
 const TABS: { id: Screen; label: string; short: string; Icon: LucideIcon }[] = [
@@ -74,6 +76,7 @@ if (typeof window !== 'undefined') window.addEventListener('hashchange', () => {
 
 export function AppShell({ screen, children }: { screen: Screen; children: ReactNode }) {
   const { mission, selectedId, resetAll } = useApp()
+  const { planet } = usePlanet()
   const { state: backend } = useBackend()
   const [about, setAbout] = useState(false)
   const main = useRef<HTMLElement>(null)
@@ -147,10 +150,11 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
           </nav>
 
           <div className="ml-auto flex items-center gap-1 md:ml-0">
-            <a href={href({ page: 'app', screen: 'mission' })} className="hidden min-h-11 max-w-[20rem] items-center gap-2 truncate rounded-md px-2 text-[13px] text-silver-300 transition-colors hover:text-paper xl:flex" title="Mission context">
+            <PlanetSwitch />
+            {planet === 'moon' && <a href={href({ page: 'app', screen: 'mission' })} className="hidden min-h-11 max-w-[20rem] items-center gap-2 truncate rounded-md px-2 text-[13px] text-silver-300 transition-colors hover:text-paper xl:flex" title="Mission context">
               <span className="truncate">{regionById(mission.regionId).name}</span>
               {site && <><span aria-hidden className="text-silver-500">/</span><span className="truncate text-cyan">{shortName(site)}</span></>}
-            </a>
+            </a>}
             <button type="button" onClick={() => setAbout(true)} className="flex min-h-11 items-center gap-2 rounded-md px-2.5 text-[13px] text-silver-300 transition-[color,transform] hover:text-paper active:scale-[0.97]" aria-label={backend.status === 'online' ? 'Data status: demonstration data, Layer 3 service connected. Open details.' : 'Data status: illustrative prototype data. Open details.'}>
               <i aria-hidden className={cx('h-1.5 w-1.5 rounded-full', backend.status === 'online' ? 'bg-cyan' : 'bg-amber')} />
               <span className="hidden xl:inline">{backend.status === 'online' ? 'Demo data · Layer 3 live' : 'Illustrative data'}</span>

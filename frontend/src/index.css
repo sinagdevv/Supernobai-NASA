@@ -75,7 +75,14 @@
   --mark-a: #c5cad0;
   --mark-b: #e4a95b;
   --mark-c: #80b7c4;
+  /* Selected planet (data-planet, set by PlanetProvider): the reference ribbon and the horizon light. Earth cyan and the amber window never change. */
+  --planet-ref: var(--color-silver-300);
+  --planet-glow: 228 169 91;
   color-scheme: dark;
+}
+:root[data-planet='mars'] {
+  --planet-ref: #b0765a;
+  --planet-glow: 214 120 78;
 }
 @media (max-width: 767px) {
   :root {

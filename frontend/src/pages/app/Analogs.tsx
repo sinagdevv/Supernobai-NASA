@@ -108,7 +108,7 @@ export default function Analogs() {
 
   return (
     <div
-      className="relative h-[calc(100dvh-var(--topbar-h)-var(--tabbar-h))] overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]"
+      className="relative h-[calc(100dvh-var(--topbar-h)-var(--tabbar-h)-var(--note-h,0px))] overflow-hidden lg:grid lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_360px]"
       style={{ ['--sheet-offset' as string]: isDesktop ? '0px' : `${PEEK}px` }}
     >
       <h1 className="sr-only">Earth analog explorer</h1>

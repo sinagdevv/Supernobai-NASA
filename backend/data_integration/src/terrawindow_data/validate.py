@@ -71,6 +71,20 @@ def validate_raster(path: str, *, body: str, kind: str = "elevation", nominal_re
         if ds.crs.is_projected:
             square = abs(px - py) <= 1e-6 * pixel
             checks.append(_check("square_pixels", "pass" if square else "warn", [round(px, 4), round(py, 4)]))
+        if ds.crs.is_projected:
+            lon0, lat0 = pyproj.Transformer.from_crs(crs, crs.geodetic_crs, always_xy=True).transform(
+                (ds.bounds.left + ds.bounds.right) / 2, (ds.bounds.bottom + ds.bounds.top) / 2)
+            try:
+                f = pyproj.Proj(crs).get_factors(lon0, lat0)
+                kp, km = float(f.parallel_scale), float(f.meridional_scale)
+                true_scale = abs(kp - 1) <= 0.005 and abs(km - 1) <= 0.005
+                checks.append(
+                    _check("ground_scale", "pass" if true_scale else "warn", [round(kp, 4), round(km, 4)],
+                           "" if true_scale else f"The projection is not true-scale here: a pixel covers {px / kp:.0f} x {py / km:.0f} m on the ground. Layer 3 resamples onto a local metric grid.")
+                )
+                summary["ground_pixel_size_m"] = [round(px / kp, 2), round(py / km, 2)]
+            except Exception:  # factors are not defined for every projection; the check is advisory
+                pass
         if nominal_resolution_m:
             close = abs(pixel - nominal_resolution_m) / nominal_resolution_m <= 0.1
             checks.append(

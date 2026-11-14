@@ -60,6 +60,37 @@ export function earthMeters(lunar: number[], variant = 0): number[] {
   })
 }
 
+const smooth = (a: number, b: number, x: number) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t) }
+
+/**
+ * Schematic Martian reference relief. Deliberately a different landform family from the lunar one (bowl craters under a regolith blanket):
+ * a wide eroded basin, a flat-topped mesa with talus ramps and wind-rippled dunes. Illustrative, not MOLA/HiRISE data.
+ */
+export function marsMeters(): number[] {
+  return Array.from({ length: N }, (_, i) => {
+    const t = i / (N - 1)
+    const basin = -6 * Math.exp(-(((t - 0.2) / 0.1) ** 2)) + 1.3 * Math.exp(-(((Math.abs(t - 0.2) - 0.13) / 0.04) ** 2))
+    const mesa = 9 * (smooth(0.46, 0.53, t) - smooth(0.64, 0.72, t))
+    const swell = (fbm(t * 2.4, 41, 3) - 0.5) * 6
+    const dunes = Math.sin(t * 150 + fbm(t * 9, 43, 2) * 5) * 0.55 * (1 - smooth(0.46, 0.53, t) * (1 - smooth(0.64, 0.72, t)))
+    return basin + mesa + swell + dunes + 1.5
+  })
+}
+
+export type Planet = 'moon' | 'mars'
+export interface Terrain { lm: number[]; em: number[] }
+const terrains: Partial<Record<Planet, Terrain>> = {}
+/** Reference relief for a planet and the Earth analog drawn from it. Computed once. */
+export function terrain(p: Planet): Terrain {
+  return (terrains[p] ??= (() => { const lm = p === 'mars' ? marsMeters() : lunarMeters(); return { lm, em: earthMeters(lm, p === 'mars' ? 1 : 0) } })())
+}
+/** `t` = 0 is `A`, 1 is `B`: every sample is lerped, so the landform deforms rather than cross-fades. Works from any in-between state, so a morph can be interrupted. */
+export function lerpTerrain(A: Terrain, B: Terrain, t: number): Terrain {
+  if (t <= 0) return A
+  if (t >= 1) return B
+  return { lm: A.lm.map((h, i) => h + (B.lm[i] - h) * t), em: A.em.map((h, i) => h + (B.em[i] - h) * t) }
+}
+
 export interface Layout {
   vw: number
   vh: number
@@ -90,13 +121,13 @@ export function edgesAt(lm: number[], em: number[], o: { yBase: number; k: numbe
 }
 
 /** One layout for the intro overlay, the hero plate and the story figures, so every hand-off is exact. */
-export function layout(vw: number, vh: number, exag = 2.5, rect: Rect = { x: 0, w: vw, yBase: vh * (vw < 700 ? 0.8 : 0.72) }): Layout {
+export function layout(vw: number, vh: number, exag = 2.5, rect: Rect = { x: 0, w: vw, yBase: vh * (vw < 700 ? 0.8 : 0.72) }, t: Terrain = terrain('moon')): Layout {
   const yBase = rect.yBase
   const dx = rect.w / (N - 1)
   const k = (dx / CELL_M) * exag
   const T = rect.T ?? Math.max(14, Math.min(28, vh * 0.03))
   const G = T * 0.55
-  const lm = lunarMeters(), em = earthMeters(lm)
+  const { lm, em } = t
   const xs = lm.map((_, i) => rect.x + i * dx)
   const E = edgesAt(lm, em, { yBase, k, T, G })
   return { vw, vh, xs, E, hL: E[1].map((y) => -y), hE: E[2].map((y) => -y), dx, T, G, yBase, k, x0: rect.x, x1: rect.x + rect.w, exag }
@@ -106,10 +137,10 @@ export function layout(vw: number, vh: number, exag = 2.5, rect: Rect = { x: 0, 
  * The hero's observation plate: a w×h pixel box that is measured from the DOM, never derived from the viewport, so the figure
  * keeps one composition at every window size. Relief fills about a fifth of the height; the sky above holds the sun and its ray.
  */
-export function plateLayout(w: number, h: number): Layout {
+export function plateLayout(w: number, h: number, t: Terrain = terrain('moon')): Layout {
   const dx = w / (N - 1)
   const k = Math.max(0.9, (0.21 * h) / 30) // ≈30 m of relief in the fixture profile
-  return layout(w, h, (k * CELL_M) / dx, { x: 0, w, yBase: h * 0.5, T: Math.max(18, Math.min(46, h * 0.1)) })
+  return layout(w, h, (k * CELL_M) / dx, { x: 0, w, yBase: h * 0.5, T: Math.max(18, Math.min(46, h * 0.1)) }, t)
 }
 
 /** Mark target edges at a given on-screen size and centre (same vertex count as the profile). */

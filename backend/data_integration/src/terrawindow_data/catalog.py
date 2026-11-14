@@ -2,7 +2,7 @@
 
 Two kinds of entry:
   file  : a fixed set of downloadable rasters (the lunar south-pole site models).
-  tiled : a global dataset served as cloud-optimised tiles; regions are cut out on request.
+  tiled : a global dataset served as tiles; regions are cut out on request by reading only the needed window of each tile.
 
 Every URL pattern here was checked against the live server when this catalog was written.
 """
@@ -102,6 +102,56 @@ def _lola_entry(directory: str, suffix: str, place: str) -> CatalogEntry:
     )
 
 
+# ----------------------------------------------------------------- Mars: MOLA MEGDR topography (PDS4)
+
+MEGDR_BASE = "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg128"
+MOLA_MEGDR = CatalogEntry(
+    id="mola-megdr128",
+    name="MGS MOLA MEGDR topography, 128 pixels/degree (463 m), PDS4",
+    body="mars",
+    kind="elevation",
+    access="tiled",
+    nominal_resolution_m=463.06,
+    citation=(
+        "Smith, D. E., Zuber, M. T., Neumann, G. A., Guinness, E. A., & Slavney, S. (2003). Mars Global Surveyor Laser Altimeter Mission "
+        "Experiment Gridded Data Record, MGS-M-MOLA-5-MEGDR-L3-V1.0. NASA Planetary Data System (PDS4 bundle urn:nasa:pds:mgs_mola_topography_derived). "
+        "Instrument: Smith, D. E., et al. (2001). Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars. "
+        "Journal of Geophysical Research, 106(E10), 23689-23722. https://doi.org/10.1029/2000JE001364"
+    ),
+    license="NASA data, public domain; cite the PDS dataset and Smith et al. (2001).",
+    source_page="https://pds-geosciences.wustl.edu/missions/mgs/megdr.html",
+    coverage="Mars between 88 N and 88 S in 16 tiles of 44 x 90 degrees (polar caps are separate products); longitude 0 to 360 degrees east, planetocentric.",
+    vertical_datum=(
+        "Topography in metres: planetary radius minus the MOLA areoid radius (a gravity equipotential surface, degree and order 50); "
+        "planetocentric, east-positive, IAU 2000; simple cylindrical (equirectangular) projection on a 3,396 km sphere."
+    ),
+    limitations=(
+        "Each pixel is the median of the laser shots in a 1/128 degree bin; where a bin holds no shot the producer interpolated a value "
+        "(PDS: about 55 % of bins near the equator hold at least one shot, with gaps up to 12 km between ground tracks), so slopes there are smoothed. "
+        "There is no void value: interpolated pixels cannot be told from measured ones.",
+        "463 m pixels cannot resolve rover-scale slopes, rocks, or wheel traction; metrics describe regional terrain only.",
+        "Vertical: about 40 cm resolution; the PDS catalog estimates about 30 m absolute long-wavelength radial orbit error and about 400 m "
+        "ground-spot location uncertainty at 400 km range. USGS puts the total elevation uncertainty at no better than 3 m (areoid error included).",
+        "The equirectangular pixel is only 463 m east-west on the equator (463 m x cos(latitude) on the ground); Layer 3 resamples it onto a local metric grid.",
+        "Not the USGS Astropedia 463 m mosaic: that product is a half-pixel-shifted, 2 x 2-averaged resampling of this data and is smoother.",
+    ),
+    tile_degrees=0,
+    extra={
+        "details": {
+            "instrument": "Mars Orbiter Laser Altimeter (MOLA), Mars Global Surveyor",
+            "product_type": "MEGDR median topography ('megt'), 128 pixels/degree, one PDS4 product per 44 x 90 degree tile",
+            "pds3_dataset_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0",
+            "pds4_bundle": "urn:nasa:pds:mgs_mola_topography_derived",
+            "pds4_product_example": "urn:nasa:pds:mgs_mola_topography_derived:data_meg128:megt44n000hb (version 1.1)",
+            "pds_archive": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/",
+            "acquired": "MOLA mapping and extended mission to 2001-06-30 (product label: 1997-09-15 to 2001-06-30); product created 2003",
+            "processing": "Crossover-adjusted PEDR shots binned to 1/128 degree; areoid from the Goddard Mars potential model GMM3 (mgm1025), degree and order 50 (per the product label).",
+            "storage": "big-endian int16 metres, no nodata, read through the PDS4 label (GDAL PDS4 driver)",
+        },
+    },
+)
+
+
 # ----------------------------------------------------------------- Earth: tiled global datasets
 
 GLO30 = CatalogEntry(
@@ -140,7 +190,7 @@ WORLDCOVER = CatalogEntry(
     tile_degrees=3,
 )
 
-CATALOG: dict[str, CatalogEntry] = {e.id: e for e in [*(_lola_entry(d, s, p) for d, (s, p) in LOLA_SITES.items()), GLO30, WORLDCOVER]}
+CATALOG: dict[str, CatalogEntry] = {e.id: e for e in [*(_lola_entry(d, s, p) for d, (s, p) in LOLA_SITES.items()), MOLA_MEGDR, GLO30, WORLDCOVER]}
 
 
 def get_entry(dataset_id: str) -> CatalogEntry:
@@ -163,6 +213,8 @@ def _ew(lon: int) -> str:
 
 def tile_urls(entry: CatalogEntry, west: float, south: float, east: float, north: float) -> list[str]:
     """URLs of the tiles of a tiled dataset that touch a lon/lat box."""
+    if entry.id == MOLA_MEGDR.id:
+        return megdr_tile_urls(west, south, east, north)
     if entry.access != "tiled":
         raise ValueError(f"{entry.id} is not a tiled dataset")
     step, eps = entry.tile_degrees, 1e-9
@@ -181,4 +233,28 @@ def tile_urls(entry: CatalogEntry, west: float, south: float, east: float, north
                 )
             lon += step
         lat += step
+    return urls
+
+
+def megdr_tile_urls(west: float, south: float, east: float, north: float) -> list[str]:
+    """PDS4 label URLs of the MEGDR 128 ppd topography tiles that touch a lon/lat box (longitude east-positive, any -180..360 range).
+
+    Tiles are 44 degrees of latitude by 90 of longitude, named megt<top latitude><n|s><west longitude>hb: megt44n000hb covers 44 N to 0 N, 0 E to 90 E.
+    """
+    if south < -88 or north > 88:
+        raise ValueError("MEGDR 128 ppd tiles stop at 88 degrees; the polar caps are separate products and are not supported.")
+    tops = [88, 44, 0, -44]  # a tile spans top-44 .. top
+    urls: list[str] = []
+    for top in tops:
+        if not (south < top and north > top - 44):
+            continue
+        for west_edge in (0, 90, 180, 270):
+            lo, hi = west_edge, west_edge + 90
+            # shift the requested range by whole turns so it can overlap this tile
+            for turn in (-360, 0, 360):
+                if west + turn < hi and east + turn > lo:
+                    name = f"megt{abs(top):02d}{'n' if top >= 0 else 's'}{west_edge:03d}hb"
+                    url = f"{MEGDR_BASE}/{name}.xml"
+                    if url not in urls:
+                        urls.append(url)
     return urls

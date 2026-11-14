@@ -212,11 +212,12 @@ export function ProtoNote({ children, paper }: { children?: ReactNode; paper?: b
     </p>
   )
 }
-export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
+export function EmptyState({ title, body, action, page }: { title: string; body: string; action?: ReactNode; page?: boolean }) {
+  const H = page ? 'h1' : 'h2'
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-3 px-6 py-16 text-center">
       <div className="grid h-12 w-12 place-items-center rounded-full border border-dashed border-silver-500 text-silver-400"><CircleDashed size={22} aria-hidden /></div>
-      <h2 className="text-[20px] font-semibold">{title}</h2>
+      <H className="text-[20px] font-semibold">{title}</H>
       <p className="text-[14px] text-silver-400">{body}</p>
       {action}
     </div>

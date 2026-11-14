@@ -27,6 +27,12 @@ export interface StoredDataset extends DatasetInfo {
   availability: Availability
   validated: boolean | null
   summary: { pixel_size_m: number; extent_km: [number, number]; center_lonlat: [number, number]; valid_fraction: number } | null
+  /** Recorded by Layer 2 with the dataset: what it cannot show, what the heights are relative to, and where it comes from. */
+  limitations?: string[] | null
+  vertical_datum?: string | null
+  source_page?: string | null
+  details?: Record<string, string> | null
+  region?: { name: string; bbox_lonlat: [number, number, number, number]; parent_dataset: string } | null
 }
 
 export interface DatasetsResponse { datasets: DatasetInfo[]; stored_datasets: StoredDataset[] }
@@ -47,8 +53,22 @@ export interface Provenance {
   generated_at: string
 }
 
+export interface ScaleMetrics {
+  scale_m: number
+  status: 'assessed' | 'insufficient_coverage'
+  coverage_fraction: number
+  grid_shape: [number, number]
+  slope: { stats: { mean: number | null; median: number | null; p90: number | null }; rms_slope_deg: number | null; fraction_steeper_than: Record<string, number> } | null
+  roughness: { rms_height_m: { median: number | null } } | null
+}
+
+export interface ProfileRequest { dataset: { id: string }; scales_m?: number[]; relief_windows_m?: number[] }
+
 export interface TerrainProfile {
-  patch: { body: 'earth' | 'moon' | 'mars'; center_lon: number; center_lat: number; area_km2: number }
+  patch: { body: 'earth' | 'moon' | 'mars'; center_lon: number; center_lat: number; area_km2: number; width_m?: number; height_m?: number }
+  elevation?: { unit: string; min: number | null; max: number | null; mean: number | null; std: number | null; range: number | null }
+  scales?: ScaleMetrics[]
+  relief?: { window_m: number; grid_m: number; stats: { median: number | null } }[]
   provenance: Provenance
   coverage: { valid_fraction: number; sufficient: boolean }
   skipped: { item: string; code: string; reason: string }[]

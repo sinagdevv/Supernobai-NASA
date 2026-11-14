@@ -29,6 +29,7 @@ terrawindow-data list
 terrawindow-data fetch lola-5mpp-site01
 terrawindow-data fetch lola-5mpp-site01 --products uncertainty slope counts
 terrawindow-data region copernicus-glo30 sp-crater -111.72 35.51 -111.54 35.655
+terrawindow-data region mola-megdr128 jezero 76.4 17.4 78.6 19.4
 terrawindow-data validate path/to/any.tif --body moon
 terrawindow-data show lola-5mpp-site01
 ```
@@ -61,6 +62,7 @@ cd backend/data_integration
 | `lola-5mpp-haworth` Haworth | Moon | 5 m | file, 142 MB |
 | `lola-5mpp-shoemaker` Shoemaker | Moon | 5 m | file |
 | `lola-5mpp-dm2` Nobile rim 2 | Moon | 5 m | file |
+| `mola-megdr128` | Mars | 463 m | tiled (16 PDS4 MOLA MEGDR tiles); cut regions with `region` |
 | `copernicus-glo30` | Earth | 30 m | tiled; cut regions with `region` |
 | `esa-worldcover` | Earth | 10 m | tiled; cut regions with `region` |
 
@@ -71,7 +73,19 @@ The lunar sites are NASA's LOLA 5 m/pix south-pole landing-site models (Barker e
 expect several minutes per file.
 
 Not catalogued yet: the enhanced shape-from-shading models of Bertone et al. (2026,
-PGDA product 104), the PGDA illumination products (product 69), and Mars data.
+PGDA product 104), the PGDA illumination products (product 69), and Mars data finer than MOLA (HiRISE or CTX terrain models).
+
+## Mars (MOLA)
+
+`mola-megdr128` is NASA's Mars Orbiter Laser Altimeter MEGDR topography at 128 pixels/degree (463 m), read from the PDS4
+archive (`urn:nasa:pds:mgs_mola_topography_derived`, dataset `MGS-M-MOLA-5-MEGDR-L3-V1.0`) through the product labels. Heights are
+metres above the MOLA areoid; the grid is equirectangular, lon_0 = 180, on a 3,396 km sphere. `region` converts your lon/lat box into
+the tile's projected coordinates, picks the tiles it touches (`catalog.megdr_tile_urls`, polar caps beyond 88 degrees are refused) and
+copies the source pixels unchanged. Validation adds a `ground_scale` check: it warns where the projection is not true-scale, because
+the 463 m pixel is only 463 m east-west on the equator (439 m at Jezero). Layer 3 resamples such grids onto a local metric grid.
+
+`scripts/verify_mola_against_pds.py REGION_ID [--usgs]` re-reads the same pixels from the raw PDS bytes with NumPy and requires an exact
+match; `--usgs` also compares with the USGS Astropedia mosaic, which is a half-pixel, 2 x 2-averaged resampling of the same data.
 
 ## Store
 

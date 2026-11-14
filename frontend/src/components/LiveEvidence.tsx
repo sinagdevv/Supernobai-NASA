@@ -4,6 +4,7 @@ import { useBackend } from '../lib/api/backend'
 import { explain } from '../lib/api/explain'
 import type { ComparisonCriterion, ComparisonResult, CriterionStatus, StoredDataset } from '../lib/api/types'
 import type { Status } from '../data/types'
+import { PLANET_COPY, type Planet } from '../lib/planet'
 import { Button, StatusBadge, cx } from './ui'
 
 /*
@@ -33,8 +34,8 @@ const METRIC: Record<string, string> = {
 /** Metric ids carry their threshold or window (`fraction_steeper_than_10deg`, `relief_median_990m_window`); name them from the id. */
 const label = (m: string) => {
   if (METRIC[m]) return METRIC[m]
-  const f = m.match(/^fraction_steeper_than_(\d+)deg$/), r = m.match(/^relief_median_(\d+)m_window$/)
-  return f ? `Share steeper than ${f[1]}°` : r ? `Median relief (${r[1]} m window)` : m.replace(/_/g, ' ')
+  const f = m.match(/^fraction_steeper_than_(\d+)deg$/), r = m.match(/^relief_median_([\d.]+)m_window$/)
+  return f ? `Share steeper than ${f[1]}°` : r ? `Median relief (${Math.round(Number(r[1]))} m window)` : m.replace(/_/g, ' ')
 }
 
 const fmt = (v: number | null, unit: string) => (v === null ? '—' : `${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(Math.abs(v) < 1 ? 3 : 2)}${unit === 'fraction' ? '' : ` ${unit}`}`)
@@ -47,7 +48,7 @@ function Row({ c }: { c: ComparisonCriterion }) {
   const s = STATUS[c.status]
   return (
     <tr className="border-t border-[var(--line)] align-top">
-      <th scope="row" className="py-2.5 pr-4 text-left text-[14px] font-medium text-paper">{label(c.metric)}{c.scale_m !== null && <span className="mono block text-[12px] font-normal text-silver-400">at {c.scale_m} m grid</span>}</th>
+      <th scope="row" className="py-2.5 pr-4 text-left text-[14px] font-medium text-paper">{label(c.metric)}{c.scale_m !== null && <span className="mono block text-[12px] font-normal text-silver-400">at {Number(c.scale_m.toFixed(1))} m grid</span>}</th>
       {c.reference === null && c.candidate === null && c.difference !== null ? (
         <td colSpan={2} className="mono py-2.5 pr-4 text-right text-[13px] text-silver-200">distance {fmt(c.difference, c.unit)}</td>
       ) : (
@@ -64,7 +65,10 @@ function Row({ c }: { c: ComparisonCriterion }) {
   )
 }
 
-function Result({ r }: { r: ComparisonResult }) {
+/** The comparison scale per planet, in metres. Moon: the Earth data's 30 m and 60 m. Mars: two MOLA pixels (2 x 463.06 m), the finest scale both sides support without refining either. */
+const SCALES: Record<Planet, number[]> = { moon: [30, 60], mars: [926.1153344] }
+
+function Result({ r, refLabel }: { r: ComparisonResult; refLabel: string }) {
   const cand = r.candidate_profile, ref = r.reference_profile
   return (
     <div className="mt-5 space-y-5">
@@ -72,13 +76,13 @@ function Result({ r }: { r: ComparisonResult }) {
         <span>{r.counts.within_tolerance} within tolerance</span><span>{r.counts.outside_tolerance} outside</span><span>{r.counts.not_assessed} not assessed</span>
         <span className="text-silver-400">· a tally per criterion, not a similarity score</span>
       </p>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Comparison table, scrollable">
         <table className="w-full min-w-[34rem] border-collapse">
-          <caption className="sr-only">Terrain criteria, lunar reference against Earth candidate, from the Layer 3 service</caption>
+          <caption className="sr-only">Terrain criteria, {refLabel.toLowerCase()} against Earth candidate, from the Layer 3 service</caption>
           <thead>
             <tr className="text-left text-[12px] text-silver-400">
               <th scope="col" className="pb-2 font-medium">Criterion</th>
-              <th scope="col" className="pb-2 pr-4 text-right font-medium">Lunar reference</th>
+              <th scope="col" className="pb-2 pr-4 text-right font-medium">{refLabel}</th>
               <th scope="col" className="pb-2 pr-4 text-right font-medium">Earth candidate</th>
               <th scope="col" className="pb-2 font-medium">Result</th>
             </tr>
@@ -91,7 +95,7 @@ function Result({ r }: { r: ComparisonResult }) {
       <details className="text-[13px] text-silver-300">
         <summary className="min-h-11 cursor-pointer py-2 font-medium text-paper">Provenance and limitations</summary>
         <div className="grid gap-6 pb-2 md:grid-cols-2">
-          {[['Lunar reference', ref], ['Earth candidate', cand]].map(([label, p]) => {
+          {[[refLabel, ref], ['Earth candidate', cand]].map(([label, p]) => {
             const prof = p as typeof ref
             return (
               <div key={label as string} className="space-y-1.5">
@@ -110,22 +114,23 @@ function Result({ r }: { r: ComparisonResult }) {
   )
 }
 
-export default function LiveEvidence() {
+export default function LiveEvidence({ planet = 'moon' }: { planet?: Planet }) {
   const { state, recheck } = useBackend()
+  const copy = PLANET_COPY[planet]
   const id = useId()
   const [refId, setRef] = useState<string>('')
   const [candId, setCand] = useState<string>('')
   const [run, setRun] = useState<{ status: 'idle' } | { status: 'running' } | { status: 'done'; result: ComparisonResult } | { status: 'error'; error: ApiError }>({ status: 'idle' })
 
   const stored = state.status === 'online' ? state.stored.filter((d) => d.ready) : []
-  const moons = stored.filter((d) => d.body === 'moon')
+  const moons = stored.filter((d) => d.body === planet)
   const earths = stored.filter((d) => d.body === 'earth')
   const rid = refId || moons[0]?.id || '', cid = candId || earths[0]?.id || ''
 
   const go = async () => {
     setRun({ status: 'running' })
     try {
-      setRun({ status: 'done', result: await compare({ reference: { dataset: { id: rid } }, candidate: { dataset: { id: cid } }, scales_m: [30, 60] }) })
+      setRun({ status: 'done', result: await compare({ reference: { dataset: { id: rid } }, candidate: { dataset: { id: cid } }, scales_m: SCALES[planet] }) })
     } catch (e) {
       setRun({ status: 'error', error: e instanceof ApiError ? e : new ApiError('bad_response', 'Unexpected failure.') })
     }
@@ -135,7 +140,7 @@ export default function LiveEvidence() {
     <label className="block text-[12px] text-silver-400">
       {label}
       <select value={value} onChange={(e) => { set(e.target.value); setRun({ status: 'idle' }) }} className="mt-1 block min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-850 px-3 text-[14px] text-paper">
-        {opts.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+        {opts.map((o) => <option key={o.id} value={o.id}>{o.region ? `${o.region.name} · ${o.name}` : o.name}</option>)}
       </select>
     </label>
   )
@@ -146,7 +151,7 @@ export default function LiveEvidence() {
         <h2 id={`${id}-h`} className="text-[15px] font-medium">Measured terrain evidence</h2>
         {state.status === 'online' ? <Pill tone="live">LIVE · LAYER 3 SERVICE v{state.version}</Pill> : state.status === 'offline' ? <Pill tone="warn">SERVICE OFFLINE · DEMONSTRATION ONLY</Pill> : <Pill tone="quiet">CHECKING SERVICE…</Pill>}
       </div>
-      <p className="mb-4 max-w-3xl text-[14px] text-silver-300">Everything above is demonstration data. This panel asks the Layer 2/3 service to compute slope and roughness statistics from stored elevation models, with their source and limits.</p>
+      <p className="mb-4 max-w-3xl text-[14px] text-silver-300">{planet === 'moon' ? 'Everything above is demonstration data. ' : ''}This panel asks the Layer 2/3 service to compute slope and roughness statistics from stored elevation models, with their source and limits.{planet === 'mars' && ' Both sides are measured at the same 926 m scale, two Martian pixels; the 30 m Earth data are aggregated up to it, and nothing is refined. This describes regional terrain, not rover-scale obstacles, and is not a suitability assessment.'}</p>
 
       {state.status === 'offline' && (
         <div className="max-w-3xl rounded-[var(--radius-md)] border border-dashed border-silver-500 p-4 text-[14px] text-silver-300">
@@ -157,13 +162,13 @@ export default function LiveEvidence() {
       )}
 
       {state.status === 'online' && (moons.length === 0 || earths.length === 0) && (
-        <p className="max-w-3xl rounded-[var(--radius-md)] border border-dashed border-silver-500 p-4 text-[14px] text-silver-300">The service is online, but Layer 2 has not stored both a lunar and an Earth dataset that passed validation. Fetch them first (see the README).</p>
+        <p className="max-w-3xl rounded-[var(--radius-md)] border border-dashed border-silver-500 p-4 text-[14px] text-silver-300">The service is online, but Layer 2 has not stored both a {copy.label === 'Moon' ? 'lunar' : 'Martian'} and an Earth dataset that passed validation. Fetch them first (see the README).</p>
       )}
 
       {state.status === 'online' && moons.length > 0 && earths.length > 0 && (
         <>
           <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
-            {select('Lunar reference (Layer 2 store)', rid, setRef, moons)}
+            {select(`${copy.reference} (Layer 2 store)`, rid, setRef, moons)}
             {select('Earth candidate (Layer 2 store)', cid, setCand, earths)}
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-4">
@@ -177,7 +182,7 @@ export default function LiveEvidence() {
               {explain(run.error).setup && <p className="mono mt-2 text-[12px] text-silver-400">{explain(run.error).setup}</p>}
             </div>
           )}
-          {run.status === 'done' && <Result r={run.result} />}
+          {run.status === 'done' && <Result r={run.result} refLabel={copy.reference} />}
         </>
       )}
     </section>

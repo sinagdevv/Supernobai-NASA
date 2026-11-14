@@ -51,6 +51,8 @@ def datasets() -> dict[str, Any]:
             "ready": (avail := readiness.check(key, d))["status"] == "available", "availability": avail, "validated": d.get("ready"),
             "summary": (d.get("validation") or {}).get("summary"), "region": d.get("region"),
             "products": sorted(d.get("products", {})),
+            # what a reader needs to judge the data: where it is, what it is relative to, and what it cannot show
+            "limitations": d.get("limitations"), "vertical_datum": d.get("vertical_datum"), "source_page": d.get("source_page"), "details": d.get("details"),
         }
         for key, d in stored_datasets().items()
     ]

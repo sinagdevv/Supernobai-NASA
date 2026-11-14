@@ -2,10 +2,13 @@ import { MotionConfig } from 'motion/react'
 import { Suspense, useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Intro } from './components/Intro'
-import { useRoute } from './lib/router'
+import { useRoute, type Screen } from './lib/router'
+import { MarsUnavailable } from './components/PlanetNotice'
+import { MarsCompare, MarsDossier } from './pages/app/MarsPages'
 import { Analogs, Compare, Dossier, Windows } from './lib/screens'
 import { BackendProvider } from './lib/api/backend'
 import { LiveTerrainProvider } from './lib/api/liveContext'
+import { PlanetProvider, usePlanet } from './lib/planet'
 import { AppProvider } from './lib/store'
 import Landing from './pages/Landing'
 import Mission from './pages/app/Mission'
@@ -17,6 +20,21 @@ const shouldIntro = () => {
   } catch {
     return false
   }
+}
+
+/** Workspace screens for the selected planet. Mars has no processing behind it, so lunar-only screens say so instead of showing lunar results under a Mars label. */
+function Screens({ screen }: { screen: Screen }) {
+  const { planet } = usePlanet()
+  const mars = planet === 'mars'
+  return (
+    <>
+      {screen === 'mission' && <Mission />}
+      {screen === 'analogs' && (<>{mars ? (<div style={{ '--note-h': '64px' } as React.CSSProperties}><p role="note" className="flex h-16 items-center border-b border-[var(--line)] border-l-2 border-l-[var(--planet-ref)] px-4 text-[12px] leading-snug text-silver-300 md:px-5"><span><span className="font-medium text-paper">Mars · no assessment.</span> The map and Live terrain are real Earth data; candidate assessments still use lunar criteria, because no Mars criteria exist.</span></p><Analogs /></div>) : <Analogs />}</>)}
+      {screen === 'windows' && (mars ? <MarsUnavailable screen="windows" /> : <Windows />)}
+      {screen === 'compare' && (mars ? <MarsCompare /> : <Compare />)}
+      {screen === 'dossier' && (mars ? <MarsDossier /> : <Dossier />)}
+    </>
+  )
 }
 
 export default function App() {
@@ -35,6 +53,7 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <BackendProvider>
       <LiveTerrainProvider>
+      <PlanetProvider>
       <AppProvider>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-amber focus:px-3 focus:py-2 focus:text-ink-900">Skip to content</a>
         {route.page === 'home' ? (
@@ -43,16 +62,13 @@ export default function App() {
           <AppShell screen={route.screen}>
             {/* Tabs switch instantly: chunks are prefetched, so there is no fade and no loading state to wait through. */}
             <Suspense fallback={null}>
-              {route.screen === 'mission' && <Mission />}
-              {route.screen === 'analogs' && <Analogs />}
-              {route.screen === 'windows' && <Windows />}
-              {route.screen === 'compare' && <Compare />}
-              {route.screen === 'dossier' && <Dossier />}
+              <Screens screen={route.screen} />
             </Suspense>
           </AppShell>
         )}
         {intro && route.page === 'home' && <Intro onDock={() => setHeroIn(true)} onDone={done} />}
       </AppProvider>
+      </PlanetProvider>
       </LiveTerrainProvider>
       </BackendProvider>
     </MotionConfig>

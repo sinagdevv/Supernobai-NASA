@@ -22,6 +22,7 @@ export function NoSite({ what }: { what: string }) {
   const picks = (results.length ? results : SITES.map((s) => s.id)).slice(0, 4)
   return (
     <EmptyState
+      page
       title="No Earth candidate selected"
       body={`Choose a site to open its ${what}. You can change it at any time in the Analog Explorer.`}
       action={

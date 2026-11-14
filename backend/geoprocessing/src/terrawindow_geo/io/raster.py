@@ -146,6 +146,28 @@ def _is_metric(crs: CRS) -> bool:
         return False
 
 
+# A projected grid in metres is only a metric grid where the projection's own scale is 1. Beyond this the source pixel is not
+# its nominal size on the ground and the data must be resampled onto a local metric grid before slope or roughness is computed.
+MAX_SCALE_ERROR = 0.005
+
+
+def _scale_factors(src: pyproj.CRS, lon: float, lat: float) -> tuple[float, float]:
+    """(parallel, meridional) scale of a projected CRS at lon/lat: projected distance per unit of true ground distance."""
+    try:
+        f = pyproj.Proj(src).get_factors(lon, lat)
+        return float(f.parallel_scale), float(f.meridional_scale)
+    except Exception:  # not computable here: behave as before, trusting the stated units
+        return 1.0, 1.0
+
+
+def _is_true_metric(crs: CRS, src: pyproj.CRS, lon: float, lat: float) -> bool:
+    """Metres AND scale within MAX_SCALE_ERROR of 1 at the patch centre. An equirectangular Mars grid with standard parallel 0 fails this away from the equator."""
+    if not _is_metric(crs):
+        return False
+    kp, km = _scale_factors(src, lon, lat)
+    return abs(kp - 1) <= MAX_SCALE_ERROR and abs(km - 1) <= MAX_SCALE_ERROR
+
+
 def _local_metric_crs(src: pyproj.CRS, lon: float, lat: float, body: str) -> pyproj.CRS:
     """UTM on Earth; elsewhere (or near Earth's poles) an azimuthal grid centred on the patch."""
     if body == "earth" and abs(lat) <= 84:
@@ -158,11 +180,15 @@ def _local_metric_crs(src: pyproj.CRS, lon: float, lat: float, body: str) -> pyp
     )
 
 
-def _native_pixel_size_m(ds, src: pyproj.CRS, lat: float) -> float:
+def _native_pixel_size_m(ds, src: pyproj.CRS, lat: float, lon: float = 0.0) -> float:
+    """Coarser ground spacing of the source pixel at lon/lat, in metres (not the projected size, where the projection is not true-scale)."""
     rx, ry = abs(ds.res[0]), abs(ds.res[1])
     if ds.crs.is_projected:
         f = ds.crs.linear_units_factor[1]
-        return max(rx, ry) * f
+        kp, km = _scale_factors(src, lon, lat)
+        if abs(kp - 1) <= MAX_SCALE_ERROR and abs(km - 1) <= MAX_SCALE_ERROR:
+            kp = km = 1.0
+        return max(rx * f / kp, ry * f / km)
     a = src.ellipsoid.semi_major_metre
     return max(math.radians(rx) * a * math.cos(math.radians(lat)), math.radians(ry) * a)
 
@@ -218,14 +244,14 @@ def extract_patch(
                 to_geo = pyproj.Transformer.from_crs(src_pp, geodetic, always_xy=True)
                 lon_c, lat_c = to_geo.transform((bbox.west + bbox.east) / 2, (bbox.south + bbox.north) / 2)
 
-            native = _native_pixel_size_m(first, src_pp, lat_c)
+            native = _native_pixel_size_m(first, src_pp, lat_c, lon_c)
 
             if like is not None:
                 work_crs, res = like.crs, like.pixel_size_m
                 dst_transform, (height, width) = like.transform, like.shape
                 same_grid = False
             else:
-                keep_native = _is_metric(src_crs)
+                keep_native = _is_true_metric(src_crs, src_pp, lon_c, lat_c)
                 work_pp = src_pp if keep_native else _local_metric_crs(src_pp, lon_c, lat_c, body)
                 work_crs = src_crs if keep_native else _rio(work_pp)
                 res = float(resolution_m) if resolution_m else native
@@ -315,11 +341,11 @@ def native_pixel_size(uris: list[str], bbox: BBox) -> float:
             ds = opened[0][1]
             src_pp = _pyproj(ds.crs)
             if bbox.crs == "geographic":
-                lat = (bbox.south + bbox.north) / 2
+                lon, lat = (bbox.west + bbox.east) / 2, (bbox.south + bbox.north) / 2
             else:
                 tr = pyproj.Transformer.from_crs(src_pp, src_pp.geodetic_crs, always_xy=True)
-                lat = tr.transform((bbox.west + bbox.east) / 2, (bbox.south + bbox.north) / 2)[1]
-            return _native_pixel_size_m(ds, src_pp, lat)
+                lon, lat = tr.transform((bbox.west + bbox.east) / 2, (bbox.south + bbox.north) / 2)
+            return _native_pixel_size_m(ds, src_pp, lat, lon)
         finally:
             for _uri, d in opened:
                 d.close()

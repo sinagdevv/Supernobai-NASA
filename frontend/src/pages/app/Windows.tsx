@@ -27,6 +27,7 @@ export default function Windows() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
         <EmptyState
+          page
           title="Choose an Earth site first"
           body="Rehearsal windows depend on where you test. Pick a candidate below, or explore the map to compare sites."
           action={
