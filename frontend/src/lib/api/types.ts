@@ -16,9 +16,16 @@ export interface DatasetInfo {
   license: string
 }
 
-/** A dataset that Layer 2 has fetched and validated into the local store. `ready` is the validation verdict, not proof the file is on this machine. */
+/** Whether the dataset's file can be used now, judged by the service from the file itself. */
+export type Availability =
+  | { status: 'available'; detail: null; setup: null }
+  | { status: 'missing' | 'unreadable' | 'not_validated'; detail: string; setup: string }
+
+/** A dataset in the Layer 2 store. `ready` means usable now (file present and readable); `validated` is Layer 2's recorded verdict. */
 export interface StoredDataset extends DatasetInfo {
   ready: boolean
+  availability: Availability
+  validated: boolean | null
   summary: { pixel_size_m: number; extent_km: [number, number]; center_lonlat: [number, number]; valid_fraction: number } | null
 }
 
@@ -78,4 +85,74 @@ export interface CompareRequest {
   reference: { dataset: { id: string } }
   candidate: { dataset: { id: string } }
   scales_m?: number[]
+}
+
+export type LonLat = [number, number]
+
+export type OverlayLayer = 'slope' | 'hillshade' | 'elevation'
+
+export interface OverlayRequest {
+  dataset: { id: string }
+  layer: OverlayLayer
+  sun_azimuth_deg?: number
+  sun_elevation_deg?: number
+}
+
+/** A rendered raster as PNG plus its footprint. `coordinates` are the image corners (top-left, top-right, bottom-right, bottom-left) in lon/lat. */
+export interface OverlayResponse {
+  layer: OverlayLayer
+  media_type: 'image/png'
+  image_base64: string
+  coordinates: [LonLat, LonLat, LonLat, LonLat]
+  width: number
+  height: number
+  scale_m: number
+  value_range: [number, number]
+  unit: string
+  legend: { value: number; color: string }[]
+  provenance: Provenance
+}
+
+export interface ScreenRequest {
+  dataset: { id: string }
+  patch_size_m: number
+  criteria: { slope_mean_deg?: { min?: number; max?: number }; slope_p90_deg?: { min?: number; max?: number } }
+}
+
+export type PatchStatus = 'candidate' | 'rejected' | 'insufficient_data'
+
+export interface PatchCriterion {
+  criterion: string
+  unit: string
+  value: number | null
+  min: number | null
+  max: number | null
+  status: 'pass' | 'fail' | 'not_assessed'
+  reason: string | null
+}
+
+export interface PatchMetrics {
+  coverage_fraction: number
+  slope_mean_deg: number | null
+  slope_median_deg: number | null
+  slope_p90_deg: number | null
+  slope_max_deg: number | null
+  roughness_rms_height_m: number | null
+  relief_m: number | null
+  elevation_mean_m: number | null
+}
+
+export interface PatchFeature {
+  type: 'Feature'
+  id: string
+  geometry: { type: 'Polygon'; coordinates: LonLat[][] }
+  properties: { id: string; status: PatchStatus; center_lon: number; center_lat: number; patch_size_m: number; scale_m: number; metrics: PatchMetrics; criteria: PatchCriterion[]; not_assessed: string[] }
+}
+
+export interface ScreenResponse {
+  type: 'FeatureCollection'
+  features: PatchFeature[]
+  summary: { cells: number; candidate: number; rejected: number; insufficient_data: number; scale_m: number; patch_size_m: number }
+  provenance: Provenance
+  limitations: string[]
 }

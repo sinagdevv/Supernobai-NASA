@@ -1,4 +1,4 @@
-import type { CompareRequest, ComparisonResult, DatasetsResponse, Health } from './types'
+import type { CompareRequest, ComparisonResult, DatasetsResponse, Health, OverlayRequest, OverlayResponse, ScreenRequest, ScreenResponse } from './types'
 
 /** The service is reached through the dev/preview proxy at `/api`, or at `VITE_TERRAWINDOW_API` when set. */
 const BASE = (import.meta.env.VITE_TERRAWINDOW_API as string | undefined)?.replace(/\/$/, '') ?? '/api'
@@ -44,3 +44,5 @@ async function request<T>(path: string, init?: RequestInit, timeoutMs = 120_000)
 export const getHealth = () => request<Health>('/health', undefined, 4_000)
 export const getDatasets = () => request<DatasetsResponse>('/v1/datasets', undefined, 10_000)
 export const compare = (req: CompareRequest) => request<ComparisonResult>('/v1/patches/compare', { method: 'POST', body: JSON.stringify(req) })
+export const overlay = (req: OverlayRequest) => request<OverlayResponse>('/v1/patches/overlay', { method: 'POST', body: JSON.stringify(req) })
+export const screen = (req: ScreenRequest) => request<ScreenResponse>('/v1/discovery/screen', { method: 'POST', body: JSON.stringify(req) }, 180_000)

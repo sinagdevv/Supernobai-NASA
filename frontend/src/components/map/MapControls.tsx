@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
-import { Crosshair, Layers, Maximize2, Minus, Plus, SlidersHorizontal } from 'lucide-react'
+import { Crosshair, Layers, Maximize2, Minus, Mountain, Plus, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { cx } from '../ui'
 import { LayerPopover } from './LayerPanel'
@@ -16,8 +16,10 @@ function Btn({ label, onClick, children, pressed, expanded, controls, className 
 }
 
 /** One small control cluster: filters (phones), layers, zoom, fit to candidates, focus selected. */
-export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus }: { nFilters: number; onFilters: () => void; onZoom: (dir: 1 | -1) => void; onFit: () => void; onFocus?: () => void }) {
-  const [open, setOpen] = useState(false)
+export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus, livePanel, liveActive }: { nFilters: number; onFilters: () => void; onZoom: (dir: 1 | -1) => void; onFit: () => void; onFocus?: () => void; livePanel?: ReactNode; liveActive?: boolean }) {
+  const [which, setWhich] = useState<'layers' | 'live' | null>(null)
+  const open = which !== null
+  const setOpen = (o: boolean) => { if (!o) setWhich(null) }
   const reduce = useReducedMotion()
   const id = useId()
   const wrap = useRef<HTMLDivElement>(null)
@@ -41,7 +43,13 @@ export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus }: { n
           <SlidersHorizontal size={18} aria-hidden />
           {nFilters > 0 && <span className="mono absolute top-1 right-1 grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-[12px] leading-none text-ink-900">{nFilters}</span>}
         </Btn>
-        <Btn label="Map layers" expanded={open} controls={id} onClick={() => setOpen(!open)} className={open ? 'bg-white/8 text-paper' : undefined}><Layers size={18} aria-hidden /></Btn>
+        <Btn label="Map layers" expanded={which === 'layers'} controls={id} onClick={() => setWhich(which === 'layers' ? null : 'layers')} className={which === 'layers' ? 'bg-white/8 text-paper' : undefined}><Layers size={18} aria-hidden /></Btn>
+        {livePanel && (
+          <Btn label="Live terrain from the Layer 3 service" expanded={which === 'live'} controls={id} onClick={() => setWhich(which === 'live' ? null : 'live')} className={which === 'live' ? 'bg-white/8 text-paper' : undefined}>
+            <Mountain size={18} aria-hidden />
+            {liveActive && <i aria-hidden className="absolute top-2 right-2 h-2 w-2 rounded-full bg-cyan" />}
+          </Btn>
+        )}
         <Btn label="Zoom in" onClick={() => onZoom(1)}><Plus size={18} aria-hidden /></Btn>
         <Btn label="Zoom out" onClick={() => onZoom(-1)}><Minus size={18} aria-hidden /></Btn>
         <Btn label="Fit to candidates" onClick={onFit}><Maximize2 size={17} aria-hidden /></Btn>
@@ -53,7 +61,7 @@ export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus }: { n
           <motion.div
             id={id}
             role="region"
-            aria-label="Map layers"
+            aria-label={which === 'live' ? 'Live terrain' : 'Map layers'}
             // Opens from the Layers button's corner, beside the cluster; never from scale 0.
             style={{ transformOrigin: 'top right' }}
             initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
@@ -62,7 +70,7 @@ export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus }: { n
             transition={{ duration: 0.16, ease: [0.23, 1, 0.32, 1] }}
             className="glass absolute top-0 right-[calc(100%+8px)] max-h-[calc(100dvh-var(--topbar-h)-var(--tabbar-h)-var(--sheet-offset,0px)-24px)] overflow-y-auto rounded-[var(--radius-md)] border border-[var(--line-strong)] p-3 shadow-[var(--shadow-pop)]"
           >
-            <LayerPopover />
+            {which === 'live' ? livePanel : <LayerPopover />}
           </motion.div>
         )}
       </AnimatePresence>

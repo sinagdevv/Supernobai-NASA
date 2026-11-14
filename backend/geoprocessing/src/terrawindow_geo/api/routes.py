@@ -10,6 +10,7 @@ from .. import __version__
 from ..cache import cached
 from ..compare import compare_profiles
 from ..discovery import screen_region
+from .. import readiness
 from ..io.sources import REGISTRY, check_api_access, localize, stored_datasets
 from ..models import (
     CompareRequest,
@@ -46,7 +47,9 @@ def datasets() -> dict[str, Any]:
         {
             "id": key, "name": d.get("name", key), "body": d.get("body"), "kind": d.get("kind"),
             "nominal_resolution_m": d.get("nominal_resolution_m"), "citation": d.get("citation"), "license": d.get("license"),
-            "ready": d.get("ready"), "summary": (d.get("validation") or {}).get("summary"), "region": d.get("region"),
+            # `ready` means usable now: the file is in the store and opens. `validated` is Layer 2's recorded verdict, which can outlive the file.
+            "ready": (avail := readiness.check(key, d))["status"] == "available", "availability": avail, "validated": d.get("ready"),
+            "summary": (d.get("validation") or {}).get("summary"), "region": d.get("region"),
             "products": sorted(d.get("products", {})),
         }
         for key, d in stored_datasets().items()

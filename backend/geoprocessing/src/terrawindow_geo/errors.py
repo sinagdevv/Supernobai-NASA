@@ -9,7 +9,8 @@ class GeoError(Exception):
     """A processing failure with a stable machine-readable code.
 
     Codes used by the engine:
-      invalid_request, dataset_not_found, source_not_allowed, source_unavailable,
+      invalid_request, dataset_not_found, source_not_allowed, source_unavailable, source_unreadable,
+      dataset_not_validated,
       no_data_coverage, scale_not_supported, patch_too_large, patch_too_small
     """
 

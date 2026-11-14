@@ -107,6 +107,7 @@ export function buildReport(site: Site, mission: Mission, a: Assessment, region:
     provenance: [
       ...SOURCES.map((s): Row => [s.name, `${s.url} — ${s.role}`]),
       ['Basemap', BASEMAP_CREDITS.join('; ')],
+      ['Measured evidence', 'None is included in this dossier. Terrain statistics computed by the Layer 3 service (Comparison and Analog Explorer, labelled live) are not part of it.'],
       ['Fixtures', `All terrain statistics, grid resolutions and seasonal risks are illustrative demonstration values. Solar horizon: ${DEMO_HORIZON_DAYS} days from ${DEMO_START}.`],
     ],
     steps: FIELD_STEPS,

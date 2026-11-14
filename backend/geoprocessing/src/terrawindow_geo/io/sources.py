@@ -12,6 +12,7 @@ import math
 from pathlib import Path
 from urllib.parse import urlparse
 
+from .. import readiness
 from ..config import get_settings
 from ..errors import GeoError
 from ..models import BBox, DatasetInfo, DatasetRef
@@ -109,6 +110,10 @@ def _padded(bbox: BBox, frac: float = 0.05) -> BBox:
     )
 
 
+# availability status -> (error code, HTTP status)
+_UNAVAILABLE = {"missing": ("source_unavailable", 404), "unreadable": ("source_unreadable", 422), "not_validated": ("dataset_not_validated", 409)}
+
+
 def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
     """Turn a dataset reference into the list of raster URIs covering `bbox`."""
     if dataset.uri is not None:
@@ -120,6 +125,11 @@ def resolve_uris(dataset: DatasetRef, bbox: BBox) -> list[str]:
     if dataset.id not in REGISTRY:
         stored = stored_datasets()
         if dataset.id in stored:
+            verdict = readiness.check(dataset.id, stored[dataset.id])
+            if verdict["status"] != "available":
+                code, status = _UNAVAILABLE[verdict["status"]]
+                raise GeoError(code, f"Dataset '{dataset.id}' cannot be used: {verdict['detail']}", status=status,
+                               details={"dataset_id": dataset.id, "availability": verdict["status"], "setup": verdict["setup"]})
             return [str((get_settings().data_dir / stored[dataset.id]["path"]).resolve())]
         raise GeoError(
             "dataset_not_found",

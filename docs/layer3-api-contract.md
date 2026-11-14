@@ -32,11 +32,33 @@ type DatasetRef =                    // exactly one of id / uri / uris
   | { uris: string[]; body?: "earth" | "moon" | "mars"; name?: string; vertical_scale?: number };
 ```
 
-Prefer `id`. `GET /v1/datasets` returns `stored_datasets`: everything Layer 2 has fetched and
-validated (for example `lola-5mpp-site01`, `sp-crater-copernicus-glo30`), each with `body`,
-`ready`, `citation` and a `summary` (pixel size, extent, centre). For a stored id the body is
+Prefer `id`. `GET /v1/datasets` returns `stored_datasets`: everything in the Layer 2 manifest
+(for example `lola-5mpp-site01`, `sp-crater-copernicus-glo30`), each with `body`, `citation`, a
+`summary` (pixel size, extent, centre) and three readiness fields. For a stored id the body is
 known and `bbox` may be omitted to use the whole raster; `copernicus-glo30` is global and always
 needs a `bbox`.
+
+**Readiness is judged from the file, not the manifest.** The manifest is versioned but the rasters
+are not, so a fresh checkout lists datasets whose files are absent.
+
+```ts
+type Availability =
+  | { status: "available"; detail: null; setup: null }
+  | { status: "missing" | "unreadable" | "not_validated"; detail: string; setup: string };
+// stored dataset: { ready: boolean, availability: Availability, validated: boolean | null, ... }
+```
+
+| `availability.status` | Meaning | `ready` |
+|---|---|---|
+| `available` | the file is in the store and opens as a raster | `true` |
+| `missing` | listed in the manifest, file not present (setup required) | `false` |
+| `unreadable` | file present but empty, truncated, corrupt or not a raster | `false` |
+| `not_validated` | file is fine, but Layer 2's validation recorded a failure | `false` |
+
+`ready` means usable now. `validated` is Layer 2's recorded verdict, which can outlive the file. A
+manifest entry with no citation, validation summary or `ready` flag is still `available` if its raster
+opens. `setup` is the command that fixes it. Do not offer a dataset whose `ready` is `false`.
+`terrawindow-geo check` prints the same verdicts and exits non-zero if any dataset is unusable.
 
 `uri` is an `https://` GeoTIFF/COG, or a path relative to the data store.
 
@@ -274,7 +296,9 @@ Every error has the same body, with an HTTP status of 400, 403, 404, 422 or 500:
 | `patch_too_large` | 400 | Bbox exceeds the pixel or patch-count limit |
 | `source_not_allowed` | 403 | URI is not https and not inside the data folder |
 | `dataset_not_found` | 404 | Unknown registry id |
-| `source_unavailable` | 404 | No raster could be opened (no tile there, e.g. open ocean, or the source is down) |
+| `source_unavailable` | 404 | No raster could be opened (no tile there, open ocean, source down), or a stored dataset's file is missing (then `details` has `dataset_id`, `availability`, `setup`) |
+| `source_unreadable` | 422 | A stored dataset's file exists but cannot be read; `details` has `dataset_id`, `availability`, `setup` |
+| `dataset_not_validated` | 409 | Layer 2 validation failed for a stored dataset; same `details` |
 | `internal_error` | 500 | Unexpected failure |
 
 ## For Layer 4 and Layer 5 (Python)

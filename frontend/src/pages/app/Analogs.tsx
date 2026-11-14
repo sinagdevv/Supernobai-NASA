@@ -8,6 +8,8 @@ import { SiteList } from '../../components/map/SiteList'
 import { activeFilterCount, useMedia } from '../../components/map/shared'
 import { cx, StatusGlyph } from '../../components/ui'
 import { SITES, siteById } from '../../data/sites'
+import { LiveChip, LivePanel, PatchCard } from '../../components/map/LivePanel'
+import { useLive } from '../../lib/api/liveContext'
 import { useApp } from '../../lib/store'
 
 const PEEK = 88
@@ -20,6 +22,7 @@ const project = (v: number) => ((v / 1000) * 0.998) / (1 - 0.998)
 
 export default function Analogs() {
   const { results, selectedId, select, assessments, compareIds, baseMap, relief, filters } = useApp()
+  const live = useLive()
   const isDesktop = useMedia('(min-width: 1024px)')
   const reduce = useReducedMotion()
   const [drawer, setDrawer] = useState(false)
@@ -117,7 +120,7 @@ export default function Analogs() {
 
       {/* The map is the workspace: toolbar floats on it, panels support it. */}
       <div className="absolute inset-0 min-w-0 lg:relative lg:inset-auto">
-        <EarthMap selectedId={selectedId} hoverId={hoverId} compareIds={compareIds} visibleIds={visibleIds} statuses={statuses} baseMap={baseMap} relief={relief} bottomPad={bottomPad} onSelect={pick} nFilters={nFilters} onFilters={() => setDrawer(true)} />
+        <EarthMap selectedId={selectedId} hoverId={hoverId} compareIds={compareIds} visibleIds={visibleIds} statuses={statuses} baseMap={baseMap} relief={relief} bottomPad={bottomPad} onSelect={pick} nFilters={nFilters} onFilters={() => setDrawer(true)} live={live} livePanel={<LivePanel live={live} />} liveUi={<><LiveChip live={live} /><PatchCard live={live} /></>} />
       </div>
 
       {/* Results / evidence — right column at ≥1024, draggable bottom sheet below */}

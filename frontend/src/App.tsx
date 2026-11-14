@@ -5,6 +5,7 @@ import { Intro } from './components/Intro'
 import { useRoute } from './lib/router'
 import { Analogs, Compare, Dossier, Windows } from './lib/screens'
 import { BackendProvider } from './lib/api/backend'
+import { LiveTerrainProvider } from './lib/api/liveContext'
 import { AppProvider } from './lib/store'
 import Landing from './pages/Landing'
 import Mission from './pages/app/Mission'
@@ -33,6 +34,7 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <BackendProvider>
+      <LiveTerrainProvider>
       <AppProvider>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-amber focus:px-3 focus:py-2 focus:text-ink-900">Skip to content</a>
         {route.page === 'home' ? (
@@ -51,6 +53,7 @@ export default function App() {
         )}
         {intro && route.page === 'home' && <Intro onDock={() => setHeroIn(true)} onDone={done} />}
       </AppProvider>
+      </LiveTerrainProvider>
       </BackendProvider>
     </MotionConfig>
   )

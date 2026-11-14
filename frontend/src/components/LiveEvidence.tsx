@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import { ApiError, compare } from '../lib/api/client'
 import { useBackend } from '../lib/api/backend'
+import { explain } from '../lib/api/explain'
 import type { ComparisonCriterion, ComparisonResult, CriterionStatus, StoredDataset } from '../lib/api/types'
 import type { Status } from '../data/types'
 import { Button, StatusBadge, cx } from './ui'
@@ -109,12 +110,6 @@ function Result({ r }: { r: ComparisonResult }) {
   )
 }
 
-const explain = (e: ApiError) =>
-  e.code === 'source_unavailable' ? 'The service knows this dataset, but its raster is not on this machine. Fetch it with Layer 2 (see the README), then run again.'
-  : e.code === 'scale_not_supported' || e.code === 'patch_too_small' ? `${e.message} The requested analysis scale is not supported by one of these datasets.`
-  : e.code === 'unreachable' ? 'The Layer 3 service stopped answering.'
-  : e.message
-
 export default function LiveEvidence() {
   const { state, recheck } = useBackend()
   const id = useId()
@@ -178,7 +173,8 @@ export default function LiveEvidence() {
           {run.status === 'error' && (
             <div role="alert" className="mt-4 max-w-3xl rounded-[var(--radius-md)] border border-bad/50 p-4 text-[14px]">
               <p className="font-medium text-bad">Could not compute ({run.error.code})</p>
-              <p className="mt-1 text-silver-300">{explain(run.error)}</p>
+              <p className="mt-1 text-silver-300">{explain(run.error).text}</p>
+              {explain(run.error).setup && <p className="mono mt-2 text-[12px] text-silver-400">{explain(run.error).setup}</p>}
             </div>
           )}
           {run.status === 'done' && <Result r={run.result} />}

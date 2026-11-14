@@ -2,13 +2,14 @@ import { AttributionControl, LngLatBounds, Map as MapLibreMap, Marker, ScaleCont
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { motion } from 'motion/react'
 import { X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { SITES, siteById } from '../../data/sites'
 import type { Site, Status } from '../../data/types'
 import { STATUS_LABEL } from '../../lib/assess'
 import { EASE } from '../../lib/motion'
 import type { BaseMap } from '../../lib/store'
+import type { LiveTerrain } from '../../lib/api/live'
 import { SchematicMap } from '../SchematicMap'
 import { cx, StatusGlyph } from '../ui'
 
@@ -16,6 +17,7 @@ import { cx, StatusGlyph } from '../ui'
 setWorkerUrl(workerUrl)
 import { MapControls } from './MapControls'
 import { BASE_KEYS, baseId, buildStyle, setRelief } from './mapStyle'
+import { PATCH_LAYER, fitCoords, setSelectedPatch, syncOverlay, syncScreen } from './liveLayers'
 
 const WORLD: [[number, number], [number, number]] = [[-170, -82], [178, 74]]
 const TILE_TIMEOUT_MS = 6000
@@ -33,6 +35,10 @@ interface Props {
   onSelect: (id: string) => void
   nFilters: number
   onFilters: () => void
+  /** Layer 3 results to draw (overlay, screening patches), the controls for them, and their on-map provenance. */
+  live?: LiveTerrain
+  livePanel?: ReactNode
+  liveUi?: ReactNode
 }
 
 function SiteMarker({ site, status, selected, hover, compared, onSelect }: { site: Site; status: Status; selected: boolean; hover: boolean; compared: boolean; onSelect: (id: string) => void }) {
@@ -111,6 +117,8 @@ export function EarthMap(props: Props) {
       return
     }
     mapRef.current = map
+    // Dev builds only, for QA: lets tests inspect layers and project coordinates.
+    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__twMap = map
     map.touchZoomRotate.disableRotation()
     map.keyboard.disableRotation()
     map.addControl(new ScaleControl({ unit: 'metric', maxWidth: 90 }), 'bottom-left')
@@ -141,6 +149,10 @@ export function EarthMap(props: Props) {
       if (coordRef.current) coordRef.current.textContent = `${e.lngLat.lat.toFixed(3)}°, ${e.lngLat.lng.toFixed(3)}°`
     }
     map.on('mousemove', onMove)
+    // Screening patches: pointer feedback and selection. The layer may not exist yet; MapLibre accepts the listener early.
+    map.on('click', PATCH_LAYER, (e) => latest.current.live?.setPatchId((e.features?.[0]?.properties?.id as string | undefined) ?? null))
+    map.on('mouseenter', PATCH_LAYER, () => { map.getCanvas().style.cursor = 'pointer' })
+    map.on('mouseleave', PATCH_LAYER, () => { map.getCanvas().style.cursor = '' })
     const onZoom = () => {
       if (zoomRef.current) zoomRef.current.textContent = map.getZoom().toFixed(1)
     }
@@ -201,6 +213,18 @@ export function EarthMap(props: Props) {
     if (map.isStyleLoaded()) run()
     else map.once('load', run)
   }, [relief])
+
+  /* ── Layer 3 results: sources and layers are added, updated and removed in place; the map is never rebuilt ── */
+  const liveOverlay = props.live?.overlay.status === 'done' ? props.live.overlay.data : null
+  const liveScreen = props.live?.screen.status === 'done' ? props.live.screen.data : null
+  const livePatch = props.live?.patchId ?? null
+  const liveFit = props.live?.fit ?? null
+  useEffect(() => { if (mapRef.current) syncOverlay(mapRef.current, liveOverlay) }, [liveOverlay])
+  useEffect(() => { if (mapRef.current) syncScreen(mapRef.current, liveScreen, livePatch) }, [liveScreen]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (mapRef.current) setSelectedPatch(mapRef.current, livePatch) }, [livePatch])
+  useEffect(() => {
+    if (mapRef.current && liveFit) fitCoords(mapRef.current, liveFit.coords, { top: 56, left: 56, right: 72, bottom: 56 + latest.current.bottomPad })
+  }, [liveFit])
 
   /* ── camera: eased fly to the selected site (instant under reduced motion) ── */
   useEffect(() => {
@@ -275,7 +299,10 @@ export function EarthMap(props: Props) {
         onZoom={(d) => (d > 0 ? mapRef.current?.zoomIn() : mapRef.current?.zoomOut())}
         onFit={fitSites}
         onFocus={selectedId ? focusSelected : undefined}
+        livePanel={props.livePanel}
+        liveActive={!!(liveOverlay || liveScreen)}
       />
+      {props.liveUi}
 
       {tileFail && !bannerOff && (
         <div role="status" className="absolute top-3 left-1/2 z-10 flex w-[min(520px,calc(100%-130px))] -translate-x-1/2 items-start gap-2 glass rounded-[var(--radius-md)] border border-amber/40 py-1 pr-1 pl-3 text-[12px] leading-snug text-silver-200 shadow-[var(--shadow-pop)] max-lg:top-[60px] max-lg:w-[calc(100%-24px)]">

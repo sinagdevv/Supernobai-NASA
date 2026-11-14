@@ -56,6 +56,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--scales", nargs="+", type=float, default=None)
     p.add_argument("--landcover", action="store_true")
 
+    sub.add_parser("check", help="verify that every dataset in the Layer 2 store is present and readable (exit 1 if not)")
+
     c = sub.add_parser("compare", help="compare two saved profiles")
     c.add_argument("reference")
     c.add_argument("candidate")
@@ -74,6 +76,25 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     try:
+        if args.command == "check":
+            from . import readiness
+            from .io.sources import stored_datasets
+
+            stored = stored_datasets()
+            if not stored:
+                print("The data store has no datasets. Fetch some with terrawindow-data (see the README).")
+                return 1
+            bad = 0
+            for key, rec in stored.items():
+                v = readiness.check(key, rec)
+                print(f"{v['status']:<14} {key}")
+                if v["setup"]:
+                    print(f"{'':<15}{v['detail']}")
+                    print(f"{'':<15}fix: {v['setup']}")
+                bad += v["status"] != "available"
+            print()
+            print(f"{len(stored) - bad} of {len(stored)} datasets available")
+            return 1 if bad else 0
         if args.command == "profile":
             from .profile import build_profile
 

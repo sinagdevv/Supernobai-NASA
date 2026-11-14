@@ -29,7 +29,7 @@ export function AboutModal({ open, onClose }: { open: boolean; onClose: () => vo
           <h3 className="eyebrow mb-2">What is live in this session</h3>
           {state.status === 'online' ? (
             <>
-              <p>The Layer 2/3 service is connected (v{state.version}). Mission, Explorer sites, Rehearsal Windows and the Dossier still run on the prototype’s illustrative data. Only the <span className="font-medium text-paper">Measured terrain evidence</span> panel on Comparison reads the service.</p>
+              <p>The Layer 2/3 service is connected (v{state.version}). Mission, the example sites, Rehearsal Windows and the Dossier run on the prototype’s illustrative data. Only two places read the service, both labelled live: <span className="font-medium text-paper">Live terrain</span> on the Explorer map and <span className="font-medium text-paper">Measured terrain evidence</span> on Comparison.</p>
               <ul className="mt-2 space-y-1 text-[13px] text-silver-400">{state.stored.map((d) => <li key={d.id}><span className="text-silver-200">{d.name}</span> · {d.body} · {d.nominal_resolution_m} m · {d.ready ? 'validated' : 'not validated'}</li>)}</ul>
             </>
           ) : (
