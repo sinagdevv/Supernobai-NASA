@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from math import ceil, isclose, isfinite
+from collections.abc import Sequence
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -890,6 +891,30 @@ def _l3_patch_identity(profile: TerrainProfile) -> str | None:
     return sha256(encoded).hexdigest()
 
 
+def _affine6(values: Sequence[float] | None) -> tuple[float, ...] | None:
+    """Six affine coefficients; a 9-value row-major matrix is accepted only when its last row is (0, 0, 1)."""
+    if values is None:
+        return None
+    values = tuple(values)
+    if len(values) == 9 and tuple(values[6:]) == (0.0, 0.0, 1.0):
+        return values[:6]
+    return values if len(values) == 6 else None
+
+
+def _same_crs(left: str | None, right: str | None) -> bool | None:
+    """True/False when both WKT strings parse; None when either is missing or unreadable."""
+    if not left or not right:
+        return None
+    if left == right:
+        return True
+    try:
+        from pyproj import CRS
+
+        return CRS.from_wkt(left) == CRS.from_wkt(right)
+    except Exception:
+        return None
+
+
 def _layer4_affine(result: Layer4TemporalInput) -> tuple[float, ...] | None:
     raw = result.provenance.get("affine_transform")
     if raw is None:
@@ -942,16 +967,11 @@ def _spatial_association(
 
     candidate_crs = profile.patch.grid_crs_wkt
     layer4_crs = result.provenance.get("working_crs_wkt")
-    checks["working_crs"] = (
-        "MATCH"
-        if candidate_crs and layer4_crs == candidate_crs
-        else "MISMATCH"
-        if candidate_crs and layer4_crs
-        else "UNAVAILABLE"
-    )
+    same_crs = _same_crs(candidate_crs, layer4_crs)
+    checks["working_crs"] = "UNAVAILABLE" if same_crs is None else "MATCH" if same_crs else "MISMATCH"
 
-    candidate_transform = profile.patch.grid_transform
-    layer4_transform = _layer4_affine(result)
+    candidate_transform = _affine6(profile.patch.grid_transform)
+    layer4_transform = _affine6(_layer4_affine(result))
     checks["affine_transform"] = (
         "MATCH"
         if candidate_transform
@@ -970,7 +990,7 @@ def _spatial_association(
     if profile.provenance.dataset_id:
         candidate_sources.add(profile.provenance.dataset_id)
     layer4_sources = set()
-    for key in ("dataset_id", "source_dataset_id", "terrain_sources"):
+    for key in ("dataset_id", "source_dataset_id", "source.dataset_id", "terrain_sources"):
         layer4_sources.update(_source_tokens(result.provenance.get(key)))
     if not layer4_sources:
         layer4_sources.update(_source_tokens(result.provenance.get("sources")))

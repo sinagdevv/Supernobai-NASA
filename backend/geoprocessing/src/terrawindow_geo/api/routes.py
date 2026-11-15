@@ -25,6 +25,7 @@ from ..models import (
 )
 from ..overlay import render_overlay
 from ..profile import build_profile
+from .. import rehearsal_service
 from ..scale import COMMON_SCALES_M
 from ..suitability import (
     Layer5AssessmentRequest,
@@ -138,6 +139,19 @@ def suitability_assess(request: Layer5AssessmentRequest) -> MissionAssessment:
             },
         )
     return assess_mission(request, profile)
+
+
+@router.get("/v1/rehearsal/status", tags=["rehearsal"])
+def rehearsal_status() -> dict[str, Any]:
+    """Whether Layer 4 and its kernels and Mars source are present, per body."""
+    return rehearsal_service.status()
+
+
+@router.post("/v1/rehearsal/evaluate", tags=["rehearsal"])
+def rehearsal_evaluate(request: rehearsal_service.RehearsalRequest) -> dict[str, Any]:
+    """Layer 4: sampled solar geometry, terrain illumination and rehearsal windows for the candidate's body."""
+    request = request.model_copy(update={"candidate": _prepare(request.candidate)})
+    return rehearsal_service.evaluate(request)
 
 
 __all__ = ["router", "DatasetInfo"]
