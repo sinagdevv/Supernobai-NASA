@@ -198,7 +198,7 @@ function Body({ a, loading }: { a: MissionAssessment; loading: boolean }) {
 }
 
 export function AssessmentWorkspace({ planet }: { planet: Planet }) {
-  const { state } = useBackend()
+  const { state, recheck } = useBackend()
   const ev = useEvidence()
   const online = state.status === 'online'
   const target = primaryTarget(planet)
@@ -231,7 +231,7 @@ export function AssessmentWorkspace({ planet }: { planet: Planet }) {
           : 'Tests the stored Jezero MOLA terrain against criteria defined for Mars. Terrain criteria are measured at 926 m and can pass or fail. The Layer 4 result is on a different, coarser grid (1.85 km) than the terrain, so the service cannot pair them and the light criterion comes back as not assessed.'}
       </p>
       {!online ? (
-        <div className="mt-6"><ServiceUnavailable kind={state.status === 'checking' ? 'checking' : 'offline'} heading="h3" title="No assessment can be computed right now" context="The service is not reachable, so no suitability assessment is shown. No illustrative verdict stands in for one." /></div>
+        <div className="mt-6"><ServiceUnavailable kind={state.status === 'checking' ? 'checking' : 'offline'} heading="h3" title="No assessment can be computed right now" onRetry={recheck} context="The service is not reachable, so no suitability assessment is shown. No illustrative verdict stands in for one." /></div>
       ) : (
         <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           <Editor planet={planet} />
