@@ -1,5 +1,6 @@
 import LiveEvidence from '../../components/LiveEvidence'
 import MarsReference from '../../components/MarsReference'
+import { ComputedEvidence } from '../../components/evidence/ComputedEvidence'
 
 /** Mars Comparison: measured Martian terrain against measured Earth terrain, per criterion at one stated scale. No verdict, no score. */
 export function MarsCompare() {
@@ -12,8 +13,8 @@ export function MarsCompare() {
   )
 }
 
-const TAG = { measured: 'border-cyan/50 text-cyan', scope: 'border-[var(--line-strong)] text-silver-300', limits: 'border-[var(--line-strong)] text-silver-300', pending: 'border-amber/50 text-amber' } as const
-const TAG_LABEL = { measured: 'Measured', scope: 'Scope', limits: 'Limits', pending: 'Pending' } as const
+const TAG = { measured: 'border-cyan/50 text-cyan', computed: 'border-cyan/50 text-cyan', scope: 'border-[var(--line-strong)] text-silver-300', limits: 'border-[var(--line-strong)] text-silver-300', pending: 'border-amber/50 text-amber' } as const
+const TAG_LABEL = { measured: 'Measured', computed: 'Computed · not stored', scope: 'Scope', limits: 'Limits', pending: 'Pending' } as const
 
 const Section = ({ n, title, tag, children }: { n: string; title: string; tag: keyof typeof TAG; children: React.ReactNode }) => (
   <section className="border-t border-[var(--line)] py-7">
@@ -31,7 +32,7 @@ export function MarsDossier() {
     <div className="mx-auto max-w-[1100px] px-4 py-8 md:px-8 lg:py-12">
       <p className="eyebrow">Mars · Jezero regional terrain</p>
       <h1 className="font-display mt-3 text-[38px] font-medium md:text-[54px]">Terrain evidence dossier</h1>
-      <p className="mt-2 max-w-2xl text-[15px] text-silver-300">A preliminary summary of measured terrain. It is not a mission assessment and carries no certification.</p>
+      <p className="mt-2 max-w-2xl text-[15px] text-silver-300">A preliminary summary of measured terrain, with the Layer 4 and 5 results you have computed. It is not stored, not validated, and carries no certification.</p>
 
       <Section n="01" tag="measured" title="Planetary reference"><MarsReference heading="h3" /></Section>
       <Section n="02" tag="scope" title="Mission objective">
@@ -52,8 +53,14 @@ export function MarsDossier() {
           <li>Surface material and strength data for the Earth candidate and the Martian site.</li>
         </ul>
       </Section>
-      <Section n="06" tag="pending" title="Pending in the platform">
-        <p className="max-w-2xl text-[14px] text-silver-300"><span className="font-medium text-paper">Layer 4</span> (solar geometry and rehearsal windows) and <span className="font-medium text-paper">Layer 5</span> (mission suitability and evidence) are not built: no rehearsal window and no suitability classification exists for Mars. This page is not stored. Layer 6 (research storage and reporting) is a separate service with its own database and is not connected to the interface.</p>
+      <Section n="06" tag="computed" title="Computed evidence · Layer 4 and 5"><ComputedEvidence planet="mars" /></Section>
+      <Section n="07" tag="limits" title="What the computed results are, and are not">
+        <ul className="max-w-2xl list-disc space-y-1.5 pl-5 text-[14px] text-silver-300">
+          <li>Both are computed by the service, not checked against observations. “Suitable” would only ever mean the thresholds you set were met, never that the ground is safe.</li>
+          <li>Rehearsal windows use the 1.85 km MOLA grid (32 pixels per degree); the terrain statistics above use 463 m. The service cannot pair results from different grids, so illumination criteria come back as not assessed.</li>
+          <li>About a fifth of the MOLA bins around Jezero have no laser observations. Where the sun’s path crosses them the engine reports insufficient coverage, which is neither shadow nor light.</li>
+          <li>This page is not stored. Layer 6 (research storage and reporting) is a separate service with its own database and is not connected to the interface.</li>
+        </ul>
       </Section>
     </div>
   )

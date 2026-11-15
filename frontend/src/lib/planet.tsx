@@ -22,7 +22,7 @@ export const PLANET_COPY: Record<Planet, { label: string; reference: string; hea
     label: 'Mars',
     reference: 'Martian reference',
     headline: ['Find the Earth.', 'Prepare for Mars.'],
-    lede: 'Regional terrain research: measured MOLA topography of the Jezero region, set beside measured Earth terrain. Mars mission criteria and assessments are not built yet.',
+    lede: 'Regional terrain research: measured MOLA topography of the Jezero region, set beside measured Earth terrain. Rehearsal windows and a suitability assessment are computed on request, and are not validated.',
     transect: 'basin, mesa and dune profile',
     sunLabel: 'Illustrative sun',
   },

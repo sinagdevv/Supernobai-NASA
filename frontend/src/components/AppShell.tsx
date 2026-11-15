@@ -7,12 +7,13 @@ import { href, type Screen } from '../lib/router'
 import { prefetch, prefetchAll } from '../lib/screens'
 import { useBackend } from '../lib/api/backend'
 import { usePlanet } from '../lib/planet'
-import { contextStatus, PLANET_CONTEXT } from '../lib/status'
+import { contextStatus, evidenceSnapshot, PLANET_CONTEXT } from '../lib/status'
+import { useEvidence } from '../lib/api/evidence'
 import { PlanetSwitcher } from './PlanetSwitcher'
 import { useApp } from '../lib/store'
 import { cx, Modal } from './ui'
 
-const STATE_DOT = { measured: 'bg-cyan', illustrative: 'bg-silver-400', pending: 'bg-amber', unavailable: 'bg-bad', checking: 'bg-silver-500' } as const
+const STATE_DOT = { measured: 'bg-cyan', computed: 'bg-cyan', illustrative: 'bg-silver-400', pending: 'bg-amber', unavailable: 'bg-bad', checking: 'bg-silver-500' } as const
 
 const TABS: { id: Screen; label: string; short: string; Icon: LucideIcon }[] = [
   { id: 'mission', label: 'Mission', short: 'Mission', Icon: Crosshair },
@@ -32,13 +33,13 @@ export function AboutModal({ open, onClose }: { open: boolean; onClose: () => vo
           <h3 className="eyebrow mb-2">What is live in this session</h3>
           {state.status === 'online' ? (
             <>
-              <p>The Layer 2/3 service is connected (v{state.version}). Mission, the example sites, Rehearsal Windows and the Dossier run on the prototype’s illustrative data. Only two places read the service, both labelled live: <span className="font-medium text-paper">Live terrain</span> on the Explorer map and <span className="font-medium text-paper">Measured terrain evidence</span> on Comparison.</p>
+              <p>The service is connected (v{state.version}). It supplies four kinds of result, each labelled where it appears: <span className="font-medium text-paper">measured terrain</span> (Live terrain on the Explorer map, Measured terrain evidence on Comparison), <span className="font-medium text-paper">computed rehearsal windows</span> (Layer 4, on Rehearsal Windows), and <span className="font-medium text-paper">computed suitability assessments</span> (Layer 5, on Mission, the Explorer, Comparison and the Dossier). The example sites and the screening beside them are still illustrative.</p>
               <ul className="mt-2 space-y-1 text-[13px] text-silver-400">{state.stored.map((d) => <li key={d.id}><span className="text-silver-200">{d.name}</span> · {d.body} · {d.nominal_resolution_m} m · {d.ready ? 'validated' : 'not validated'}</li>)}</ul>
             </>
           ) : (
-            <p>{state.status === 'checking' ? 'Checking for the Layer 2/3 service…' : 'The Layer 2/3 service is not running, so the whole interface is showing illustrative demonstration data.'}</p>
+            <p>{state.status === 'checking' ? 'Checking for the Layer 2/3 service…' : 'The service is not running. Nothing is measured or computed, and every screen that needs it says so. Example sites and sample figures remain, labelled illustrative.'}</p>
           )}
-          <p className="mt-2 text-[13px] text-silver-400">On Mars, the Jezero terrain on Mission, Comparison and Dossier is measured when the service is connected. Rehearsal-window and shadow computation (Layer 4) and mission criteria (Layer 5) are not implemented on either planet; those screens are demonstrations or are marked pending.</p>
+          <p className="mt-2 text-[13px] text-silver-400">Computed results (rehearsal windows and suitability assessments) come from the solar-geometry and evidence engines. They are computed from stored data, not validated against observations, and not stored: Layer 6 (research storage and reporting) is not connected. Assessment thresholds are assumptions you can change, and a pass means only that your thresholds were met. On Mars, terrain is measured from MOLA and the Layer 4 grid (1.85 km) is coarser than the terrain grid (463 m).</p>
         </div>
         <div>
           <h3 className="eyebrow mb-2">Earth cannot reproduce</h3>
@@ -81,7 +82,8 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
   const { state: backend } = useBackend()
   const ctx = PLANET_CONTEXT[planet]
   const marsReady = backend.status === 'online' && backend.stored.some((d) => d.body === 'mars' && d.ready)
-  const status = contextStatus(planet, screen, backend.status, marsReady)
+  const evidence = useEvidence()
+  const status = contextStatus(planet, screen, backend.status, marsReady, evidenceSnapshot(planet, screen, evidence.rehearsal, evidence.assessments))
   const [about, setAbout] = useState(false)
   const main = useRef<HTMLElement>(null)
   const nav = useRef<HTMLUListElement>(null)

@@ -16,8 +16,17 @@ export function explain(e: ApiError): { text: string; setup?: string } {
       return { text: `${e.message} The requested scale or patch size is not supported by this dataset.` }
     case 'patch_too_large':
       return { text: `${e.message} Choose a larger patch size.` }
+    case 'rate_limited':
+    case 'unavailable':
+      return { text: e.message }
+    case 'rehearsal_rejected':
+      return { text: `The solar-geometry engine rejected this request: ${e.message}` }
+    case 'layer4_unavailable':
+      return { text: 'The solar-geometry engine (Layer 4) is not available on this server, so no rehearsal window can be computed.' }
+    case 'invalid_request':
+      return { text: `The request was not accepted: ${e.message}` }
     case 'unreachable':
-      return { text: 'The Layer 3 service stopped answering.' }
+      return { text: 'The service stopped answering.' }
     default:
       return { text: e.message }
   }

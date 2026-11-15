@@ -15,38 +15,71 @@ import { regionById } from '../../lib/assess'
 import { EASE } from '../../lib/motion'
 import { compass, dayWindows, fmtDur, fmtMin, MONTHS, monthSummary, relBearing, shadowRatio, sunAt } from '../../lib/solar'
 import { useApp } from '../../lib/store'
+import { ComputedWindows } from '../../components/windows/ComputedWindows'
+import { EvidenceChip } from '../../components/evidence/chips'
+import { MarsFacts } from '../../components/PlanetNotice'
+import { useBackend } from '../../lib/api/backend'
+import { useEvidence } from '../../lib/api/evidence'
+import { usePlanet } from '../../lib/planet'
 
 const fmtDate = (d: string, long = true) => `${+d.slice(8)} ${long ? MONTHS[+d.slice(5, 7) - 1] : MONTHS[+d.slice(5, 7) - 1].slice(0, 3)} ${d.slice(0, 4)}`
 const fmtCoord = (s: Site) => `${Math.abs(s.lat).toFixed(2)}°${s.lat >= 0 ? 'N' : 'S'} ${Math.abs(s.lon).toFixed(2)}°${s.lon >= 0 ? 'E' : 'W'}`
 
 export default function Windows() {
+  return usePlanet().planet === 'mars' ? <MarsWindows /> : <LunarWindows />
+}
+
+/** Mars: only the computed calculation. There is no illustrative sun diagram for Mars, so nothing stands in for a missing result. */
+function MarsWindows() {
+  return (
+    <div className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 lg:py-12">
+      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Rehearsal windows</h1>
+      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Where the sun is over the Jezero region, and whether terrain or missing data stops us saying so. Computed on the 1.85 km MOLA grid.</p>
+      <div className="mt-8"><ComputedWindows planet="mars" /></div>
+      <div className="mt-10"><MarsFacts /></div>
+    </div>
+  )
+}
+
+function LunarWindows() {
   const { selectedId, select, results } = useApp()
+  const { state } = useBackend()
+  const { rehearsal } = useEvidence()
   const site = siteById(selectedId)
-  if (!site) {
-    const quick = (results.length ? results : SITES.map((s) => s.id)).slice(0, 4).map((id) => siteById(id)!)
-    return (
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <EmptyState
-          page
-          title="Choose an Earth site first"
-          body="Rehearsal windows depend on where you test. Pick a candidate below, or explore the map to compare sites."
-          action={
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              {quick.map((s) => (
-                <Button key={s.id} onClick={() => select(s.id)}>
-                  {s.name}
-                </Button>
-              ))}
-              <a href="#/app/analogs" className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-4 text-[15px] font-medium text-amber underline-offset-4 hover:underline">
-                Open the analog map →
-              </a>
-            </div>
-          }
-        />
+  // The illustrative preview is only the fallback for "nothing run yet, service answering". After a run, or when the service is down, it would stand in for a real result, so it goes.
+  const ran = Object.keys(rehearsal).some((k) => k === 'moon' || k.startsWith('earth:'))
+  const showPreview = state.status === 'online' && !ran
+  const quick = (results.length ? results : SITES.map((s) => s.id)).slice(0, 4).map((id) => siteById(id)!)
+  return (
+    <div>
+      <div className="mx-auto max-w-[1180px] px-4 pt-8 pb-10 md:px-8 lg:pt-12">
+        <h1 className="font-display text-[38px] font-medium md:text-[48px]">Rehearsal windows</h1>
+        <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Where the sun is, and whether terrain blocks it, at the lunar south pole or on an Earth analog.</p>
+        <div className="mt-8"><ComputedWindows planet="moon" /></div>
       </div>
-    )
-  }
-  return <Explorer key={site.id} site={site} />
+      {showPreview && (
+        <section aria-labelledby="ill-h" className="border-t border-[var(--line)]">
+          <div className="mx-auto max-w-[1680px] px-3 pt-8 md:px-6">
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 id="ill-h" className="text-[20px] font-semibold">Illustrative preview</h2>
+              <EvidenceChip kind="illustrative" />
+            </div>
+            <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-silver-300">Not a calculation. A simplified sun model for example Earth sites, drawn in the browser so you can see the idea. Compute windows above to replace it with the engine’s result.</p>
+          </div>
+          {site ? <Explorer key={site.id} site={site} /> : (
+            <div className="mx-auto max-w-3xl px-4 py-10">
+              <EmptyState title="Choose an example site to preview" body="The preview shows how a low sun moves for an example Earth site. Pick one, or open the analog map." action={
+                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                  {quick.map((s) => <Button key={s.id} onClick={() => select(s.id)}>{s.name}</Button>)}
+                  <a href="#/app/analogs" className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] px-4 text-[15px] font-medium text-amber underline-offset-4 hover:underline">Open the analog map →</a>
+                </div>
+              } />
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  )
 }
 
 function Chip({ active, onClick, children }: { active?: boolean; onClick: () => void; children: ReactNode }) {
@@ -155,9 +188,9 @@ function Explorer({ site }: { site: Site }) {
       <header className="pt-6 pb-2 md:pt-8">
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
           <div className="min-w-0">
-            <h1 className="font-display text-[32px] md:text-[44px]">Rehearsal windows</h1>
+            <h3 className="font-display text-[26px] md:text-[32px]">{site.name}</h3>
             <p className="mt-1.5 text-[16px] text-silver-300">
-              <span className="font-medium text-paper">{site.name}</span> · {site.place}
+              {site.place}
             </p>
           </div>
           <div className="w-full max-w-xs">

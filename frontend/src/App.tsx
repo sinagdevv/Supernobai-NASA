@@ -3,11 +3,11 @@ import { Suspense, useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
 import { Intro } from './components/Intro'
 import { useRoute, type Screen } from './lib/router'
-import { MarsUnavailable } from './components/PlanetNotice'
 import { MarsCompare, MarsDossier } from './pages/app/MarsPages'
 import { Analogs, Compare, Dossier, Windows } from './lib/screens'
 import { BackendProvider } from './lib/api/backend'
 import { LiveTerrainProvider } from './lib/api/liveContext'
+import { EvidenceProvider } from './lib/api/evidence'
 import { PlanetProvider, usePlanet } from './lib/planet'
 import { AppProvider } from './lib/store'
 import Landing from './pages/Landing'
@@ -22,7 +22,7 @@ const shouldIntro = () => {
   }
 }
 
-/** Workspace screens for the selected planet. Mars has no processing behind it, so lunar-only screens say so instead of showing lunar results under a Mars label. */
+/** Workspace screens for the selected planet. Each screen reads the selected planet itself, so a lunar result is never shown under a Mars label. */
 function Screens({ screen }: { screen: Screen }) {
   const { planet } = usePlanet()
   const mars = planet === 'mars'
@@ -30,7 +30,7 @@ function Screens({ screen }: { screen: Screen }) {
     <>
       {screen === 'mission' && <Mission />}
       {screen === 'analogs' && <Analogs />}
-      {screen === 'windows' && (mars ? <MarsUnavailable screen="windows" /> : <Windows />)}
+      {screen === 'windows' && <Windows />}
       {screen === 'compare' && (mars ? <MarsCompare /> : <Compare />)}
       {screen === 'dossier' && (mars ? <MarsDossier /> : <Dossier />)}
     </>
@@ -53,6 +53,7 @@ export default function App() {
     <MotionConfig reducedMotion="user">
       <BackendProvider>
       <LiveTerrainProvider>
+      <EvidenceProvider>
       <PlanetProvider>
       <AppProvider>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-amber focus:px-3 focus:py-2 focus:text-ink-900">Skip to content</a>
@@ -69,6 +70,7 @@ export default function App() {
         {intro && route.page === 'home' && <Intro onDock={() => setHeroIn(true)} onDone={done} />}
       </AppProvider>
       </PlanetProvider>
+      </EvidenceProvider>
       </LiveTerrainProvider>
       </BackendProvider>
     </MotionConfig>

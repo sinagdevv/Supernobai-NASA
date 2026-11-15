@@ -29,9 +29,9 @@ export function LiveAssessment() {
   const rows = useMemo(() => [...SITES].sort((a, b) => ORDER.indexOf(assessments.get(a.id)!.overall) - ORDER.indexOf(assessments.get(b.id)!.overall) || a.name.localeCompare(b.name)), [assessments])
 
   return (
-    <aside aria-label="Live assessment" className="min-w-0 lg:sticky lg:top-[calc(var(--topbar-h)+24px)] lg:self-start">
+    <aside aria-label="Illustrative screening" className="min-w-0 lg:sticky lg:top-[calc(var(--topbar-h)+24px)] lg:self-start">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[17px] font-semibold">Live assessment</h2>
+        <h2 className="text-[17px] font-semibold">Illustrative screening</h2>
         <Button size="sm" variant="ghost" onClick={resetMission}><RotateCcw size={14} aria-hidden />Defaults</Button>
       </div>
 

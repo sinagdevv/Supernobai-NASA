@@ -1,6 +1,7 @@
 import { Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { HorizonDiagram, RoughChart, SlopeChart } from '../../components/mission/charts'
+import { AssessmentWorkspace } from '../../components/mission/AssessmentWorkspace'
 import { LiveAssessment } from '../../components/mission/LiveAssessment'
 import { RegionPicker } from '../../components/mission/RegionPicker'
 import { cx, Segmented, Slider } from '../../components/ui'
@@ -37,7 +38,7 @@ const chip = (on: boolean, locked?: boolean) =>
   cx('inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border px-3 text-[14px] font-medium transition-[border-color,background-color,transform] duration-[var(--duration-fast)] ease-[var(--ease-out)] active:scale-[0.97]',
     on ? 'border-amber bg-amber-soft' : locked ? 'cursor-not-allowed border-dashed border-[var(--line-strong)] text-silver-500' : 'border-[var(--line)] hover:border-[var(--line-strong)]')
 
-/** Mars: the measured reference region and what it can and cannot support. There are no limit sliders: nothing on Mars consumes them yet. */
+/** Mars: the measured reference region, then the Layer 5 assessment against criteria defined for Mars alone. */
 function MarsMission() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 lg:py-12">
@@ -48,11 +49,12 @@ function MarsMission() {
         {[
           ['Measured now', 'Elevation, slope, roughness and relief from 463 m to 1.8 km, with coverage and provenance.'],
           ['Needs finer data', 'Rover-scale slope, rocks and traction need a HiRISE or CTX terrain model of the site.'],
-          ['Not built yet', 'Solar geometry (Layer 4) and mission suitability (Layer 5). Nothing here is screened or scored.'],
+          ['Computed, not validated', 'Rehearsal windows (Layer 4) and the suitability assessment (Layer 5) below are computed by the service. Neither has been checked against observations.'],
         ].map(([t, b]) => (
           <div key={t}><h2 className="text-[14px] font-medium text-paper">{t}</h2><p className="mt-1 text-[13px] leading-relaxed text-silver-400">{b}</p></div>
         ))}
       </section>
+      <div className="mt-10"><AssessmentWorkspace planet="mars" /></div>
     </div>
   )
 }
@@ -69,10 +71,15 @@ function LunarMission() {
   const mid = (m.elMin + m.elMax) / 2
 
   return (
-    <div className="mx-auto grid max-w-[1320px] gap-x-12 gap-y-10 px-4 py-8 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:py-12">
+    <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-8 lg:py-12">
+      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Mission</h1>
+      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">What the rover must handle. Test the stored lunar terrain against your criteria, then screen example Earth sites.</p>
+      <div className="mt-8"><AssessmentWorkspace planet="moon" /></div>
+
+      <div className="mt-12 grid gap-x-12 gap-y-10 border-t border-[var(--line)] pt-8 lg:grid-cols-[minmax(0,1fr)_380px]">
       <div className="min-w-0">
-        <h1 className="font-display text-[38px] font-medium md:text-[48px]">Mission</h1>
-        <p className="mt-2 text-[15px] text-silver-300">What the rover must handle. Every control re-screens the candidates.</p>
+        <h2 className="text-[20px] font-semibold">Screen example Earth sites</h2>
+        <p className="mt-2 max-w-[40rem] text-[14px] leading-relaxed text-silver-300">Illustrative: these example sites and their slope, roughness and sun figures are fixtures, not measurements. Every control here re-screens them. The computed assessment above is separate.</p>
 
         <div className="mt-8 space-y-10">
           <Area title="Mission reference">
@@ -125,6 +132,7 @@ function LunarMission() {
       </div>
 
       <LiveAssessment />
+      </div>
     </div>
   )
 }

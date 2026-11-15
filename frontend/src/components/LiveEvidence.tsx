@@ -7,6 +7,7 @@ import type { Status } from '../data/types'
 import { PLANET_COPY, type Planet } from '../lib/planet'
 import { JEZERO_PREVIEW, ServiceUnavailable } from './ServiceUnavailable'
 import { Button, StatusBadge, cx } from './ui'
+import { CompareEvidence } from './evidence/CompareEvidence'
 
 /*
  * The one place the interface shows measured terrain statistics from the Layer 2/3 service. Everything above it on the
@@ -182,6 +183,7 @@ export default function LiveEvidence({ planet = 'moon' }: { planet?: Planet }) {
             </div>
           )}
           {run.status === 'done' && <Result r={run.result} refLabel={copy.reference} />}
+          {run.status === 'done' && <CompareEvidence planet={planet} refId={rid} candidate={earths.find((d) => d.id === cid)} />}
         </>
       )}
     </section>

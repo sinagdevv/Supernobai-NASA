@@ -5,11 +5,11 @@ import { Button } from './ui'
 const SETUP_DOCS = 'https://github.com/sinagdevv/Supernobai-NASA#getting-started'
 
 /**
- * The state of a measured panel when its numbers cannot be had: the service is down, still being looked for, or the dataset is not on the machine
+ * The state of a measured or computed panel when its numbers cannot be had: the service is down, still being looked for, or the dataset is not on the machine
  * running it. It says what is missing and what the panel would show, offers a retry, and keeps developer setup behind a disclosure.
  * `preview` is a real image rendered once by Layer 3 from the stored Jezero region: a look at the dataset, never a measurement.
  */
-export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, onRetry, setup, preview }: { kind: 'offline' | 'checking' | 'dataset'; title: string; /** The level that follows the heading above it on the page, so levels never skip. */ heading?: 'h2' | 'h3'; context: ReactNode; onRetry?: () => void; setup?: string; preview?: { src: string; alt: string; caption: string } }) {
+export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, onRetry, setup, preview }: { kind: 'offline' | 'checking' | 'dataset'; title: string; /** The level that follows the heading above it on the page, so levels never skip. */ heading?: 'h2' | 'h3' | 'h4'; context: ReactNode; onRetry?: () => void; setup?: string; preview?: { src: string; alt: string; caption: string } }) {
   const checking = kind === 'checking'
   return (
     <div role="status" className="grid gap-6 rounded-[var(--radius-lg)] border border-[var(--line-strong)] bg-ink-850 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,15rem)] md:p-6">
@@ -23,7 +23,7 @@ export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, on
         {onRetry && !checking && <Button className="mt-5" onClick={onRetry}><RotateCw size={15} aria-hidden /> Try again</Button>}
         <details className="mt-5 text-[13px] text-silver-400">
           <summary className="min-h-11 cursor-pointer py-2 text-silver-300">For developers</summary>
-          <p className="max-w-[34rem]">The measurements come from the Layer 2/3 service, which the hosted frontend cannot reach unless it is deployed alongside it. Setup and the service command are in the <a className="text-cyan underline underline-offset-2 hover:text-paper" href={SETUP_DOCS} target="_blank" rel="noreferrer noopener">README<span className="sr-only"> (opens in new tab)</span></a>.</p>
+          <p className="max-w-[34rem]">The measurements and calculations (terrain, solar geometry, suitability) come from the TERRAWINDOW service, which the hosted frontend cannot reach unless it is deployed alongside it. Nothing is shown in place of a result it could not give. Setup and the service command are in the <a className="text-cyan underline underline-offset-2 hover:text-paper" href={SETUP_DOCS} target="_blank" rel="noreferrer noopener">README<span className="sr-only"> (opens in new tab)</span></a>.</p>
           {setup && <p className="mono mt-2 text-[12px] break-words text-silver-500">{setup}</p>}
         </details>
       </div>

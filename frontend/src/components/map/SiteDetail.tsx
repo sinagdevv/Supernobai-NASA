@@ -35,7 +35,7 @@ function Metric({ graphic, value, caption }: { graphic: ReactNode; value: string
   )
 }
 
-/** Mars: the Earth site as terrain, with the Mars assessment shown as pending. No lunar verdict, criteria, sun or ranking is shown. */
+/** Mars: the Earth site as terrain, with no verdict, since an example site has no measured evidence. No lunar verdict, criteria, sun or ranking is shown. */
 function MarsSiteDetail({ id }: { id: string }) {
   const { select } = useApp()
   const site = siteById(id)
@@ -58,8 +58,8 @@ function MarsSiteDetail({ id }: { id: string }) {
           <p className="ml-auto text-right text-[12px] leading-snug text-silver-400">{site.terrain}</p>
         </section>
         <section aria-label="Mars assessment" className="border-t border-[var(--line)] px-4 py-4">
-          <p className="mono flex items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase"><i aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />Mars assessment pending</p>
-          <p className="mt-2 text-[13px] leading-relaxed text-silver-300">No Mars criteria exist yet, so this site has no Mars verdict. Compare its measured terrain with the Jezero region on the Comparison screen.</p>
+          <p className="mono flex items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase"><i aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />No Mars verdict for this example site</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-silver-300">This example site is illustrative, so it carries no verdict. Stored Earth datasets are assessed against the Mars criteria from Live terrain on the map, and compared with Jezero on the Comparison screen.</p>
           <div className="mt-1">
             <Disclosure title={<span className="text-[13px] font-medium text-silver-200">Data &amp; limits</span>}>
               <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">

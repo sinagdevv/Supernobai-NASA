@@ -4,6 +4,8 @@ import { explain } from '../../lib/api/explain'
 import type { LiveTerrain, Req } from '../../lib/api/live'
 import type { OverlayLayer, PatchFeature, PatchStatus, StoredDataset } from '../../lib/api/types'
 import { Button, Segmented, Slider, StatusBadge } from '../ui'
+import { AnalogEvidence } from '../evidence/AnalogEvidence'
+import { usePlanet } from '../../lib/planet'
 import type { Status } from '../../data/types'
 
 /*
@@ -60,6 +62,7 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
   const lunarOnly = state.status === 'online' && earth.length === 0
   const sel = ready.find((d) => d.id === live.datasetId) ?? null
   const scr = live.screen
+  const { planet } = usePlanet()
 
   return (
     <div className="w-[min(300px,calc(100vw-120px))] space-y-3.5">
@@ -127,6 +130,11 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
                     <p className="text-[12px] leading-snug text-silver-400">A passing patch is a shortlist entry for these criteria, not a suitability verdict. Select a patch on the map for its evidence.</p>
                   </div>
                 )}
+              </div>
+
+              <div className="space-y-2.5 border-t border-[var(--line)] pt-3">
+                <h3 className="text-[13px] font-medium text-paper">Layer 5 evidence</h3>
+                <AnalogEvidence planet={planet} dataset={sel} />
               </div>
             </>
           )}

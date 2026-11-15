@@ -12,6 +12,8 @@ import { DISCLAIMER, SOURCES } from '../../data/sources'
 import { siteById } from '../../data/sites'
 import { STATUS_LABEL, regionById, resolvable, rmsAt, shareBelow } from '../../lib/assess'
 import { useApp } from '../../lib/store'
+import { ComputedEvidence, computedMarkdown } from '../../components/evidence/ComputedEvidence'
+import { assessKey, useEvidence } from '../../lib/api/evidence'
 
 const reveal = {
   initial: { opacity: 0, y: 8 },
@@ -55,6 +57,7 @@ export default function Dossier() {
   const { selectedId, mission, assessments, date } = useApp()
   const site = siteById(selectedId)
   const [note, setNote] = useState('')
+  const evidence = useEvidence()
   const report = useMemo(() => (site ? buildReport(site, mission, assessments.get(site.id)!, regionById(mission.regionId), date) : null), [site, mission, assessments, date])
   if (!site || !report) return <NoSite what="research dossier" />
 
@@ -76,7 +79,7 @@ export default function Dossier() {
     window.setTimeout(() => setNote(''), 3000)
   }
   const download = () => {
-    const url = URL.createObjectURL(new Blob([toMarkdown(report)], { type: 'text/markdown;charset=utf-8' }))
+    const url = URL.createObjectURL(new Blob([`${toMarkdown(report)}\n${computedMarkdown('moon', evidence.rehearsal.moon?.data ?? null, evidence.assessments[assessKey('moon', 'moon')]?.data ?? null)}`], { type: 'text/markdown;charset=utf-8' }))
     const el = document.createElement('a')
     el.href = url
     el.download = 'terrawindow-dossier.md'
@@ -232,7 +235,12 @@ export default function Dossier() {
           <p className="mt-3 text-[12px] text-graphite-soft">Listing a resource does not imply endorsement by, or affiliation with, any agency.</p>
         </Section>
 
-        <Section n="08" title="Field-verification steps">
+        <Section n="08" title="Computed evidence · Layer 4 and 5">
+          <Plate><ComputedEvidence planet="moon" /></Plate>
+          <p className="mt-3 max-w-[66ch] text-[13px] leading-relaxed text-graphite-soft">This section is about the stored lunar candidate, not the example Earth site above. It is computed live when the service is running, is not stored, and has not been compared with observations. Everything else in this dossier is illustrative.</p>
+        </Section>
+
+        <Section n="09" title="Field-verification steps">
           <ol className="max-w-[68ch] space-y-2.5 text-[15px]">
             {report.steps.map((s, i) => (
               <li key={i} className="grid grid-cols-[2rem_1fr] gap-2"><span className="mono text-[13px] text-amber-deep">{i + 1}.</span><span>{s}</span></li>
@@ -241,7 +249,7 @@ export default function Dossier() {
         </Section>
 
         <footer className="mt-2 border-t border-[var(--line-strong)] pt-5">
-          <p className="mono text-[12px] leading-relaxed text-graphite-soft">TERRAWINDOW prototype preliminary assessment · illustrative demonstration data · not an official NASA qualification · no endorsement implied.</p>
+          <p className="mono text-[12px] leading-relaxed text-graphite-soft">TERRAWINDOW prototype preliminary assessment · illustrative demonstration data, except section 08 (computed, not stored) · not an official NASA qualification · no endorsement implied.</p>
         </footer>
       </article>
     </div>
