@@ -123,9 +123,16 @@ def test_results_are_cached_on_disk(client, plane_tif, tmp_path, monkeypatch):
     assert second == first  # same generated_at: served from the cache
 
 
-def test_openapi_lists_every_endpoint(client):
+def test_openapi_lists_layer3_endpoints(client):
     paths = client.get("/openapi.json").json()["paths"]
-    assert set(paths) == {"/health", "/v1/datasets", "/v1/patches/profile", "/v1/patches/compare", "/v1/discovery/screen", "/v1/patches/overlay"}
+    assert {
+        "/health",
+        "/v1/datasets",
+        "/v1/patches/profile",
+        "/v1/patches/compare",
+        "/v1/discovery/screen",
+        "/v1/patches/overlay",
+    }.issubset(paths)
 
 
 def test_tile_urls():

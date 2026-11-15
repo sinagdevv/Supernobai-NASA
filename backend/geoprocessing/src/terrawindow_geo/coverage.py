@@ -25,4 +25,6 @@ def summarize(z: np.ndarray, min_required: float, missing_sources: list[str] | N
         sufficient=frac >= min_required,
         largest_void_fraction=round(largest, 4),
         missing_sources=missing_sources or [],
+        valid_cell_count=int(np.count_nonzero(~void)),
+        total_cell_count=int(z.size),
     )

@@ -19,9 +19,9 @@ def create_app() -> FastAPI:
         title="TERRAWINDOW Geospatial Processing Engine",
         version=__version__,
         description=(
-            "Layer 3 of TERRAWINDOW. Extracts terrain patches and reports slope, roughness, relief, "
-            "land cover and data coverage at explicit spatial scales. Results are measurements with "
-            "provenance and limitations, never a suitability verdict."
+            "Layer 3 extracts terrain profiles with provenance and limitations. Layer 5 assesses "
+            "those profiles and caller-supplied Layer 4 rehearsal evidence against explicit mission "
+            "criteria; it does not recalculate Layer 4 science."
         ),
     )
     app.add_middleware(

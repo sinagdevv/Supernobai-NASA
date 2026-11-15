@@ -1,0 +1,328 @@
+{
+  "dataset": "Mars Global Surveyor MOLA MEGDR global topography and observation counts",
+  "acquisition": {
+    "started_utc": "2026-11-14T16:45:22.608Z",
+    "completed_utc": "2026-11-14T16:46:27.410Z",
+    "source": "NASA PDS Geosciences Node MGS MOLA Topography Derived bundle"
+  },
+  "additional_acquisitions": [
+    {
+      "started_utc": "2026-11-14T17:38:59.611Z",
+      "completed_utc": "2026-11-14T17:39:18.470Z",
+      "files": [
+        "megr90n000fb.img",
+        "megr90n000fb.xml",
+        "megr90n000fb.lbl",
+        "megr90n000fb.hdr",
+        "mars_iau2000_v1.tpc"
+      ]
+    }
+  ],
+  "collection": {
+    "name": "MEG032",
+    "version": "2.0"
+  },
+  "bundle_version": "1.0",
+  "products": [
+    {
+      "role": "topography",
+      "product_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0 / MEGT90N000FB.IMG",
+      "pds3_product_version": "2.0",
+      "pds4_label_version": "1.1",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.img",
+      "dimensions_lines_samples": [5760, 11520],
+      "sample_encoding": "signed 16-bit big-endian",
+      "elevation_unit": "m",
+      "elevation_reference": "GMM3 (mgm1025) areoid, degree and order 50; topography is planetary radius minus areoid radius",
+      "map_projection": "Equirectangular, 3396 km sphere, central longitude 180 degrees",
+      "coordinate_reference_model": "IAU2000_MARS",
+      "latitude_type": "planetocentric",
+      "longitude_direction": "east-positive",
+      "longitude_domain": "[0, 360) degrees",
+      "resolution_pixels_per_degree": 32,
+      "pixel_registration": "pixel centers; PDS4 upper-left map corner and corrected pixel size",
+      "no_data": "No NoData constant declared in PDS labels; zero and negative elevations are valid"
+    },
+    {
+      "role": "observation_counts",
+      "product_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0 / MEGC90N000FB.IMG",
+      "pds3_product_version": "2.0",
+      "pds4_label_version": "1.1",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.img",
+      "dimensions_lines_samples": [5760, 11520],
+      "sample_encoding": "signed 16-bit big-endian",
+      "semantics": "number of MOLA observations per latitude-longitude bin; zero means no observations"
+    },
+    {
+      "role": "planetary_radius",
+      "product_id": "MGS-M-MOLA-5-MEGDR-L3-V1.0 / MEGR90N000FB.IMG",
+      "pds3_product_version": "2.0",
+      "pds4_label_version": "1.1",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megr90n000fb.img",
+      "dimensions_lines_samples": [5760, 11520],
+      "sample_encoding": "signed 16-bit big-endian",
+      "scale_factor": 1.0,
+      "value_offset_m": 3396000.0,
+      "decoded_quantity": "mean planetary radial distance from the PDS Mars coordinate origin",
+      "empty_bin_semantics": "interpolated radius; use the companion count raster for observation coverage",
+      "data_ignore_value_in_envi_header": 0,
+      "note": "The ENVI ignore value is not a PDS NoData declaration; raw zero is valid and decodes to 3396000 m"
+    }
+  ],
+  "coordinate_grid": {
+    "pds4_reference_frame": "IAU2000_MARS",
+    "map_sphere_radius_m": 3396000.0,
+    "pixels_per_degree": 32,
+    "pixel_size_m": 1852.2306687,
+    "upper_left_corner_x_m": -10668848.652,
+    "upper_left_corner_y_m": 5334424.326,
+    "longitude_origin_deg": 180.0,
+    "latitude_origin_deg": 0.0
+  },
+  "processing": [
+    "Original files are preserved unchanged in source/.",
+    "Image bytes are decoded as row-major signed big-endian 16-bit integers.",
+    "Native windows are copied without resampling, interpolation, scaling, or NoData substitution.",
+    "MEGR radius samples are retained as integers and decoded to metres using scale 1 and value offset 3396000 m.",
+    "Observation counts are retained separately from elevation validity.",
+    "The native reader does not rotate or resample data; MarsMolaFrameTransform returns a separate transformed view.",
+    "For geometric positions, MEGR mean planetary radius is compared with the current PCK ellipsoid radial intersection; MEGT areoid-relative topography is not converted or substituted."
+  ],
+  "frame_transformation": {
+    "implementation": "rehearsal.mars.mola_frame.MarsMolaFrameTransform",
+    "source_pds_frame": "IAU2000_MARS",
+    "source_spice_realization": "IAU_MARS, frame ID 10014, center 499, class 2, using mars_iau2000_v1.tpc alone",
+    "target_spice_realization": "IAU_MARS, frame ID 10014, center 499, class 2, using pck00011.tpc alone",
+    "rotation_direction": "R_current<-MOLA = pxform(J2000, IAU_MARS, et)_pck00011 * pxform(IAU_MARS, J2000, et)_mars_iau2000_v1",
+    "rotation_reference_epoch_utc": "1999-08-08T03:10:20Z",
+    "rotation_reference_matrix_row_major": [
+      [0.9999999995277563, 0.00003058674778236101, -0.0000029896445716315056],
+      [-0.00003058674250029189, 0.9999999995306648, 0.0000017668182043977812],
+      [0.000002989698611330584, -0.0000017667267600521754, 0.9999999999939702]
+    ],
+    "surface_representation": {
+      "source": "MEGR90N000FB mean planetary radius, decoded as raw_sample * 1 + 3396000 m",
+      "ellipsoid_radii_m": [3396190.0, 3396190.0, 3376200.0],
+      "ellipsoid_radial_intersection": "rho = 1 / sqrt((ux/a)^2 + (uy/b)^2 + (uz/c)^2)",
+      "reported_offset": "MEGR_radius - rho; radial offset, not ellipsoid-normal height or areoid-relative elevation"
+    },
+    "coordinate_origin_assumption": "PDS identifies the origin as Mars and SPICE identifies center 499; no independent offset/tie between the MOLA radius origin and NAIF center 499 was established, so coincidence is assumed and no translation is applied.",
+    "areoid_limitation": "MEGT median-observation topography and MEGR mean planetary radius use different statistics; MEGR minus MEGT is not treated as an independently verified areoid. The MEG032 32-ppd inventory contains no MEGA areoid raster.",
+    "epoch_limitation": "The text PCKs provide analytic orientation models rather than finite SPK-style coverage intervals; epochs beyond observational/model support, including the 2050 comparison, are model evaluations and not independently validated forecasts.",
+    "no_manual_longitude_offset": true,
+    "spice_toolkit_version": "CSPICE_N0067",
+    "orientation_models": {
+      "mars_iau2000_v1.tpc": {
+        "pck_file_date": "2023-01-18",
+        "source_model": "Mars orientation elements from the 2000 IAU report",
+        "BODY499_POLE_RA": [317.68143, -0.1061, 0.0],
+        "BODY499_POLE_DEC": [52.8865, -0.0609, 0.0],
+        "BODY499_PM": [176.63, 350.89198226],
+        "nutation_precession_coefficients": "zero"
+      },
+      "pck00011.tpc": {
+        "pck_file_date": "2022-12-27",
+        "source_model": "2015 IAU Working Group orientation model",
+        "BODY499_POLE_RA": [317.269202, -0.10927547, 0.0],
+        "BODY499_POLE_DEC": [54.432516, -0.05827105, 0.0],
+        "BODY499_PM": [176.049863, 350.891982443297, 0.0],
+        "nutation_precession_term_count": 15
+      }
+    }
+  },
+  "frame_alignment_measurements": [
+    {
+      "utc": "1999-08-08T03:10:20Z",
+      "rotation_angle_deg": 0.0017637504157262415,
+      "rotation_angle_arcsec": 6.34950149661447,
+      "surface_arc_at_3396000m": 104.53992358091038
+    },
+    {
+      "utc": "2000-01-01T00:00:00Z",
+      "rotation_angle_deg": 0.0016393062704806625,
+      "rotation_angle_arcsec": 5.901502573730385,
+      "surface_arc_at_3396000m": 97.16394718534548
+    },
+    {
+      "utc": "2026-06-21T00:00:00Z",
+      "rotation_angle_deg": 0.0028169330872900274,
+      "rotation_angle_arcsec": 10.1409591142441,
+      "surface_arc_at_3396000m": 166.96351538864505
+    },
+    {
+      "utc": "2026-11-15T00:00:00Z",
+      "rotation_angle_deg": 0.002639179741189264,
+      "rotation_angle_arcsec": 9.50104706828135,
+      "surface_arc_at_3396000m": 156.42782901718442
+    },
+    {
+      "utc": "2050-01-01T00:00:00Z",
+      "rotation_angle_deg": 0.0037962966800332825,
+      "rotation_angle_arcsec": 13.666668048119817,
+      "surface_arc_at_3396000m": 225.0117484211791
+    }
+  ],
+  "radius_topography_comparison": {
+    "selection": "bins with MEGC observation count greater than zero",
+    "count": 53921018,
+    "quantity": "MEGR decoded radius minus MEGT topography",
+    "minimum_m": 3377590,
+    "maximum_m": 3397760,
+    "mean_m": 3387034.021381662,
+    "standard_deviation_m": 6252.219999478185,
+    "interpretation": "Diagnostic only; not an areoid estimate because MEGR is a mean-radius product and MEGT is median-observation topography"
+  },
+  "frame_alignment_kernels": [
+    {
+      "role": "MOLA IAU2000 orientation",
+      "filename": "mars_iau2000_v1.tpc",
+      "source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/mars_iau2000_v1.tpc",
+      "naif_file_date": "2023-01-18",
+      "sha256": "07ba38b939ae92c085882752a523addd749fde0abb7a3468423099ed02bb3949"
+    },
+    {
+      "role": "current IAU_MARS orientation and shape",
+      "filename": "pck00011.tpc",
+      "source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc",
+      "naif_file_date": "2022-12-27",
+      "sha256": "3dff7b1dbeceaa01f25467767d3fa25816051c85d162d1edf04acb310ee28bb1"
+    },
+    {
+      "role": "UTC to SPICE ET conversion",
+      "filename": "naif0012.tls",
+      "source_url": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls",
+      "sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"
+    }
+  ],
+  "files": [
+    {
+      "filename": "collection_data_meg032.xml",
+      "role": "PDS collection label",
+      "size_bytes": 5853,
+      "sha256": "589ad21ad152a1d2c9136e3ea75f8d6c7a1a46a297a49a3358e02dca679426b3",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/collection_data_meg032.xml"
+    },
+    {
+      "filename": "collection_data_meg032_inventory.csv",
+      "role": "PDS collection inventory",
+      "size_bytes": 222,
+      "sha256": "ef995dd33b02af51b7058f5a6ae1f3172deb0e4c4cd0249bcd30919b7a8da604",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/collection_data_meg032_inventory.csv"
+    },
+    {
+      "filename": "megc90n000fb.hdr",
+      "role": "ENVI header for observation counts",
+      "size_bytes": 1061,
+      "sha256": "1d1488cf5da8e6988941e9e08dfe9e8f334b1c07c7a9a5ee289b37f0e639c7cf",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.hdr"
+    },
+    {
+      "filename": "megc90n000fb.img",
+      "role": "original observation-count raster",
+      "size_bytes": 132710400,
+      "sha256": "83aeb83d92eb2a60b64e771fdee3884b83eb2f829b6d634bdf444bae526045c0",
+      "pds_bundle_md5": "478DDBD20D34BA2BD358D152E3315A08",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.img"
+    },
+    {
+      "filename": "megc90n000fb.lbl",
+      "role": "original PDS3 observation-count label",
+      "size_bytes": 3084,
+      "sha256": "9f1cf93513bcc3862068d514e870845119e3f667fdfedcb8b4f39f3ec498fd8c",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.lbl"
+    },
+    {
+      "filename": "megc90n000fb.xml",
+      "role": "PDS4 observation-count label",
+      "size_bytes": 13856,
+      "sha256": "68fc14f12e6bb10d5085806a719c022b999f43084bdcc56704c24c87badf7393",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.xml"
+    },
+    {
+      "filename": "megr90n000fb.hdr",
+      "role": "ENVI header for planetary radius",
+      "size_bytes": 1061,
+      "sha256": "1d1488cf5da8e6988941e9e08dfe9e8f334b1c07c7a9a5ee289b37f0e639c7cf",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megr90n000fb.hdr"
+    },
+    {
+      "filename": "megr90n000fb.img",
+      "role": "original mean planetary-radius raster",
+      "size_bytes": 132710400,
+      "sha256": "42d8b66054cbd06bd24585007fb56a329122be19d9343f67f49db9f6f96c3eb8",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megr90n000fb.img",
+      "checksum_note": "SHA-256 computed at acquisition; no entry for this image was present in the downloaded bundle MD5 manifest"
+    },
+    {
+      "filename": "megr90n000fb.lbl",
+      "role": "original PDS3 planetary-radius label",
+      "size_bytes": 4574,
+      "sha256": "c07d5d618b310f37ba955171777c2f98650fe6485834eb38edf5a8d5fdc4eda8",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megr90n000fb.lbl"
+    },
+    {
+      "filename": "megr90n000fb.xml",
+      "role": "PDS4 planetary-radius label",
+      "size_bytes": 15232,
+      "sha256": "4237108a35f4356f815ef98a6ca4de63f0d27440e14bb79f762faddf4dcef23d",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megr90n000fb.xml"
+    },
+    {
+      "filename": "megt90n000fb.hdr",
+      "role": "ENVI header for topography",
+      "size_bytes": 1061,
+      "sha256": "1d1488cf5da8e6988941e9e08dfe9e8f334b1c07c7a9a5ee289b37f0e639c7cf",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.hdr"
+    },
+    {
+      "filename": "megt90n000fb.img",
+      "role": "original global topography raster",
+      "size_bytes": 132710400,
+      "sha256": "09ae1c0956afcdc869bd82c55993849f67c16ef0efe73f38cb1ea204c186ad8b",
+      "pds_bundle_md5": "862355BEE0F7DE293C370843FCF73F35",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.img"
+    },
+    {
+      "filename": "megt90n000fb.lbl",
+      "role": "original PDS3 topography label",
+      "size_bytes": 4820,
+      "sha256": "7ed187c0e6ce09cbf43e931e5efb0178312fb931003199daaa873c61c76b2e2f",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.lbl"
+    },
+    {
+      "filename": "megt90n000fb.xml",
+      "role": "PDS4 topography label",
+      "size_bytes": 15605,
+      "sha256": "5a6e71a01e1674769274416a958021df4ca4cf191a7631d88235d8e6b8146715",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.xml"
+    },
+    {
+      "filename": "mgs_mola_topography_derived_bundle.xml",
+      "role": "PDS bundle label",
+      "size_bytes": 6765,
+      "sha256": "fe7ebb7fb442e4b91ac1922d988cc42e2cf1ea94a97e052ecefadbd555c33c72",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/mgs_mola_topography_derived_bundle.xml"
+    },
+    {
+      "filename": "readme.txt",
+      "role": "PDS bundle readme",
+      "size_bytes": 2246,
+      "sha256": "33d5670e311bccbfcdea6fef67f4438a06128f8237510de2698b5d2132f9f189",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/readme.txt"
+    },
+    {
+      "filename": "urn-nasa-pds-mgs_mola_topography_derived.md5",
+      "role": "PDS bundle MD5 manifest",
+      "size_bytes": 24052,
+      "sha256": "4468a26e18e382896cb3abd4cd69362f0bc76920ec64bf3645271e7be4ebe487",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/urn-nasa-pds-mgs_mola_topography_derived.md5"
+    }
+  ],
+  "references": {
+    "pds4_topography_label": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megt90n000fb.xml",
+    "pds4_count_label": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/meg032/megc90n000fb.xml",
+    "mola_envi_guidance": "https://pds-geosciences.wustl.edu/mgs/urn-nasa-pds-mgs_mola_topography_derived/document/mola_envi.htm",
+    "naif_iau2000_mars_pck": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/mars_iau2000_v1.tpc",
+    "naif_current_generic_pck": "https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00011.tpc"
+  }
+}

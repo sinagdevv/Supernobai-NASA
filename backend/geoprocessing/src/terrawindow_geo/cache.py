@@ -8,6 +8,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from pathlib import Path
 from typing import Any, Callable
 
 from pydantic import BaseModel
@@ -15,16 +16,66 @@ from pydantic import BaseModel
 from . import __version__
 from .config import get_settings
 
+CACHE_SCHEMA_VERSION = 2
+
+
+def _file_stamp(path: str | Path) -> dict[str, Any]:
+    try:
+        stat = Path(path).stat()
+    except OSError:
+        return {"path": str(path), "exists": False}
+    return {
+        "path": str(path),
+        "exists": True,
+        "size": stat.st_size,
+        "mtime_ns": stat.st_mtime_ns,
+    }
+
 
 def _fingerprint(request: BaseModel) -> str:
     payload = request.model_dump(mode="json")
+    dataset = payload.get("dataset") or {}
     stamps = []
-    for side in ("dataset",):
-        ds = payload.get(side) or {}
-        for uri in ([ds.get("uri")] if ds.get("uri") else []) + (ds.get("uris") or []):
-            if os.path.exists(uri):
-                stamps.append(os.path.getmtime(uri))
-    return json.dumps({"request": payload, "mtimes": stamps, "version": __version__}, sort_keys=True)
+    for uri in ([dataset.get("uri")] if dataset.get("uri") else []) + (dataset.get("uris") or []):
+        if os.path.exists(uri):
+            stamps.append(_file_stamp(uri))
+
+    stored_source: dict[str, Any] | None = None
+    dataset_id = dataset.get("id")
+    if dataset_id:
+        from .io.sources import stored_datasets
+
+        settings = get_settings()
+        manifest_path = settings.data_dir / "manifest.json"
+        manifest_stamp = _file_stamp(manifest_path)
+        record = stored_datasets().get(dataset_id)
+        stored_paths = []
+        if record:
+            for value in (record.get("path"),):
+                if isinstance(value, str):
+                    stored_paths.append(value)
+            for product in (record.get("products") or {}).values():
+                if isinstance(product, dict) and isinstance(product.get("path"), str):
+                    stored_paths.append(product["path"])
+        stored_source = {
+            "manifest": manifest_stamp,
+            "version": record.get("version") if record else None,
+            "sha256": record.get("sha256") if record else None,
+            "files": [
+                _file_stamp(settings.data_dir / path) for path in stored_paths
+            ],
+        }
+
+    return json.dumps(
+        {
+            "request": payload,
+            "local_files": stamps,
+            "stored_source": stored_source,
+            "cache_schema": CACHE_SCHEMA_VERSION,
+            "version": __version__,
+        },
+        sort_keys=True,
+    )
 
 
 def cached(endpoint: str, request: BaseModel, compute: Callable[[], Any]) -> Any:

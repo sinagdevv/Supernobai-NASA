@@ -10,6 +10,7 @@ from .. import __version__
 from ..cache import cached
 from ..compare import compare_profiles
 from ..discovery import screen_region
+from ..errors import GeoError
 from .. import readiness
 from ..io.sources import REGISTRY, check_api_access, localize, stored_datasets
 from ..models import (
@@ -25,6 +26,12 @@ from ..models import (
 from ..overlay import render_overlay
 from ..profile import build_profile
 from ..scale import COMMON_SCALES_M
+from ..suitability import (
+    Layer5AssessmentRequest,
+    MissionAssessment,
+    assess_mission,
+    suitability_metrics_response,
+)
 
 router = APIRouter()
 
@@ -98,6 +105,39 @@ def patch_overlay(request: OverlayRequest) -> Any:
     """Slope, hillshade or elevation as a PNG with corner coordinates for a MapLibre image source."""
     request = _prepare(request)
     return cached("overlay", request, lambda: render_overlay(request))
+
+
+@router.get("/v1/suitability/metrics", tags=["suitability"])
+def suitability_metrics() -> dict[str, Any]:
+    """Supported Layer 3 and Layer 4 assessment metrics and canonical units."""
+    return suitability_metrics_response()
+
+
+@router.post(
+    "/v1/suitability/assess",
+    response_model=MissionAssessment,
+    tags=["suitability"],
+)
+def suitability_assess(request: Layer5AssessmentRequest) -> MissionAssessment:
+    """Profile the selected Layer 3 candidate and assess it against supplied evidence."""
+    candidate_request = _prepare(request.candidate)
+    profile_payload = cached(
+        "profile",
+        candidate_request,
+        lambda: build_profile(candidate_request),
+    )
+    profile = TerrainProfile.model_validate(profile_payload)
+    if request.layer4_result is not None and request.layer4_result.body != profile.patch.body:
+        raise GeoError(
+            "invalid_request",
+            "Layer 4 result body must match the Layer 3 candidate body.",
+            status=422,
+            details={
+                "candidate_body": profile.patch.body,
+                "layer4_body": request.layer4_result.body,
+            },
+        )
+    return assess_mission(request, profile)
 
 
 __all__ = ["router", "DatasetInfo"]
