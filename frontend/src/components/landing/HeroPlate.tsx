@@ -112,7 +112,7 @@ export function HeroPlate({ ribbons, chrome }: { ribbons: boolean; chrome: boole
           <Swatch color="var(--planet-ref)">{copy.reference}</Swatch>
           <Swatch color="var(--color-amber)">Comparison window</Swatch>
           <Swatch color="var(--color-cyan)">Earth analog</Swatch>
-          <span className="mono ml-auto hidden text-[12px] text-silver-400 sm:inline">Schematic · not survey data</span>
+          <span className="mono ml-auto hidden text-xs text-silver-400 sm:inline">Schematic · not survey data</span>
         </>
       }
       foot={fine ? <>Move across to read slope; height sets the sun.</> : <>Schematic profile, illustrative.</>}

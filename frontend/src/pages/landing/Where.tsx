@@ -132,10 +132,10 @@ function Where() {
                     <ProfileThumb kind="moon" seed={region.seed} w={72} h={30} className="hidden h-[30px] w-[72px] shrink-0 min-[400px]:block" />
                     <div className="leading-tight">
                       <p className="text-[13px] font-medium text-paper">Lunar reference</p>
-                      <p className="mono mt-0.5 text-[12px] text-silver-300">Slope ≤ {DEFAULT_MISSION.slopeMax}° · Sun {DEFAULT_MISSION.elMin}–{DEFAULT_MISSION.elMax}°</p>
+                      <p className="mono mt-0.5 text-xs text-silver-300">Slope ≤ {DEFAULT_MISSION.slopeMax}° · Sun {DEFAULT_MISSION.elMin}–{DEFAULT_MISSION.elMax}°</p>
                     </div>
                   </div>
-                  <p className="glass absolute right-3 bottom-3 max-w-[70%] rounded-[var(--radius-sm)] px-2 py-1 text-[12px] leading-snug text-silver-300">{BASEMAP_CREDITS[0]}</p>
+                  <p className="glass absolute right-3 bottom-3 max-w-[70%] rounded-[var(--radius-sm)] px-2 py-1 text-xs leading-snug text-silver-300">{BASEMAP_CREDITS[0]}</p>
                 </>
               )}
             </div>

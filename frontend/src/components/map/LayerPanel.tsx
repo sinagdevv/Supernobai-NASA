@@ -19,14 +19,14 @@ export function LayerPopover() {
     <div className="w-[236px]">
       <Segmented<BaseMap> label="Basemap" value={baseMap} onChange={setBaseMap} options={BASE_KEYS.map((b) => ({ value: b, label: BASE_INFO[b].label }))} />
       <Toggle label="Terrain relief" hint="Optional context, from zoom 3" checked={relief} onChange={setRelief} />
-      <ul className="mt-1 space-y-1.5 border-t border-[var(--line)] pt-3 text-[12px] text-silver-300">
+      <ul className="mt-1 space-y-1.5 border-t border-[var(--line)] pt-3 text-xs text-silver-300">
         {(mars ? (['not-assessed'] as const) : LEGEND).map((s) => (
           <li key={s} className="flex items-center gap-2"><StatusGlyph status={s} size={15} />{mars ? 'No Mars assessment' : STATUS_LABEL[s]}</li>
         ))}
         <li className="flex items-center gap-2"><Ring className="border-amber" />Selected</li>
         <li className="flex items-center gap-2"><Ring className="border-cyan" />In comparison (up to 3)</li>
       </ul>
-      <p className="mt-2.5 text-[12px] leading-snug text-silver-400">{mars ? 'Example sites are illustrative. Live terrain is measured Earth data.' : 'Prototype example sites, not survey results. Status covers screened criteria only.'}</p>
+      <p className="mt-2.5 text-xs leading-snug text-silver-400">{mars ? 'Example sites are illustrative. Live terrain is measured Earth data.' : 'Prototype example sites, not survey results. Status covers screened criteria only.'}</p>
     </div>
   )
 }

@@ -37,7 +37,7 @@ export function MarsFacts() {
           <div key={k} className="flex flex-wrap justify-between gap-x-6 gap-y-0.5 py-2.5 text-[14px]"><dt className="text-silver-400">{k}</dt><dd className="mono text-right text-silver-200">{v}</dd></div>
         ))}
       </dl>
-      <p className="mt-3 max-w-xl text-[12px] leading-snug text-silver-400">From the <a className="text-cyan underline underline-offset-2 hover:text-paper" href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html" target="_blank" rel="noreferrer noopener">NASA Mars Fact Sheet<span className="sr-only"> (opens in new tab)</span></a>. Shown for orientation only: the solar-geometry engine takes the planet’s orientation from SPICE kernels, not from this table, and it does not model the sky’s scattering of light.</p>
+      <p className="mt-3 max-w-xl text-xs leading-snug text-silver-400">From the <a className="text-cyan underline underline-offset-2 hover:text-paper" href="https://nssdc.gsfc.nasa.gov/planetary/factsheet/marsfact.html" target="_blank" rel="noreferrer noopener">NASA Mars Fact Sheet<span className="sr-only"> (opens in new tab)</span></a>. Shown for orientation only: the solar-geometry engine takes the planet’s orientation from SPICE kernels, not from this table, and it does not model the sky’s scattering of light.</p>
     </section>
   )
 }

@@ -68,7 +68,7 @@ export function ClassLegend({ present, counts }: { present: TargetClass[]; count
       {list.map((c) => (
         <li key={c} className="flex items-start gap-2.5 text-[13px] leading-snug">
           <span className="mt-1"><ClassSwatch cls={c} /></span>
-          <span className="min-w-0"><span className="font-medium text-paper">{CLASS_META[c].label}</span>{counts?.[c] !== undefined && <span className="mono text-silver-400"> · {counts[c]}</span>}<span className="block text-[12px] text-silver-400">{CLASS_META[c].meaning}</span></span>
+          <span className="min-w-0"><span className="font-medium text-paper">{CLASS_META[c].label}</span>{counts?.[c] !== undefined && <span className="mono text-silver-400"> · {counts[c]}</span>}<span className="block text-xs text-silver-400">{CLASS_META[c].meaning}</span></span>
         </li>
       ))}
     </ul>

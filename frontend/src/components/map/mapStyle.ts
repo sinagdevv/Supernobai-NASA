@@ -5,11 +5,13 @@ export type Style = Exclude<MapOptions['style'], string | undefined>
 
 export const BASE_KEYS: BaseMap[] = ['satellite', 'topo', 'dark']
 export const baseId = (b: BaseMap) => `base-${b}`
+/** Place-name overlay that belongs to the dark base; shown and hidden with it. */
+export const DARK_LABELS_ID = 'base-dark-labels'
 
 export const BASE_INFO: Record<BaseMap, { label: string; credit: string }> = {
   satellite: { label: 'Satellite', credit: 'Esri World Imagery' },
   topo: { label: 'Topo', credit: 'OpenTopoMap / OSM' },
-  dark: { label: 'Dark', credit: 'CARTO / OSM' },
+  dark: { label: 'Dark', credit: 'Esri Dark Gray Canvas / OSM' },
 }
 
 type Line = { type: 'Feature'; properties: Record<string, never>; geometry: { type: 'LineString'; coordinates: number[][] } }
@@ -33,7 +35,7 @@ export function buildStyle(base: BaseMap): Style {
         tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
         tileSize: 256,
         maxzoom: 18,
-        attribution: 'Imagery © Esri, Maxar, Earthstar Geographics',
+        attribution: '<a href="https://www.esri.com" target="_blank" rel="noopener">Powered by Esri</a> | Imagery © Esri, Vantor, Earthstar Geographics',
       },
       [baseId('topo')]: {
         type: 'raster',
@@ -44,16 +46,23 @@ export function buildStyle(base: BaseMap): Style {
       },
       [baseId('dark')]: {
         type: 'raster',
-        tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
         tileSize: 256,
-        maxzoom: 19,
-        attribution: '© CARTO, © OpenStreetMap contributors',
+        maxzoom: 16,
+        attribution: '<a href="https://www.esri.com" target="_blank" rel="noopener">Powered by Esri</a> | Esri, HERE, Garmin, © OpenStreetMap contributors, and the GIS user community',
+      },
+      [DARK_LABELS_ID]: {
+        type: 'raster',
+        tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'],
+        tileSize: 256,
+        maxzoom: 16,
       },
       graticule: { type: 'geojson', data: graticule() },
     },
     layers: [
       { id: 'bg', type: 'background', paint: { 'background-color': '#151a20' } },
       ...BASE_KEYS.map((b) => ({ id: baseId(b), type: 'raster' as const, source: baseId(b), layout: vis(b === base) })),
+      { id: DARK_LABELS_ID, type: 'raster' as const, source: DARK_LABELS_ID, layout: vis(base === 'dark') },
       { id: 'graticule', type: 'line', source: 'graticule', paint: { 'line-color': '#ffffff', 'line-opacity': 0.14, 'line-width': 0.6, 'line-dasharray': [2, 3] } },
     ],
   }

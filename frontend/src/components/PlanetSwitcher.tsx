@@ -60,15 +60,15 @@ export function PlanetSwitcher({ variant = 'header', className }: { variant?: 'h
         return (
           <button key={o.value} ref={(el) => { refs.current[i] = el }} type="button" role="radio" aria-checked={on} tabIndex={on ? 0 : -1} onClick={() => setPlanet(o.value)}
             className={cx('relative flex items-center rounded-[calc(var(--radius-lg)-3px)] text-left transition-[color,transform] duration-[var(--duration-fast)] ease-[var(--ease-out)] active:scale-[0.97]',
-              hero ? 'min-h-12 gap-3 px-4' : 'min-h-10 gap-2 px-2.5 sm:px-3', on ? 'text-paper' : 'text-silver-400 hover:text-paper')}>
+              hero ? 'min-h-12 gap-3 px-4' : 'min-h-10 gap-2 px-2 sm:px-3', on ? 'text-paper' : 'text-silver-400 hover:text-paper')}>
             {on && <motion.span layoutId={`planet-${id}`} aria-hidden className="absolute inset-0 rounded-[calc(var(--radius-lg)-3px)] border border-[var(--line-strong)] bg-ink-700" transition={{ type: 'spring', duration: 0.34, bounce: 0.08 }}>
               <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full" style={{ background: o.value === 'mars' ? '#c9876a' : 'var(--color-silver-300)' }} />
             </motion.span>}
             <span className="relative" style={{ color: on ? (o.value === 'mars' ? '#d99a7c' : 'var(--color-silver-200)') : undefined }}><o.Icon size={hero ? 24 : 20} /></span>
             <span className="relative flex flex-col leading-tight">
               <span className={cx('font-medium', hero ? 'text-[15px]' : 'text-[14px]')}>{copy.label}</span>
-              {hero && <span className="text-[12px] font-normal text-silver-400">{o.sub}</span>}
-              {!hero && <span className="hidden text-[12px] font-normal text-silver-400 2xl:block">{o.sub}</span>}
+              {hero && <span className="text-xs font-normal text-silver-400">{o.sub}</span>}
+              {!hero && <span className="hidden text-xs font-normal text-silver-400 2xl:block">{o.sub}</span>}
             </span>
           </button>
         )

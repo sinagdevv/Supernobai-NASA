@@ -30,7 +30,7 @@ export function DemChip({ resM, maxRes }: { resM: number; maxRes: number }) {
   return (
     <span
       title={coarse ? `Coarser than the ${maxRes} m required by your mission settings` : 'Meets the mission’s resolution requirement'}
-      className={cx('mono inline-flex items-center gap-1 rounded-[var(--radius-xs)] border px-1.5 py-0.5 text-[12px] leading-4', coarse ? 'border-dashed border-silver-500 text-silver-300' : 'border-cyan/40 bg-cyan-soft text-cyan')}
+      className={cx('mono inline-flex items-center gap-1 rounded-[var(--radius-xs)] border px-1.5 py-0.5 text-xs leading-4', coarse ? 'border-dashed border-silver-500 text-silver-300' : 'border-cyan/40 bg-cyan-soft text-cyan')}
     >
       <Grid3x3 size={11} aria-hidden />
       {resM} m grid{coarse && <span className="sr-only"> (coarser than required)</span>}

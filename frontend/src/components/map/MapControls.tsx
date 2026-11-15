@@ -41,7 +41,7 @@ export function MapControls({ nFilters, onFilters, onZoom, onFit, onFocus, liveP
       <div role="group" aria-label="Map controls" className="glass flex flex-col divide-y divide-[var(--line)] overflow-hidden rounded-[var(--radius-md)] border border-[var(--line-strong)] shadow-[var(--shadow-pop)]">
         <Btn label={nFilters ? `Filters (${nFilters} active)` : 'Filters'} onClick={onFilters} className="lg:hidden">
           <SlidersHorizontal size={18} aria-hidden />
-          {nFilters > 0 && <span className="mono absolute top-1 right-1 grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-[12px] leading-none text-ink-900">{nFilters}</span>}
+          {nFilters > 0 && <span className="mono absolute top-1 right-1 grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-xs leading-none text-ink-900">{nFilters}</span>}
         </Btn>
         <Btn label="Map layers" expanded={which === 'layers'} controls={id} onClick={() => setWhich(which === 'layers' ? null : 'layers')} className={which === 'layers' ? 'bg-white/8 text-paper' : undefined}><Layers size={18} aria-hidden /></Btn>
         {livePanel && (

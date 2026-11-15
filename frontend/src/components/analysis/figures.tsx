@@ -26,7 +26,7 @@ export function Pips({ level, paper }: { level: Evidence; paper?: boolean }) {
       <span className="flex gap-0.5" aria-hidden>
         {[0, 1, 2].map((i) => <i key={i} className={cx('h-2 w-3 rounded-[1px] border', i < n ? (paper ? 'border-graphite bg-graphite' : 'border-silver-300 bg-silver-300') : paper ? 'border-graphite-soft/60' : 'border-silver-500')} />)}
       </span>
-      <span className={cx('text-[12px]', paper ? 'text-graphite-soft' : 'text-silver-400')}>{text}</span>
+      <span className={cx('text-xs', paper ? 'text-graphite-soft' : 'text-silver-400')}>{text}</span>
     </span>
   )
 }
@@ -44,7 +44,7 @@ export function Verdict({ criteria }: { criteria: Criterion[] }) {
               onMouseEnter={() => setI(j)} onMouseLeave={() => setI(null)} onFocus={() => setI(j)} onBlur={() => setI(null)} onClick={() => setI(i === j ? null : j)}
               className={cx('flex min-h-11 min-w-[44px] flex-col items-center justify-center gap-0.5 rounded-md px-1.5 transition-[background-color,transform] duration-[var(--duration-fast)] active:scale-[0.97]', i === j ? 'bg-white/8' : 'hover:bg-white/5')}>
               <StatusGlyph status={k.status} size={18} />
-              <span className="text-[12px] leading-none text-silver-400">{SHORT[k.id]}</span>
+              <span className="text-xs leading-none text-silver-400">{SHORT[k.id]}</span>
             </button>
           </li>
         ))}
@@ -71,7 +71,7 @@ export function ProfilePair({ moonSeed, siteSeed, moonRes, earthRes, el = 3 }: {
           <div key={r.k} className="grid items-center gap-x-4 gap-y-1 sm:grid-cols-[11rem_1fr]">
             <div>
               <p className={cx('text-[13px] font-medium', r.c)}>{r.label}</p>
-              <p className="flex items-center gap-2 text-[12px] text-silver-400">
+              <p className="flex items-center gap-2 text-xs text-silver-400">
                 <span aria-hidden className="relative h-2 w-16 bg-white/10"><i className="absolute inset-y-0 left-0 bg-amber" style={{ width: bar(r.res) }} /></span>
                 <span className="mono whitespace-nowrap">1 cell = {r.res} m</span>
               </p>
@@ -80,7 +80,7 @@ export function ProfilePair({ moonSeed, siteSeed, moonRes, earthRes, el = 3 }: {
           </div>
         ))}
       </div>
-      <figcaption className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-silver-400 sm:pl-[12rem]">
+      <figcaption className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-silver-400 sm:pl-[12rem]">
         <span className="flex items-center gap-2"><i aria-hidden className="h-px w-[17.7%] min-w-8 bg-silver-300" /><span className="mono">200 m</span></span>
         <span>Sun {el}° · shaded stretches dimmed · features under 2 cells ({earthRes * 2} m on Earth) are unresolved · schematic</span>
       </figcaption>
@@ -98,7 +98,7 @@ export function QualifyingStrip({ site, mission }: { site: Site; mission: Missio
       <div role="img" aria-label={`${n} of ${DEMO_HORIZON_DAYS} days from ${DEMO_START} have the sun in ${mission.elMin}–${mission.elMax}° for at least ${mission.minDuration} minutes (illustrative).`} className="flex h-10 items-end gap-px">
         {days.map((m, i) => <i key={i} className={cx('flex-1', m ? 'bg-amber' : 'bg-white/10')} style={{ height: m ? `${Math.max(25, (m / max) * 100)}%` : '8%' }} />)}
       </div>
-      <figcaption className="mt-1.5 flex justify-between text-[12px] text-silver-400"><span className="mono">{DEMO_START}</span><span><span className="mono text-amber">{n}</span> of {DEMO_HORIZON_DAYS} days qualify</span><span className="mono">+{DEMO_HORIZON_DAYS} d</span></figcaption>
+      <figcaption className="mt-1.5 flex justify-between text-xs text-silver-400"><span className="mono">{DEMO_START}</span><span><span className="mono text-amber">{n}</span> of {DEMO_HORIZON_DAYS} days qualify</span><span className="mono">+{DEMO_HORIZON_DAYS} d</span></figcaption>
     </figure>
   )
 }
@@ -123,8 +123,8 @@ export function Stat({ tone, value, unit, note, ok }: { tone: 'moon' | 'earth'; 
       <span aria-hidden className={cx('h-2 w-2 shrink-0 self-center rounded-full', tone === 'moon' ? 'bg-silver-300' : 'bg-cyan')} />
       <span className="sr-only">{tone === 'moon' ? 'Lunar reference' : 'Earth candidate'}:</span>
       <span className={cx('mono text-[22px] leading-none font-medium', tone === 'earth' ? 'text-cyan' : 'text-silver-200')}>{value}</span>
-      {unit && <span className="mono text-[12px] text-silver-400">{unit}</span>}
-      {note && <span className="text-[12px] text-silver-400">{ok === undefined ? '' : ok ? '✓ ' : '✗ '}{note}</span>}
+      {unit && <span className="mono text-xs text-silver-400">{unit}</span>}
+      {note && <span className="text-xs text-silver-400">{ok === undefined ? '' : ok ? '✓ ' : '✗ '}{note}</span>}
     </p>
   )
 }

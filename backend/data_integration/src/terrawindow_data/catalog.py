@@ -113,8 +113,9 @@ MOLA_MEGDR = CatalogEntry(
     access="tiled",
     nominal_resolution_m=463.06,
     citation=(
-        "Smith, D. E., Zuber, M. T., Neumann, G. A., Guinness, E. A., & Slavney, S. (2003). Mars Global Surveyor Laser Altimeter Mission "
-        "Experiment Gridded Data Record, MGS-M-MOLA-5-MEGDR-L3-V1.0. NASA Planetary Data System (PDS4 bundle urn:nasa:pds:mgs_mola_topography_derived). "
+        "Smith, D. E., Neumann, G., & Hughes, M. N. (2026). MGS MOLA derived topography - MEGDR and SHADR dataset bundle (Version 1.0) [Data set]. "
+        "NASA Planetary Data System. https://doi.org/10.17189/1z1b-kv84 (PDS4 bundle urn:nasa:pds:mgs_mola_topography_derived; "
+        "PDS3 dataset MGS-M-MOLA-5-MEGDR-L3-V1.0). "
         "Instrument: Smith, D. E., et al. (2001). Mars Orbiter Laser Altimeter: Experiment summary after the first year of global mapping of Mars. "
         "Journal of Geophysical Research, 106(E10), 23689-23722. https://doi.org/10.1029/2000JE001364"
     ),

@@ -10,6 +10,8 @@ import { evidenceKind } from '../../lib/status'
 import { EvidenceChip, NotValidatedChip } from '../evidence/chips'
 import { ServiceUnavailable } from '../ServiceUnavailable'
 import { Button, cx, Disclosure, Segmented, Select, Slider } from '../ui'
+import { Journey, ParamGroup } from '../ui/Journey'
+import { Term } from '../ui/Term'
 import { ClassLegend, ClassSwatch } from './classVis'
 import { AzElTrack, ComputedTimeline } from './ComputedTimeline'
 
@@ -25,12 +27,12 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
     <div>
       <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-silver-200">{label}</label>
       {children(id)}
-      {hint && <p className="mt-1 text-[12px] leading-snug text-silver-500">{hint}</p>}
+      {hint && <p className="mt-1 text-xs leading-snug text-silver-500">{hint}</p>}
     </div>
   )
 }
 
-const INPUT = 'min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-800 px-3 text-[14px] text-paper transition-colors hover:border-silver-500'
+const INPUT = 'min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--control-edge)] bg-ink-800 px-3 text-[14px] text-paper transition-colors hover:border-silver-500'
 
 function NumberInput({ label, hint, value, min, max, step, onChange, unit, optional }: { label: string; hint?: string; value: number | null; min?: number; max?: number; step?: number; onChange: (v: number | null) => void; unit?: string; optional?: boolean }) {
   return (
@@ -44,9 +46,9 @@ function NumberInput({ label, hint, value, min, max, step, onChange, unit, optio
 function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: string }) {
   return (
     <div className="min-w-0 rounded-[var(--radius-md)] border border-[var(--line)] px-3.5 py-3">
-      <p className="text-[12px] text-silver-400">{label}</p>
+      <p className="text-xs text-silver-400">{label}</p>
       <p className="mono mt-1 text-[20px] leading-tight text-paper">{value}</p>
-      {sub && <p className="mono mt-0.5 text-[12px] text-silver-400">{sub}</p>}
+      {sub && <p className="mono mt-0.5 text-xs text-silver-400">{sub}</p>}
     </div>
   )
 }
@@ -73,7 +75,7 @@ export function ComputedWindows({ planet }: { planet: Planet }) {
     <section aria-labelledby="cw-h" className="border-t border-[var(--line)] pt-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h2 id="cw-h" className="text-[20px] font-semibold">Compute rehearsal windows</h2>
-        <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-[12px] leading-4 text-cyan">LAYER 4 · SOLAR GEOMETRY</span>
+        <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-xs leading-4 text-cyan">LAYER 4 · SOLAR GEOMETRY</span>
       </div>
       <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-silver-300">
         Runs the solar-geometry engine on a stored {bodyName} elevation model with SPICE ephemerides: where the sun is, and whether terrain blocks it at the target, sample by sample. The result is computed, not checked against observations.
@@ -90,28 +92,26 @@ export function ComputedWindows({ planet }: { planet: Planet }) {
 
       {state.status === 'online' && primaryDs?.ready && (
         <>
-          {planet === 'moon' && (
-            <div className="mt-5 flex flex-wrap items-end gap-x-6 gap-y-3">
-              <div>
-                <p className="mb-1.5 text-[13px] font-medium text-silver-200">Where</p>
-                <Segmented<'primary' | 'analog'> label="Target" value={mode} onChange={setMode} options={[{ value: 'primary', label: 'Moon · Site01' }, { value: 'analog', label: 'Earth analog' }]} />
+          <TargetPanel key={target.key} planet={planet} target={target} where={<>
+            {planet === 'moon' && (
+              <div className="mb-4 flex flex-wrap items-end gap-x-6 gap-y-3">
+                <Segmented<'primary' | 'analog'> label="Reference target" value={mode} onChange={setMode} options={[{ value: 'primary', label: 'Moon · Site01' }, { value: 'analog', label: 'Earth analog' }]} />
+                {mode === 'analog' && earths.length > 0 && (
+                  <div className="w-full max-w-xs">
+                    <Select label="Earth analog (stored dataset)" value={analogDs?.id ?? ''} onChange={setAnalogId} options={earths.map((d) => ({ value: d.id, label: d.region ? `${d.region.name.replace(/-/g, ' ')} · ${d.name}` : d.name }))} />
+                  </div>
+                )}
               </div>
-              {mode === 'analog' && earths.length > 0 && (
-                <div className="w-full max-w-xs">
-                  <Select label="Earth analog (stored dataset)" value={analogDs?.id ?? ''} onChange={setAnalogId} options={earths.map((d) => ({ value: d.id, label: d.region ? `${d.region.name.replace(/-/g, ' ')} · ${d.name}` : d.name }))} />
-                </div>
-              )}
-            </div>
-          )}
-          {planet === 'moon' && mode === 'analog' && earths.length === 0 && <p className="mt-3 text-[13px] text-silver-300">No Earth dataset is ready in the service, so there is no analog to compute on.</p>}
-          <TargetPanel key={target.key} planet={planet} target={target} />
+            )}
+            {planet === 'moon' && mode === 'analog' && earths.length === 0 && <p className="mb-3 text-[13px] text-silver-300">No Earth dataset is ready in the service, so there is no analog to compute on.</p>}
+          </>} />
         </>
       )}
     </section>
   )
 }
 
-function TargetPanel({ planet, target }: { planet: Planet; target: RehearsalTarget }) {
+function TargetPanel({ planet, target, where }: { planet: Planet; target: RehearsalTarget; where: ReactNode }) {
   const ev = useEvidence()
   const { recheck } = useBackend()
   const entry = ev.rehearsal[target.key]
@@ -124,38 +124,46 @@ function TargetPanel({ planet, target }: { planet: Planet; target: RehearsalTarg
 
   return (
     <div className="mt-5">
-      <div className="rounded-[var(--radius-lg)] border border-[var(--line)] p-4 md:p-5">
-        <p className="text-[13px] text-silver-300"><span className="font-medium text-paper">{target.label}</span> · {target.place}{target.scaleM ? ` · analysed on a ${target.scaleM} m grid` : ' · native 32 pixels/degree MOLA grid (about 1.85 km)'}</p>
-        {target.body === 'earth' && <p className="mt-1 text-[12px] leading-snug text-silver-400">The sun here is Earth’s. This tests the rehearsal geometry on Earth terrain; it is not lunar illumination.</p>}
-        {target.body === 'mars' && <p className="mt-1 text-[12px] leading-snug text-silver-400">Sun and terrain are searched out to {(target.maxDistanceM ?? 0) / 1000} km. Some MOLA bins have no laser observations; they come back as insufficient coverage, not as shadow.</p>}
+      <Journey label="Rehearsal windows journey" current={entry?.loading ? 2 : entry?.data ? 3 : 1} steps={[{ label: 'Choose reference', target: 'cw-where' }, { label: 'Configure conditions', target: 'cw-when' }, { label: 'Calculate', target: 'cw-calc' }, { label: 'Inspect windows', target: 'cw-results' }, { label: 'Review limitations', target: 'cw-limits' }]} />
+      <div className="mt-5">
+        <ParamGroup id="cw-where" n={1} title="Where" hint="The reference whose sun and terrain are computed.">
+          {where}
+          <p className="text-[14px] text-silver-200"><span className="font-medium text-paper">{target.label}</span> · {target.place}{target.scaleM ? ` · analysed on a ${target.scaleM} m grid` : ' · native 32 pixels/degree MOLA grid (about 1.85 km)'}</p>
+          {target.body === 'earth' && <p className="mt-1 text-xs leading-snug text-silver-400">The sun here is Earth’s. This tests the rehearsal geometry on Earth terrain; it is not lunar illumination.</p>}
+          {target.body === 'mars' && <p className="mt-1 text-xs leading-snug text-silver-400">Sun and terrain are searched out to {(target.maxDistanceM ?? 0) / 1000} km. Some MOLA bins have no laser observations; they come back as <Term id="insufficient">insufficient coverage</Term>, not as shadow.</p>}
+        </ParamGroup>
 
-        <div className="mt-4 grid gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label="Start (00:00 UTC)" hint={target.body === 'earth' ? `Earth dates must end by ${EARTH_KERNEL_END}.` : undefined}>
-            {(id) => <input id={id} type="date" className={cx(INPUT, 'mono')} value={params.startDate} onChange={(e) => set({ startDate: e.target.value })} />}
-          </Field>
-          <Select label="Span" value={String(params.days)} onChange={(v) => set({ days: Number(v) })} options={[1, 2, 3, 7, 14, 30].map((d) => ({ value: String(d), label: `${d} ${d === 1 ? 'day' : 'days'}` }))} />
-          <Select label="Sample every" value={String(params.stepMinutes)} onChange={(v) => set({ stepMinutes: Number(v) })} options={STEP_OPTIONS.map((m) => ({ value: String(m), label: m >= 60 ? `${m / 60} h` : `${m} min` }))} />
-          <div className="self-end pb-2 text-[12px] text-silver-400"><span className="mono text-silver-200">{samples}</span> samples · at most {MAX_SAMPLES} samples, {MAX_SPAN_DAYS} days</div>
-        </div>
+        <ParamGroup id="cw-when" n={2} title="When" hint="The span of time and how finely it is sampled.">
+          <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="Start (00:00 UTC)" hint={target.body === 'earth' ? `Earth dates must end by ${EARTH_KERNEL_END}.` : undefined}>
+              {(id) => <input id={id} type="date" className={cx(INPUT, 'mono')} value={params.startDate} onChange={(e) => set({ startDate: e.target.value })} />}
+            </Field>
+            <Select label="Span" value={String(params.days)} onChange={(v) => set({ days: Number(v) })} options={[1, 2, 3, 7, 14, 30].map((d) => ({ value: String(d), label: `${d} ${d === 1 ? 'day' : 'days'}` }))} />
+            <Select label="Sample every" value={String(params.stepMinutes)} onChange={(v) => set({ stepMinutes: Number(v) })} options={STEP_OPTIONS.map((m) => ({ value: String(m), label: m >= 60 ? `${m / 60} h` : `${m} min` }))} />
+            <div className="self-end pb-2 text-xs text-silver-400"><span className="mono text-silver-200">{samples}</span> samples · at most {MAX_SAMPLES} samples, {MAX_SPAN_DAYS} days</div>
+          </div>
+        </ParamGroup>
 
-        <Disclosure defaultOpen title={<span className="text-[13px] font-medium text-silver-200">Window criteria</span>}>
-          <div className="grid gap-x-5 gap-y-4 pt-1 sm:grid-cols-2 lg:grid-cols-3">
+        <ParamGroup n={2} title="Window criteria" hint="What counts as a candidate window.">
+          <div className="grid gap-x-5 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
             <Slider label="Continuous light at least" value={params.minContinuousMinutes} min={0} max={720} step={15} format={(v) => (v >= 60 ? `${v / 60} h` : `${v} min`)} onChange={(v) => set({ minContinuousMinutes: v })} />
             <Slider label="Valid terrain coverage at least" value={params.minCoveragePercent} min={0} max={100} step={5} unit=" %" onChange={(v) => set({ minCoveragePercent: v })} />
             <Slider label="Terrain shadow at most" value={params.maxObstructionPercent} min={0} max={100} step={5} unit=" %" onChange={(v) => set({ maxObstructionPercent: v })} />
             <NumberInput label="Sun elevation at least" unit="°" value={params.elevationMin} step={0.1} onChange={(v) => set({ elevationMin: v })} optional hint="Leave empty for no lower limit." />
             <NumberInput label="Sun elevation at most" unit="°" value={params.elevationMax} step={0.1} onChange={(v) => set({ elevationMax: v })} optional hint="Leave empty for no upper limit." />
           </div>
-          <p className="mt-3 text-[12px] leading-snug text-silver-400">These are rehearsal criteria you set. They decide which stretches count as candidate windows; they are not standards.</p>
-        </Disclosure>
+          <p className="mt-3 text-xs leading-snug text-silver-400">These are rehearsal criteria you set. They decide which stretches count as candidate windows; they are not standards.</p>
+        </ParamGroup>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <Button variant="primary" onClick={() => ev.runRehearsal(target, params)} disabled={!!problem || engineDown}>
-            {entry?.loading ? <RotateCw size={15} aria-hidden className="animate-spin motion-reduce:animate-none" /> : <Play size={15} aria-hidden />}
-            {entry?.loading ? 'Recompute' : entry?.data ? 'Compute again' : 'Compute windows'}
-          </Button>
-          <p role="status" className={cx('text-[13px]', problem ? 'text-amber' : 'text-silver-400')}>{problem ?? (entry?.loading ? 'Computing…' : 'Runs on demand. Results are not stored.')}</p>
-        </div>
+        <ParamGroup id="cw-calc" n={3} title="Calculate" hint="Runs on demand. Nothing is stored.">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Button variant="primary" onClick={() => ev.runRehearsal(target, params)} disabled={!!problem || engineDown}>
+              {entry?.loading ? <RotateCw size={15} aria-hidden className="animate-spin motion-reduce:animate-none" /> : <Play size={15} aria-hidden />}
+              {entry?.loading ? 'Recompute' : entry?.data ? 'Compute again' : 'Compute windows'}
+            </Button>
+            <p role="status" className={cx('text-[13px]', problem ? 'text-amber' : 'text-silver-400')}>{problem ?? (entry?.loading ? 'Computing…' : 'Runs on demand. Results are not stored.')}</p>
+          </div>
+        </ParamGroup>
       </div>
 
       {engineDown && (
@@ -173,7 +181,7 @@ function Outcome({ entry }: { entry: RehearsalEntry | undefined }) {
   if (!entry) return null
   const err = entry.error
   return (
-    <div className="mt-6" aria-live="polite">
+    <div id="cw-results" className="mt-2 scroll-mt-24" aria-live="polite">
       {entry.loading && <Computing hasPrevious={!!entry.data} />}
       {err && !entry.loading && (
         err.code === 'unreachable' || err.code === 'unavailable' || err.code === 'rate_limited' ? (
@@ -183,7 +191,7 @@ function Outcome({ entry }: { entry: RehearsalEntry | undefined }) {
           <div role="alert" className="rounded-[var(--radius-md)] border border-bad/50 p-4 text-[14px]">
             <p className="font-medium text-bad">The engine did not return a result ({err.code})</p>
             <p className="mt-1 text-silver-300">{explain(err).text}</p>
-            <p className="mt-1 text-[12px] text-silver-400">No window is shown. Nothing is substituted for the calculation.</p>
+            <p className="mt-1 text-xs text-silver-400">No window is shown. Nothing is substituted for the calculation.</p>
           </div>
         )
       )}
@@ -196,7 +204,7 @@ function Computing({ hasPrevious }: { hasPrevious: boolean }) {
   return (
     <div role="status" className="mb-5 rounded-[var(--radius-lg)] border border-[var(--line)] p-4">
       <p className="text-[14px] font-medium text-paper">{hasPrevious ? 'Recomputing. The result below is from the previous run.' : 'Computing windows…'}</p>
-      <p className="mt-1 text-[12px] text-silver-400">Reading terrain, tracing the horizon at every sample. The first run after the service starts takes about 25 seconds; later runs take a few seconds.</p>
+      <p className="mt-1 text-xs text-silver-400">Reading terrain, tracing the horizon at every sample. The first run after the service starts takes about 25 seconds; later runs take a few seconds.</p>
       <div aria-hidden className="mt-3 space-y-2">
         <div className="h-24 animate-pulse rounded-[var(--radius-sm)] bg-white/6 motion-reduce:animate-none" />
         <div className="h-6 animate-pulse rounded-[var(--radius-sm)] bg-white/6 motion-reduce:animate-none" />
@@ -233,7 +241,8 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
           <EvidenceChip kind={kind} />
           <NotValidatedChip />
         </div>
-        <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-paper">{h.text}</p>
+        <p className="mt-3 max-w-[62ch] text-[18px] leading-snug font-medium text-paper">{h.text}</p>
+        <p className="mt-1.5 max-w-[62ch] text-[13px] leading-snug text-silver-300">{windows.length ? `Across ${fmtDuration(s.spanSeconds)} at a ${fmtDuration(r.step_seconds)} step, ${fmtDuration(s.qualifyingSeconds)} of light meets your criteria.` : `Across ${fmtDuration(s.spanSeconds)} at a ${fmtDuration(r.step_seconds)} step.`} This is <Term id="computed">computed, not validated</Term>.</p>
         <dl className="mt-4 grid gap-x-8 gap-y-3 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
           {[
             ['Body', bodyLabel],
@@ -244,43 +253,8 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
             ['To (UTC)', utc(r.end_utc).slice(0, 16)],
             ['Sample step', fmtDuration(r.step_seconds)],
             ['Computed', utc(r.generated_at).slice(0, 19) + ' UTC'],
-          ].map(([k, v]) => <div key={k} className="min-w-0"><dt className="text-silver-400">{k}</dt><dd className="mono mt-0.5 break-words text-paper">{v}</dd></div>)}
+          ].map(([k, v]) => <div key={k} className="min-w-0"><dt className="text-silver-400">{k === 'Analysis grid' ? <Term id="scale">Analysis scale</Term> : k}</dt><dd className="mono mt-0.5 break-words text-paper">{v}</dd></div>)}
         </dl>
-      </div>
-
-      <div className="grid gap-x-10 gap-y-8 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-        <figure className="min-w-0">
-          <figcaption className="mb-2 text-[13px] font-medium text-silver-300">Sun elevation, what the engine decided at each sample, and the windows it found</figcaption>
-          <ComputedTimeline r={r} sel={sel} />
-          <div className="mt-3">
-            <Slider label="Inspect a sample" value={sel} min={0} max={Math.max(0, r.observations.length - 1)} format={(v) => `${v + 1} of ${r.observations.length}`} onChange={setSel} />
-            {so && (
-              <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4" aria-live="polite">
-                {[
-                  ['Time (UTC)', utc(so.time_utc).slice(0, 16)],
-                  ['Classification', CLASS_META[so.target_classification].label],
-                  ['Sun elevation / azimuth', `${so.solar_elevation_deg.toFixed(2)}° / ${so.solar_azimuth_deg.toFixed(1)}°`],
-                  ['Terrain shadow · coverage', `${so.terrain_obstruction_percent.toFixed(1)} % · ${so.valid_terrain_coverage_percent.toFixed(0)} %`],
-                ].map(([k, v], i) => <div key={k} className="min-w-0"><dt className="text-[12px] text-silver-400">{k}</dt><dd className="mono mt-0.5 flex items-center gap-1.5 text-[14px] break-words text-paper">{i === 1 && <ClassSwatch cls={so.target_classification} />}{v}</dd></div>)}
-              </dl>
-            )}
-          </div>
-        </figure>
-        <figure className="min-w-0">
-          <figcaption className="mb-2 text-[13px] font-medium text-silver-300">Solar diagram · azimuth and elevation of the computed samples</figcaption>
-          <AzElTrack r={r} sel={sel} />
-          <p className="mt-2 text-[12px] leading-snug text-silver-400">Azimuth N = 0°, clockwise. Each dot is one sample, coloured by classification. The shaded band is your elevation criterion, if you set one.</p>
-        </figure>
-      </div>
-
-      <div>
-        <h3 className="mb-3 text-[15px] font-medium">What each sample means</h3>
-        <ClassLegend present={present} counts={counts} />
-        {present.includes('INSUFFICIENT_COVERAGE') && (
-          <p role="note" className="mt-4 max-w-3xl border-l-2 border-amber pl-3 text-[13px] leading-relaxed text-silver-300">
-            <span className="font-medium text-paper">Insufficient coverage is not darkness and not light.</span> At {s.undeterminedSamples} of {s.samples} samples the elevation data around the target could not support a decision{r.body === 'mars' ? ' (about a fifth of the MOLA bins around Jezero have no laser observations)' : ''}. They are left out of every duration below.
-          </p>
-        )}
       </div>
 
       <div>
@@ -301,15 +275,50 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
                       <span className="mono text-[13px] text-amber">{fmtDuration(w.duration_seconds)}</span>
                     </span>
                     <span aria-hidden className="relative mt-2 block h-1.5 rounded-full bg-white/8"><span className="absolute inset-y-0 rounded-full bg-amber" style={{ left: `${a}%`, width: `${Math.max(1.5, b)}%` }} /></span>
-                    <span className="mono mt-2 block text-[12px] text-silver-300">sun {w.solar_elevation_min_deg.toFixed(1)}–{w.solar_elevation_max_deg.toFixed(1)}° · az {w.solar_azimuth_start_deg.toFixed(0)}°→{w.solar_azimuth_end_deg.toFixed(0)}° · shadow ≤ {w.maximum_terrain_obstruction_percent.toFixed(1)} % · coverage ≥ {w.minimum_valid_terrain_coverage_percent.toFixed(0)} % · {w.sample_count} {w.sample_count === 1 ? 'sample' : 'samples'}</span>
-                    <span className="mt-1 block text-[12px] text-silver-400">{ok ? 'Meets every criterion you set.' : `Lit, but not a candidate: ${(w.criteria_failed ?? []).map((c) => c.replace(/_/g, ' ')).join(', ') || 'a criterion failed'}.`}</span>
+                    <span className="mono mt-2 block text-xs text-silver-300">sun {w.solar_elevation_min_deg.toFixed(1)}–{w.solar_elevation_max_deg.toFixed(1)}° · az {w.solar_azimuth_start_deg.toFixed(0)}°→{w.solar_azimuth_end_deg.toFixed(0)}° · shadow ≤ {w.maximum_terrain_obstruction_percent.toFixed(1)} % · coverage ≥ {w.minimum_valid_terrain_coverage_percent.toFixed(0)} % · {w.sample_count} {w.sample_count === 1 ? 'sample' : 'samples'}</span>
+                    <span className="mt-1 block text-xs text-silver-400">{ok ? 'Meets every criterion you set.' : `Lit, but not a candidate: ${(w.criteria_failed ?? []).map((c) => c.replace(/_/g, ' ')).join(', ') || 'a criterion failed'}.`}</span>
                   </button>
                 </li>
               )
             })}
           </ul>
         )}
-        <p className="mt-3 max-w-3xl text-[12px] leading-snug text-silver-400">{uncertaintyNote(r)}</p>
+        <p className="mt-3 max-w-3xl text-xs leading-snug text-silver-400">{uncertaintyNote(r)}</p>
+      </div>
+
+      <div className="grid gap-x-10 gap-y-8 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
+        <figure className="min-w-0">
+          <figcaption className="mb-2 text-[13px] font-medium text-silver-300">Sun elevation, what the engine decided at each sample, and the windows it found</figcaption>
+          <ComputedTimeline r={r} sel={sel} />
+          <div className="mt-3">
+            <Slider label="Inspect a sample" value={sel} min={0} max={Math.max(0, r.observations.length - 1)} format={(v) => `${v + 1} of ${r.observations.length}`} onChange={setSel} />
+            {so && (
+              <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4" aria-live="polite">
+                {[
+                  ['Time (UTC)', utc(so.time_utc).slice(0, 16)],
+                  ['Classification', CLASS_META[so.target_classification].label],
+                  ['Sun elevation / azimuth', `${so.solar_elevation_deg.toFixed(2)}° / ${so.solar_azimuth_deg.toFixed(1)}°`],
+                  ['Terrain shadow · coverage', `${so.terrain_obstruction_percent.toFixed(1)} % · ${so.valid_terrain_coverage_percent.toFixed(0)} %`],
+                ].map(([k, v], i) => <div key={k} className="min-w-0"><dt className="text-xs text-silver-400">{k}</dt><dd className="mono mt-0.5 flex items-center gap-1.5 text-[14px] break-words text-paper">{i === 1 && <ClassSwatch cls={so.target_classification} />}{v}</dd></div>)}
+              </dl>
+            )}
+          </div>
+        </figure>
+        <figure className="min-w-0">
+          <figcaption className="mb-2 text-[13px] font-medium text-silver-300">Solar diagram · azimuth and elevation of the computed samples</figcaption>
+          <AzElTrack r={r} sel={sel} />
+          <p className="mt-2 text-xs leading-snug text-silver-400">Azimuth N = 0°, clockwise. Each dot is one sample, coloured by classification. The shaded band is your elevation criterion, if you set one.</p>
+        </figure>
+      </div>
+
+      <div>
+        <h3 className="mb-3 text-[15px] font-medium">What each sample means</h3>
+        <ClassLegend present={present} counts={counts} />
+        {present.includes('INSUFFICIENT_COVERAGE') && (
+          <p role="note" className="mt-4 max-w-3xl border-l-2 border-amber pl-3 text-[13px] leading-relaxed text-silver-300">
+            <span className="font-medium text-paper"><Term id="insufficient">Insufficient coverage</Term> is not darkness and not light.</span> At {s.undeterminedSamples} of {s.samples} samples the elevation data around the target could not support a decision{r.body === 'mars' ? ' (about a fifth of the MOLA bins around Jezero have no laser observations)' : ''}. They are left out of every duration below.
+          </p>
+        )}
       </div>
 
       <div>
@@ -320,34 +329,36 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
           <Stat label="Terrain shadow, peak" value={pct(r.terrain_obstruction_max_percent)} sub={`mean ${pct(r.terrain_obstruction_mean_percent)}`} />
           <Stat label="Valid terrain coverage" value={pct(r.valid_terrain_coverage_mean_percent, 0)} sub="mean over the patch" />
         </div>
-        <p className="mt-2 max-w-3xl text-[12px] leading-snug text-silver-400">Shadow is the share of the analysed patch the engine found blocked by terrain, not just the target pixel. Sun elevation {r.solar_elevation_min_deg.toFixed(2)}° to {r.solar_elevation_max_deg.toFixed(2)}°, azimuth swing {r.solar_azimuth_span_deg.toFixed(1)}°.</p>
+        <p className="mt-2 max-w-3xl text-xs leading-snug text-silver-400">Shadow is the share of the analysed patch the engine found blocked by terrain, not just the target pixel. Sun elevation {r.solar_elevation_min_deg.toFixed(2)}° to {r.solar_elevation_max_deg.toFixed(2)}°, azimuth swing {r.solar_azimuth_span_deg.toFixed(1)}°.</p>
       </div>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--line)] p-4">
-        <h3 className="text-[15px] font-medium">How much to trust this</h3>
+      <section id="cw-limits" aria-labelledby="cw-limits-h" className="scroll-mt-24 space-y-6 border-t border-[var(--line)] pt-6">
+        <h3 id="cw-limits-h" className="text-[17px] font-semibold">Review limitations</h3>
+      <div>
+        <h4 className="text-[14px] font-medium">How much to trust this</h4>
         <dl className="mt-3 divide-y divide-[var(--line)] text-[13px]">
           {evidenceLines(r).map((l) => (
             <div key={l.label} className="grid gap-x-4 gap-y-0.5 py-2 sm:grid-cols-[13rem_1fr]"><dt className="text-silver-400">{l.label}</dt><dd className="text-paper">{l.value}</dd></div>
           ))}
         </dl>
-        <p className="mt-3 text-[12px] leading-snug text-silver-400">“Computed” means the engine returned this for the request above. It does not mean the shadows were compared with images or measurements.</p>
+        <p className="mt-3 text-xs leading-snug text-silver-400">“Computed” means the engine returned this for the request above. It does not mean the shadows were compared with images or measurements.</p>
       </div>
 
       <div>
-        <h3 className="mb-2 text-[15px] font-medium">Limitations stated by the engine</h3>
+        <h4 className="mb-2 text-[14px] font-medium">Limitations stated by the engine</h4>
         <ul className="list-disc space-y-1.5 pl-5 text-[13px] leading-relaxed text-silver-300">{r.scientific_limitations.map((l) => <li key={l}>{l}</li>)}</ul>
       </div>
 
       <div className="border-t border-[var(--line)]">
         <Disclosure title={<span className="text-[14px] font-medium">Dataset, kernels and provenance</span>}>
-          <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
+          <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
             <dt className="text-silver-500">Dataset</dt><dd className="break-words text-silver-200">{r.source_grid_id ?? target.datasetId}</dd>
             <dt className="text-silver-500">Target pixel</dt><dd className="text-silver-200">row {r.target_pixel[0]}, column {r.target_pixel[1]}</dd>
             {r.analysis_grid.resampling && <Fragment><dt className="text-silver-500">Grid resampling</dt><dd className="break-words text-silver-200">{r.analysis_grid.resampling}</dd></Fragment>}
             {prov.map(([k, v]) => <Fragment key={k}><dt className="text-silver-500">{k}</dt><dd className="break-words text-silver-200">{v}</dd></Fragment>)}
           </dl>
-          <h4 className="mt-4 text-[13px] font-medium text-paper">SPICE kernels</h4>
-          <ul className="mt-2 space-y-1.5 text-[12px]">
+          <h5 className="mt-4 text-[13px] font-medium text-paper">SPICE kernels</h5>
+          <ul className="mt-2 space-y-1.5 text-xs">
             {kernelRows.map((k) => (
               <li key={k.filename} className="min-w-0"><span className="mono break-all text-silver-200">{k.filename}</span> <span className="text-silver-400">· {k.roles.join(', ')} · {k.status}{k.warning ? ` · ${k.warning}` : ''}</span><span className="mono block break-all text-silver-500">sha256 {k.sha256.slice(0, 16)}…</span></li>
             ))}
@@ -355,7 +366,7 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
         </Disclosure>
         <Disclosure title={<span className="text-[14px] font-medium">Every sample, as a table</span>}>
           <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Samples, scrollable">
-            <table className="w-full min-w-[34rem] border-collapse text-left text-[12px]">
+            <table className="w-full min-w-[34rem] border-collapse text-left text-xs">
               <caption className="sr-only">Computed samples</caption>
               <thead><tr className="text-silver-400">{['Time (UTC)', 'Classification', 'Elevation', 'Azimuth', 'Shadow', 'Coverage'].map((c) => <th key={c} scope="col" className="pb-2 pr-3 font-medium">{c}</th>)}</tr></thead>
               <tbody>
@@ -374,6 +385,7 @@ function Result({ r, target, stale }: { r: RehearsalResult; target: RehearsalTar
           </div>
         </Disclosure>
       </div>
+      </section>
     </div>
   )
 }

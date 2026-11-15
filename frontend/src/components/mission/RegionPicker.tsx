@@ -24,7 +24,7 @@ export function RegionPicker({ value, onChange }: { value: string; onChange: (id
             className={cx('min-h-[76px] rounded-[var(--radius-md)] border p-2 text-left transition-[border-color,background-color,transform] duration-[var(--duration-fast)] ease-[var(--ease-out)] active:scale-[0.97]', on ? 'border-amber bg-amber-soft' : 'border-[var(--line)] hover:border-[var(--line-strong)]')}>
             <RegionProfile seed={r.seed} w={96} h={30} className="h-[30px] w-full" label={`${r.name} reference terrain profile (schematic)`} />
             <span className="mt-1.5 block truncate text-[13px] font-medium leading-tight">{r.name}</span>
-            <span className="mono block text-[12px] text-silver-400">{r.approxLat}</span>
+            <span className="mono block text-xs text-silver-400">{r.approxLat}</span>
           </button>
         )
       })}

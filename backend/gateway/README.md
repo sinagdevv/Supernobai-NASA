@@ -27,15 +27,30 @@ Three terminals (Windows paths shown; `backend/.venv` is the environment from th
 and the Layer 4 package installed: `pip install -e gateway -e ../solar_geometry_engine`, plus `spiceypy numba`).
 
 ```powershell
-# 1. Scientific API, bound to loopback only (backend\geoprocessing)
-..\.venv\Scripts\python -m uvicorn terrawindow_geo.api.app:app --host 127.0.0.1 --port 8000
+# 1. Scientific API: loopback only, one worker, with the verified resource limits (backend\geoprocessing)
+$env:TWGEO_MAX_PATCH_PIXELS=4000000; $env:NUMBA_NUM_THREADS=2
+..\.venv\Scripts\python -m uvicorn terrawindow_geo.api.app:app --host 127.0.0.1 --port 8000 --workers 1 --limit-concurrency 8 --no-server-header
 
 # 2. Gateway (backend\gateway)
-..\.venv\Scripts\python -m uvicorn terrawindow_gateway.app:app --host 127.0.0.1 --port 8787 --no-server-header
+..\.venv\Scripts\python -m uvicorn terrawindow_gateway.app:app --host 127.0.0.1 --port 8787 --workers 1 --no-server-header
 
 # 3. Cloudflare quick tunnel to the gateway
 cloudflared tunnel --url http://127.0.0.1:8787 --no-autoupdate
 ```
+
+Check `curl http://127.0.0.1:8787/health` and `curl http://127.0.0.1:8787/v1/rehearsal/status` before starting the tunnel. Run the processes in your own terminals: tasks started from an assistant's background shell are stopped after two hours or under memory pressure.
+
+### Resource limits (measured on a 16 GB Windows machine)
+
+| Setting | Why |
+|---|---|
+| `--workers 1` | One API worker holds about 240 MB resident (peak 317 MB across Moon, Earth and Mars Layer 4 runs, no growth over repeated runs); the gateway about 60 MB; the tunnel about 40 MB |
+| `TWGEO_MAX_PATCH_PIXELS=4000000` | Refuses grids over 4 million cells with a clear message. Without it a near-native lunar request (5.5 m, about 8.5 million cells) peaked at 977 MB; with it the worst case is about 470 MB. The interface's own requests, including the full-region Arizona overlay, are unaffected |
+| `NUMBA_NUM_THREADS=2` | Bounds Layer 4 worker threads |
+| `--limit-concurrency 8` | Bounds simultaneous connections to the API |
+| Gateway limits | 120 requests/min and 12 heavy requests/min per client, two heavy calculations at once, one Layer 4 run at a time, per-call timeouts, 2 MB bodies |
+
+The first Layer 4 request after a start may take about 30 seconds while Numba compiles; later requests take seconds.
 
 `cloudflared` prints `https://<words>.trycloudflare.com`. Set that address as the `VITE_TERRAWINDOW_API` environment
 variable of the Vercel project and redeploy (Vite reads it at build time). It is a public address, not a secret, and

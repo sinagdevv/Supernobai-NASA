@@ -43,14 +43,14 @@ const label = (m: string) => {
 const fmt = (v: number | null, unit: string) => (v === null ? '—' : `${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(Math.abs(v) < 1 ? 3 : 2)}${unit === 'fraction' ? '' : ` ${unit}`}`)
 
 function Pill({ children, tone }: { children: React.ReactNode; tone: 'live' | 'warn' | 'quiet' }) {
-  return <span className={cx('mono inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border px-2 py-0.5 text-[12px]', tone === 'live' ? 'border-cyan/50 text-cyan' : tone === 'warn' ? 'border-amber/50 text-amber' : 'border-[var(--line-strong)] text-silver-400')}>{children}</span>
+  return <span className={cx('mono inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border px-2 py-0.5 text-xs', tone === 'live' ? 'border-cyan/50 text-cyan' : tone === 'warn' ? 'border-amber/50 text-amber' : 'border-[var(--line-strong)] text-silver-400')}>{children}</span>
 }
 
 function Row({ c }: { c: ComparisonCriterion }) {
   const s = STATUS[c.status]
   return (
     <tr className="border-t border-[var(--line)] align-top">
-      <th scope="row" className="py-2.5 pr-4 text-left text-[14px] font-medium text-paper">{label(c.metric)}{c.scale_m !== null && <span className="mono block text-[12px] font-normal text-silver-400">at {Number(c.scale_m.toFixed(1))} m grid</span>}</th>
+      <th scope="row" className="py-2.5 pr-4 text-left text-[14px] font-medium text-paper">{label(c.metric)}{c.scale_m !== null && <span className="mono block text-xs font-normal text-silver-400">at {Number(c.scale_m.toFixed(1))} m grid</span>}</th>
       {c.reference === null && c.candidate === null && c.difference !== null ? (
         <td colSpan={2} className="mono py-2.5 pr-4 text-right text-[13px] text-silver-200">distance {fmt(c.difference, c.unit)}</td>
       ) : (
@@ -61,7 +61,7 @@ function Row({ c }: { c: ComparisonCriterion }) {
       )}
       <td className="py-2.5 text-[13px]">
         <StatusBadge status={s.status} label={s.label} compact />
-        {c.reason && <span className="mt-1 block max-w-[24rem] text-[12px] text-silver-400">{c.reason}</span>}
+        {c.reason && <span className="mt-1 block max-w-[24rem] text-xs text-silver-400">{c.reason}</span>}
       </td>
     </tr>
   )
@@ -82,7 +82,7 @@ function Result({ r, refLabel }: { r: ComparisonResult; refLabel: string }) {
         <table className="w-full min-w-[34rem] border-collapse">
           <caption className="sr-only">Terrain criteria, {refLabel.toLowerCase()} against Earth candidate, from the Layer 3 service</caption>
           <thead>
-            <tr className="text-left text-[12px] text-silver-400">
+            <tr className="text-left text-xs text-silver-400">
               <th scope="col" className="pb-2 font-medium">Criterion</th>
               <th scope="col" className="pb-2 pr-4 text-right font-medium">{refLabel}</th>
               <th scope="col" className="pb-2 pr-4 text-right font-medium">Earth candidate</th>
@@ -92,7 +92,7 @@ function Result({ r, refLabel }: { r: ComparisonResult; refLabel: string }) {
           <tbody>{r.criteria.map((c) => <Row key={`${c.metric}-${c.scale_m}`} c={c} />)}</tbody>
         </table>
       </div>
-      <p className="text-[12px] text-silver-400">Tolerances are screening assumptions: {Object.entries(r.tolerances).map(([k, v]) => `${k} ${v}`).join(' · ')}.</p>
+      <p className="text-xs text-silver-400">Tolerances are screening assumptions: {Object.entries(r.tolerances).map(([k, v]) => `${k} ${v}`).join(' · ')}.</p>
 
       <details className="text-[13px] text-silver-300">
         <summary className="min-h-11 cursor-pointer py-2 font-medium text-paper">Provenance and limitations</summary>
@@ -103,7 +103,7 @@ function Result({ r, refLabel }: { r: ComparisonResult; refLabel: string }) {
               <div key={label as string} className="space-y-1.5">
                 <h3 className="text-[13px] font-medium text-paper">{label as string}: {prof.provenance.dataset_name}</h3>
                 <p className="text-silver-400">{prof.provenance.citation}</p>
-                <p className="mono text-[12px] text-silver-400">native {prof.provenance.native_pixel_size_m.toFixed(1)} m · working {prof.provenance.working_pixel_size_m.toFixed(1)} m ({prof.provenance.resampling}) · vertical {prof.provenance.vertical_unit} · coverage {(prof.coverage.valid_fraction * 100).toFixed(0)}% · engine {prof.provenance.engine_version} · {prof.provenance.generated_at}</p>
+                <p className="mono text-xs text-silver-400">native {prof.provenance.native_pixel_size_m.toFixed(1)} m · working {prof.provenance.working_pixel_size_m.toFixed(1)} m ({prof.provenance.resampling}) · vertical {prof.provenance.vertical_unit} · coverage {(prof.coverage.valid_fraction * 100).toFixed(0)}% · engine {prof.provenance.engine_version} · {prof.provenance.generated_at}</p>
                 <ul className="list-disc space-y-1 pl-5 text-silver-300">{prof.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
                 {prof.skipped.length > 0 && <p className="text-silver-400">Not computed: {prof.skipped.map((s) => `${s.item} (${s.reason})`).join('; ')}</p>}
               </div>
@@ -139,7 +139,7 @@ export default function LiveEvidence({ planet = 'moon' }: { planet?: Planet }) {
   }
 
   const select = (label: string, value: string, set: (v: string) => void, opts: StoredDataset[]) => (
-    <label className="block text-[12px] text-silver-400">
+    <label className="block text-xs text-silver-400">
       {label}
       <select value={value} onChange={(e) => { set(e.target.value); setRun({ status: 'idle' }) }} className="mt-1 block min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-850 px-3 text-[14px] text-paper">
         {opts.map((o) => <option key={o.id} value={o.id}>{o.region ? `${o.region.name} · ${o.name}` : o.name}</option>)}
@@ -173,13 +173,13 @@ export default function LiveEvidence({ planet = 'moon' }: { planet?: Planet }) {
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-4">
             <Button variant="primary" onClick={go} disabled={run.status === 'running'}>{run.status === 'running' ? 'Reading rasters…' : 'Compare with Layer 3'}</Button>
-            <span className="text-[12px] text-silver-400" aria-live="polite">{run.status === 'running' ? 'Reading the elevation rasters; the first run can take several seconds.' : 'Runs on demand. Results are computed by the service, not cached in the page.'}</span>
+            <span className="text-xs text-silver-400" aria-live="polite">{run.status === 'running' ? 'Reading the elevation rasters; the first run can take several seconds.' : 'Runs on demand. Results are computed by the service, not cached in the page.'}</span>
           </div>
           {run.status === 'error' && (
             <div role="alert" className="mt-4 max-w-3xl rounded-[var(--radius-md)] border border-bad/50 p-4 text-[14px]">
               <p className="font-medium text-bad">Could not compute ({run.error.code})</p>
               <p className="mt-1 text-silver-300">{explain(run.error).text}</p>
-              {explain(run.error).setup && <p className="mono mt-2 text-[12px] text-silver-400">{explain(run.error).setup}</p>}
+              {explain(run.error).setup && <p className="mono mt-2 text-xs text-silver-400">{explain(run.error).setup}</p>}
             </div>
           )}
           {run.status === 'done' && <Result r={run.result} refLabel={copy.reference} />}

@@ -78,7 +78,7 @@ function Instrument({ progress, still }: { progress: ReturnType<typeof useScroll
   return (
     <Plate
       label="Sun elevation through a morning, with the lunar reference band and the terrain it lights (schematic, illustrative)"
-      bar={<><Swatch color="var(--color-silver-300)">Sun elevation</Swatch><Swatch color="var(--color-amber)">Lunar reference band {LO}–{HI}°</Swatch><span className="mono ml-auto hidden text-[12px] text-silver-400 sm:inline">{shortName(SITE)} · 14 Dec 2026</span></>}
+      bar={<><Swatch color="var(--color-silver-300)">Sun elevation</Swatch><Swatch color="var(--color-amber)">Lunar reference band {LO}–{HI}°</Swatch><span className="mono ml-auto hidden text-xs text-silver-400 sm:inline">{shortName(SITE)} · 14 Dec 2026</span></>}
       foot={<>Simplified solar model, illustrative.{seg0 ? ` In band ${fmtMin(seg0.startMin)}–${fmtMin(seg0.endMin)} (${MODEL.minutes} min that day).` : ''}</>}
     >
       <div ref={ref} className="relative h-[460px] w-full sm:h-[520px] lg:h-[min(520px,calc(100svh-16rem))] lg:min-h-[420px]">
@@ -129,7 +129,7 @@ function WhenSection({ pinned }: { pinned: boolean }) {
             <ChapterText id="when-title" n="02" q="When to test" title="Find the days the sun is right.">
               A few degrees of sun is a few minutes of an Earth morning. {reduce ? 'The figure shows the sun inside the band.' : 'Keep scrolling: the sun rises through the band and the shadows pull back.'}
             </ChapterText>
-            {mars && <p className="mono mt-5 flex items-start gap-2 text-[12px] leading-snug text-silver-300"><i aria-hidden className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />Illustration. Mars windows are computed in the workspace, on the Rehearsal Windows screen, from MOLA terrain and SPICE geometry.</p>}
+            {mars && <p className="mono mt-5 flex items-start gap-2 text-xs leading-snug text-silver-300"><i aria-hidden className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />Illustration. Mars windows are computed in the workspace, on the Rehearsal Windows screen, from MOLA terrain and SPICE geometry.</p>}
           </div>
           <div className="lg:col-span-8">
             <Instrument progress={scrollYProgress} still={reduce} />

@@ -13,7 +13,7 @@ export const fmtCoord = (lat: number, lon: number) => `${Math.abs(lat).toFixed(2
 
 /** Source / caveat line. 12px, never smaller. */
 export function Note({ children, paper }: { children: ReactNode; paper?: boolean }) {
-  return <p className={cx('mono text-[12px] leading-relaxed', paper ? 'text-graphite-soft' : 'text-silver-500')}>{children}</p>
+  return <p className={cx('mono text-xs leading-relaxed', paper ? 'text-graphite-soft' : 'text-silver-500')}>{children}</p>
 }
 
 /* ─────────── Empty state with quick picks (no Earth site chosen yet) ─────────── */
@@ -49,7 +49,7 @@ export function NoSite({ what }: { what: string }) {
 export function SectionHead({ n, title, lede }: { n: string; title: string; lede?: ReactNode }) {
   return (
     <header className="mb-6 grid gap-2 md:grid-cols-[8rem_1fr] md:gap-6">
-      <p className="mono pt-2 text-[12px] text-silver-400">{n}</p>
+      <p className="mono pt-2 text-xs text-silver-400">{n}</p>
       <div className="max-w-2xl">
         <h2 className="font-display text-[26px] font-medium md:text-[30px]">{title}</h2>
         {lede && <p className="mt-2 text-[15px] leading-relaxed text-silver-400">{lede}</p>}
@@ -61,7 +61,7 @@ export function SectionHead({ n, title, lede }: { n: string; title: string; lede
 /* ─────────── Data table ─────────── */
 export function DataTable({ caption, head, rows, paper }: { caption?: string; head: string[]; rows: (string | number)[][]; paper?: boolean }) {
   return (
-    <div className="scroll-thin overflow-x-auto">
+    <div className="scroll-thin overflow-x-auto" tabIndex={0} role="region" aria-label={caption ? `${caption}, scrollable` : 'Table, scrollable'}>
       <table className="w-full min-w-[360px] border-collapse text-left text-[13px]">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
@@ -92,7 +92,7 @@ export interface LegendItem {
 }
 export function Legend({ items }: { items: LegendItem[] }) {
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-silver-300">
+    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-silver-300">
       {items.map((i) => (
         <li key={i.label} className="flex items-center gap-1.5">
           <svg width="22" height="10" aria-hidden>

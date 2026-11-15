@@ -23,8 +23,8 @@
   --color-ink-600: #343b46;
   --color-ink-500: #4a525e;
 
-  --color-silver-500: #7b838e;
-  --color-silver-400: #a9afb7;
+  --color-silver-500: #8d95a0; /* hints and metadata: >= 5.5:1 on the darkest surfaces */
+  --color-silver-400: #b0b6be;
   --color-silver-300: #c5cad0;
   --color-silver-200: #dfe2e5;
 
@@ -46,6 +46,10 @@
   --color-bad: #e08d82;
   --color-bad-deep: #a23a2e;
 
+  /* Secondary text floor: 13 px. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+
   --radius-xs: 2px;
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -65,6 +69,8 @@
 :root {
   --line: rgb(255 255 255 / 0.075);
   --line-strong: rgb(255 255 255 / 0.16);
+  /* Edge of a form field or switch: at least 3:1 against the surface, because the edge is what identifies the control. */
+  --control-edge: #6b727b;
   --topbar-h: 56px;
   --tabbar-h: 0px;
   /* chart series */
@@ -132,7 +138,7 @@ button, [role='button'], [role='tab'], [role='radio'], [role='switch'], summary,
 
 /* Translucent chrome (Apple-style material): blur + tint, frosted-solid when transparency is reduced. */
 .glass {
-  background: rgb(16 19 24 / 0.72);
+  background: rgb(16 19 24 / 0.94);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   backdrop-filter: blur(18px) saturate(160%);
 }
@@ -140,8 +146,11 @@ button, [role='button'], [role='tab'], [role='radio'], [role='switch'], summary,
   .glass { background: var(--color-ink-900); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
 @media (prefers-contrast: more) {
-  :root { --line: rgb(255 255 255 / 0.3); --line-strong: rgb(255 255 255 / 0.55); }
+  :root { --line: rgb(255 255 255 / 0.3); --line-strong: rgb(255 255 255 / 0.55); --control-edge: rgb(255 255 255 / 0.75); }
 }
+
+/* Term tooltips and the guide card: a short fade and rise, collapsed by the reduced-motion rule below. */
+.tw-term, .tw-guide { animation: tw-pop var(--duration-fast) var(--ease-out); }
 
 /* Focus: one visible ring everywhere */
 :focus-visible {
@@ -178,7 +187,7 @@ p {
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-silver-400);
@@ -193,15 +202,50 @@ p {
 
 /* Paper surface (dossier, reports, readable analysis) */
 .paper {
-  background: var(--color-paper);
+  background: #f4f3ef; /* = --color-paper, written out because the token is re-pointed below */
   color: var(--color-graphite);
   --line: rgb(16 19 24 / 0.12);
   --line-strong: rgb(16 19 24 / 0.28);
+  --control-edge: rgb(16 19 24 / 0.55);
   color-scheme: light;
   --mark-a: #4b535e;
   --mark-b: #c98524;
   --mark-c: #2f6f7e;
+  /* Shared components (status chips, evidence tables) are written against the dark palette. On paper the same
+     utilities resolve to the light-surface counterparts, so a chip or table is the same component on both:
+     >= 4.5:1 on paper, and the glyph, label and dashed/solid border still carry the meaning. */
+  --color-paper: #1b2027;
+  --color-silver-200: #2b323b;
+  --color-silver-300: #434b56;
+  --color-silver-400: #4f5762;
+  --color-silver-500: #5a626d;
+  --color-amber: #85500a;
+  --color-cyan: #2f6f7e;
+  --color-ok: #2f6b3a;
+  --color-bad: #a23a2e;
+  --color-amber-soft: rgb(133 80 10 / 0.1);
+  --color-cyan-soft: rgb(47 111 126 / 0.1);
 }
+/* A dark plate on a paper page (graphics drawn in the dark palette): restore the dark tokens inside it. */
+.paper .plate {
+  background: var(--color-ink-900);
+  color: #f4f3ef;
+  --line: rgb(255 255 255 / 0.075);
+  --line-strong: rgb(255 255 255 / 0.16);
+  --color-paper: #f4f3ef;
+  --color-silver-200: #dfe2e5;
+  --color-silver-300: #c5cad0;
+  --color-silver-400: #b0b6be;
+  --color-silver-500: #8d95a0;
+  --color-amber: #e4a95b;
+  --color-cyan: #80b7c4;
+  --color-ok: #93c49a;
+  --color-bad: #e08d82;
+  --color-amber-soft: rgb(228 169 91 / 0.14);
+  --color-cyan-soft: rgb(128 183 196 / 0.14);
+  color-scheme: dark;
+}
+.paper input[type='range'] { color-scheme: light; }
 
 /* Range sliders — native input, restyled. Set style={{'--fill': '40%'}} for the amber progress. */
 input[type='range'] {
@@ -272,7 +316,7 @@ input[type='range']:active::-webkit-slider-thumb {
 .maplibregl-ctrl-attrib {
   background: rgb(11 14 18 / 0.72) !important;
   color: var(--color-silver-400) !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 .maplibregl-ctrl-attrib a {
   color: var(--color-silver-300) !important;
@@ -292,17 +336,61 @@ input[type='range']:active::-webkit-slider-thumb {
   }
 }
 
+/* The dossier's paper page sits on a darker desk with a page-edge and a long soft shadow. */
+.paper-page {
+  box-shadow: 0 0 0 1px rgb(16 19 24 / 0.14), 0 2px 4px rgb(0 0 0 / 0.25), 0 28px 64px -24px rgb(0 0 0 / 0.75);
+}
+
 /* Print: dossier becomes a clean report */
 @media print {
+  /* Print is always a light paper document, whichever screen it comes from. A light colour scheme stops the margins
+     printing dark; the same token flip as .paper makes the dark-themed screens (the Mars dossier) readable on white. */
+  :root {
+    color-scheme: light;
+    --line: rgb(16 19 24 / 0.12);
+    --line-strong: rgb(16 19 24 / 0.28);
+    --color-paper: #1b2027;
+    --color-silver-200: #2b323b;
+    --color-silver-300: #434b56;
+    --color-silver-400: #4f5762;
+    --color-silver-500: #5a626d;
+    --color-amber: #85500a;
+    --color-cyan: #2f6f7e;
+    --color-ok: #2f6b3a;
+    --color-bad: #a23a2e;
+    --color-amber-soft: rgb(133 80 10 / 0.1);
+    --color-cyan-soft: rgb(47 111 126 / 0.1);
+  }
   html,
-  body {
+  body,
+  #root,
+  .tw-shell,
+  main {
     background: #fff !important;
+    color: #1b2027;
+  }
+  [class*='bg-ink-'] {
+    background-color: transparent !important;
+  }
+  /* The screen shell reserves a full viewport and room for the tab bar; on paper that only adds a blank last page. */
+  .tw-shell {
+    min-height: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  /* Controls do nothing on paper. */
+  select,
+  [role='radiogroup'],
+  [role='tablist'],
+  button[data-variant],
+  .print-hide {
+    display: none !important;
   }
   .no-print {
     display: none !important;
   }
   .print-page {
     box-shadow: none !important;
+    border: 0 !important;
     margin: 0 !important;
     max-width: none !important;
   }

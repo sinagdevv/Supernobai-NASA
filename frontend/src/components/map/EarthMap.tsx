@@ -16,7 +16,7 @@ import { cx, StatusGlyph } from '../ui'
 // Let Vite bundle the worker (with its shared chunk) so dev and production both resolve it.
 setWorkerUrl(workerUrl)
 import { MapControls } from './MapControls'
-import { BASE_KEYS, baseId, buildStyle, setRelief } from './mapStyle'
+import { BASE_KEYS, DARK_LABELS_ID, baseId, buildStyle, setRelief } from './mapStyle'
 import { PATCH_LAYER, fitCoords, setSelectedPatch, syncOverlay, syncScreen } from './liveLayers'
 
 const WORLD: [[number, number], [number, number]] = [[-170, -82], [178, 74]]
@@ -66,10 +66,10 @@ function SiteMarker({ site, status, selected, hover, compared, onSelect }: { sit
       {selected && (
         <span aria-hidden className="pointer-events-none absolute top-1/2 left-[calc(50%+17px)] flex -translate-y-1/2 items-center">
           <span className="h-px w-3.5 bg-amber" />
-          <span className="glass rounded-[var(--radius-sm)] border border-amber/50 px-2 py-1 text-[12px] leading-none font-medium whitespace-nowrap text-paper">{site.name}</span>
+          <span className="glass rounded-[var(--radius-sm)] border border-amber/50 px-2 py-1 text-xs leading-none font-medium whitespace-nowrap text-paper">{site.name}</span>
         </span>
       )}
-      <span role="presentation" className={cx('pointer-events-none absolute bottom-full left-1/2 z-10 mb-0.5 -translate-x-1/2 rounded-[var(--radius-sm)] border border-[var(--line-strong)] bg-ink-900 px-2 py-1 text-[12px] font-medium whitespace-nowrap text-paper opacity-0 shadow-[var(--shadow-pop)] transition-opacity duration-[var(--duration-fast)]', !selected && 'group-hover:opacity-100 group-focus-visible:opacity-100')}>
+      <span role="presentation" className={cx('pointer-events-none absolute bottom-full left-1/2 z-10 mb-0.5 -translate-x-1/2 rounded-[var(--radius-sm)] border border-[var(--line-strong)] bg-ink-900 px-2 py-1 text-xs font-medium whitespace-nowrap text-paper opacity-0 shadow-[var(--shadow-pop)] transition-opacity duration-[var(--duration-fast)]', !selected && 'group-hover:opacity-100 group-focus-visible:opacity-100')}>
         {site.name}
       </span>
     </button>
@@ -197,7 +197,10 @@ export function EarthMap(props: Props) {
     h.base = baseMap
     h.errors = 0
     setTileFail(false)
-    const apply = () => BASE_KEYS.forEach((b) => map.setLayoutProperty(baseId(b), 'visibility', b === baseMap ? 'visible' : 'none'))
+    const apply = () => {
+      BASE_KEYS.forEach((b) => map.setLayoutProperty(baseId(b), 'visibility', b === baseMap ? 'visible' : 'none'))
+      map.setLayoutProperty(DARK_LABELS_ID, 'visibility', baseMap === 'dark' ? 'visible' : 'none')
+    }
     if (map.isStyleLoaded()) apply()
     else map.once('load', apply)
     const t = window.setTimeout(() => {
@@ -272,7 +275,7 @@ export function EarthMap(props: Props) {
     return (
       <div className="relative h-full w-full">
         <SchematicMap sites={shown} selectedId={selectedId} statuses={statuses} onSelect={onSelect} />
-        <p role="status" className="absolute inset-x-3 bottom-[calc(var(--sheet-offset,0px)+12px)] mx-auto max-w-md rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-900/90 px-3 py-2 text-[12px] text-silver-300">
+        <p role="status" className="absolute inset-x-3 bottom-[calc(var(--sheet-offset,0px)+12px)] mx-auto max-w-md rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-900/90 px-3 py-2 text-xs text-silver-300">
           Interactive map unavailable (WebGL not supported) — showing a schematic graticule. Candidate sites remain fully usable.
         </p>
       </div>
@@ -305,14 +308,14 @@ export function EarthMap(props: Props) {
       {props.liveUi}
 
       {tileFail && !bannerOff && (
-        <div role="status" className="absolute top-3 left-1/2 z-10 flex w-[min(520px,calc(100%-130px))] -translate-x-1/2 items-start gap-2 glass rounded-[var(--radius-md)] border border-amber/40 py-1 pr-1 pl-3 text-[12px] leading-snug text-silver-200 shadow-[var(--shadow-pop)] max-lg:top-[60px] max-lg:w-[calc(100%-24px)]">
+        <div role="status" className="absolute top-3 left-1/2 z-10 flex w-[min(520px,calc(100%-130px))] -translate-x-1/2 items-start gap-2 glass rounded-[var(--radius-md)] border border-amber/40 py-1 pr-1 pl-3 text-xs leading-snug text-silver-200 shadow-[var(--shadow-pop)] max-lg:top-[60px] max-lg:w-[calc(100%-24px)]">
           <span className="flex-1 py-1">Basemap imagery unavailable — showing schematic graticule. Candidate sites remain fully usable.</span>
           <button type="button" onClick={() => setBannerOff(true)} aria-label="Dismiss notice" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-silver-400 transition-[color,transform] hover:text-paper active:scale-95"><X size={14} aria-hidden /></button>
         </div>
       )}
 
       <div className="pointer-events-none absolute bottom-[calc(var(--sheet-offset,0px)+40px)] left-2.5 z-10 max-w-[calc(100%-20px)] space-y-0.5 rounded-[var(--radius-sm)] bg-ink-900/80 px-2 py-1 backdrop-blur">
-        <p className="mono text-[12px] text-silver-300"><span aria-hidden>⌖ </span><span ref={coordRef}>—</span> · z<span ref={zoomRef}>1.0</span></p>
+        <p className="mono text-xs text-silver-300"><span aria-hidden>⌖ </span><span ref={coordRef}>—</span> · z<span ref={zoomRef}>1.0</span></p>
       </div>
     </div>
   )

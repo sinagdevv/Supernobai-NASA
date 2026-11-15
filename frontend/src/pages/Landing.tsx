@@ -5,6 +5,7 @@ import { Lockup } from '../brand/Logo'
 import { HeroPlate } from '../components/landing/HeroPlate'
 import { Magnetic } from '../components/landing/kit'
 import { PlanetSwitcher } from '../components/PlanetSwitcher'
+import { GuideButton } from '../components/Guide'
 import { Button, cx, StatusBadge, Tabs } from '../components/ui'
 import { BASEMAP_CREDITS, DISCLAIMER, SOURCES } from '../data/sources'
 import type { Status } from '../data/types'
@@ -28,7 +29,7 @@ const Nav = memo(function Nav() {
             <a key={h} href={h} className="flex min-h-11 items-center rounded-md px-3 text-[14px] text-silver-300 transition-colors hover:text-paper">{l}</a>
           ))}
         </nav>
-        <Button variant="primary" size="sm" onClick={enter}><span className="min-[400px]:hidden">Workspace</span><span className="hidden min-[400px]:inline">Open workspace</span> <ArrowRight size={15} aria-hidden /></Button>
+        <div className="flex items-center gap-1"><GuideButton /><Button variant="primary" size="sm" onClick={enter}><span className="min-[400px]:hidden">Workspace</span><span className="hidden min-[400px]:inline">Open workspace</span> <ArrowRight size={15} aria-hidden /></Button></div>
       </div>
     </header>
   )

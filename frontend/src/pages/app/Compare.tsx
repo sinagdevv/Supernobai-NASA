@@ -1,12 +1,17 @@
 import LiveEvidence from '../../components/LiveEvidence'
-import { Pin, PinOff, Plus } from 'lucide-react'
+import { ArrowRight, Pin, PinOff, Plus } from 'lucide-react'
 import { ElevationChart, ResolutionGrid, RoughnessChart, SlopeChart } from '../../components/analysis/charts'
 import { Pips, ProfilePair, QualifyingStrip, Row, Stat, Verdict, evidenceOf } from '../../components/analysis/figures'
 import { DataTable, NoSite, Note, fmtCoord } from '../../components/analysis/shared'
 import { TerrainReveal } from '../../components/analysis/TerrainReveal'
 import { Button, Disclosure, StatusBadge, StatusGlyph, cx } from '../../components/ui'
+import { EvidenceChip } from '../../components/evidence/chips'
+import { MetricGroup } from '../../components/ui/Metrics'
+import { PageHeader } from '../../components/ui/Page'
+import { Term } from '../../components/ui/Term'
 import { SunArc } from '../../components/viz'
 import { NOT_REPRODUCIBLE } from '../../data/sources'
+import { DEMO_HORIZON_DAYS } from '../../data/mission'
 import { siteById } from '../../data/sites'
 import type { Site } from '../../data/types'
 import { regionById, resolvable, rmsAt, shareBelow } from '../../lib/assess'
@@ -56,21 +61,37 @@ function CompareBody({ site }: { site: Site }) {
     <div className="mx-auto max-w-[1280px] px-4 py-6 md:px-6 md:py-10">
       {/* Verdict */}
       <header className="space-y-4 pb-8">
-        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-          <h1 className="font-display text-[34px] md:text-[44px]">Comparison</h1>
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-silver-400"><StatusBadge status={a.overall} /><span>screened criteria only · {a.assessedCount} of {a.totalCount} assessed · no single similarity score</span></p>
-        </div>
+        <PageHeader eyebrow="Moon reference · Earth candidate" title="Comparison" lede={<>Lunar reference against {site.name}, criterion by criterion. Screened criteria only, with no single similarity score.</>}
+          actions={<Button variant="primary" onClick={() => (window.location.hash = '#/app/dossier')}>Open research dossier <ArrowRight size={16} aria-hidden /></Button>} />
         <SiteSwitcher site={site} />
         <Verdict criteria={a.criteria} />
       </header>
 
+      {/* At a glance: the numbers, grouped, before the imagery */}
+      <section aria-labelledby="glance-h" className="pb-8">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 id="glance-h" className="text-[20px] font-semibold">At a glance</h2>
+          <EvidenceChip kind="illustrative" />
+        </div>
+        <p className="mt-1 mb-4 max-w-[62ch] text-[13px] leading-relaxed text-silver-300">Example-site figures are illustrative fixtures, with the lunar reference drawn from the same kind of model. Thresholds are your Mission criteria. Measured values with their <Term id="provenance">provenance</Term> are in Measured terrain evidence below.</p>
+        <div className="grid gap-x-10 lg:grid-cols-2">
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Slope" rows={[{ label: `Share of area at or below ${mission.slopeMax}°`, ref: `${shareM.toFixed(0)} %`, cand: `${shareE.toFixed(0)} %`, need: `≥ ${mission.minTraversable} %`, status: cr('slope').status }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title={<>Roughness <span className="text-[13px] font-normal text-silver-400">(<Term id="roughness">what is this?</Term>)</span></>} rows={[{ label: `RMS height at a ${mission.roughBaseline} m baseline`, ref: `${rM.toFixed(2)} m`, cand: okE ? `${rE.toFixed(2)} m` : 'unresolved', need: `≤ ${mission.roughMax.toFixed(1)} m`, status: cr('roughness').status }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Elevation" rows={[{ label: 'Site elevation above sea level', ref: 'relative only', cand: `${site.elevM.toLocaleString('en-US')} m` }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Resolution" rows={[{ label: <>Grid cell size, which sets the <Term id="scale">analysis scale</Term></>, ref: `${region.dem.resM} m`, cand: `${site.dem.resM} m`, need: `≤ ${mission.maxDemRes} m`, status: cr('resolution').status }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Coverage" rows={[{ label: 'Criteria with evidence', cand: `${a.assessedCount} of ${a.totalCount}`, note: a.assessedCount === a.totalCount ? 'Complete' : 'Incomplete: some criteria have no evidence' }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Illumination" rows={[{ label: `Days in ${mission.elMin}–${mission.elMax}° for at least ${mission.minDuration} min, of ${DEMO_HORIZON_DAYS}`, ref: 'not computed', cand: `${a.qualifyingDays} days`, status: cr('illumination').status }]} />
+          <MetricGroup refLabel="Lunar reference" candLabel="Earth candidate" title="Evidence status" rows={[{ label: 'Overall category, screened criteria only. There is no single similarity score.', ref: 'not assessed', cand: `${a.assessedCount} of ${a.totalCount} assessed`, status: a.overall }]} />
+        </div>
+      </section>
+
       {/* Hero: the same low sun on both surfaces */}
-      <section className="space-y-5 pb-10" aria-label="Terrain, lunar reference versus Earth candidate">
+      <section className="space-y-5 border-t border-[var(--line)] pt-6 pb-10" aria-label="Terrain, lunar reference versus Earth candidate">
         <TerrainReveal moonSeed={region.seed} earthSeed={site.seed} moonLabel={region.name} earthLabel={site.name} />
         <ProfilePair moonSeed={region.seed} siteSeed={site.seed} moonRes={region.dem.resM} earthRes={site.dem.resM} />
         <dl className="grid gap-x-10 gap-y-1 text-[13px] sm:grid-cols-2">
           <div className="flex gap-3"><dt className="shrink-0 text-silver-400">Lunar</dt><dd className="text-silver-200">{region.name} · {region.approxLat}</dd></div>
-          <div className="flex gap-3"><dt className="shrink-0 text-cyan">Earth</dt><dd className="text-silver-200">{site.name} · <span className="mono text-[12px]">{fmtCoord(site.lat, site.lon)}</span> · {site.terrain}</dd></div>
+          <div className="flex gap-3"><dt className="shrink-0 text-cyan">Earth</dt><dd className="text-silver-200">{site.name} · <span className="mono text-xs">{fmtCoord(site.lat, site.lon)}</span> · {site.terrain}</dd></div>
         </dl>
       </section>
 
@@ -91,12 +112,12 @@ function CompareBody({ site }: { site: Site }) {
       </Row>
 
       <Row q="When is the sun low enough?" pips={<Pips level={evidenceOf(cr('illumination'))} />}
-        answer={<><Stat tone="earth" value={String(a.qualifyingDays)} unit="days of 60" note={`in ${mission.elMin}–${mission.elMax}° for ≥ ${mission.minDuration} min`} /><p className="text-[12px] text-silver-400">Lunar timeline: not computed (needs ephemerides).</p></>}>
+        answer={<><Stat tone="earth" value={String(a.qualifyingDays)} unit="days of 60" note={`in ${mission.elMin}–${mission.elMax}° for ≥ ${mission.minDuration} min`} /><p className="text-xs text-silver-400">Lunar timeline: not computed (needs ephemerides).</p></>}>
         <div className="space-y-6">
           <QualifyingStrip site={site} mission={mission} />
           <figure>
             <SunArc site={site} date={date} lo={mission.elMin} hi={mission.elMax} minDur={mission.minDuration} w={640} h={110} className="h-auto w-full" />
-            <figcaption className="mt-1 flex flex-wrap justify-between gap-x-4 text-[12px] text-silver-400">
+            <figcaption className="mt-1 flex flex-wrap justify-between gap-x-4 text-xs text-silver-400">
               <span className="mono">{date} · local day 00–24 h</span>
               <span>{day.segments.length ? day.segments.map((s) => <span key={s.startMin} className="mono mr-3 text-amber">{fmtMin(s.startMin)}–{fmtMin(s.endMin)} az {Math.round(s.azStart)}° {compass(s.azStart)}</span>) : 'No qualifying window on this date'}</span>
             </figcaption>
@@ -106,7 +127,7 @@ function CompareBody({ site }: { site: Site }) {
       </Row>
 
       <section className="border-t border-[var(--line)] py-8">
-        <Disclosure title={<span className="text-[15px] font-medium">Elevation transect</span>} meta={<span className="text-[12px] text-silver-400">relative metres</span>}>
+        <Disclosure title={<span className="text-[15px] font-medium">Elevation transect</span>} meta={<span className="text-xs text-silver-400">relative metres</span>}>
           <ElevationChart region={region} site={site} />
         </Disclosure>
       </section>
@@ -139,7 +160,7 @@ function CompareBody({ site }: { site: Site }) {
       <LiveEvidence />
 
       <div className="flex flex-wrap items-center gap-3 border-t border-[var(--line)] pt-8">
-        <Button variant="primary" onClick={() => (window.location.hash = '#/app/dossier')}>Open Research Dossier</Button>
+        <Button onClick={() => (window.location.hash = '#/app/dossier')}>Open research dossier</Button>
         <a href="#/app/windows" className="inline-flex min-h-11 items-center px-3 text-[14px] text-silver-300 transition-colors hover:text-paper">← Rehearsal windows</a>
       </div>
       <details className="mt-6 max-w-3xl text-[13px] text-silver-400">

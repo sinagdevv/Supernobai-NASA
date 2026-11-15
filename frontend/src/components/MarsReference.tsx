@@ -23,9 +23,9 @@ const n = (v: number | null | undefined, d = 1) => (v === null || v === undefine
 function Tile({ label, value, sub }: { label: string; value: ReactNode; sub: string }) {
   return (
     <div className="min-w-0 rounded-[var(--radius-md)] border border-[var(--line)] px-3.5 py-3">
-      <p className="text-[12px] text-silver-400">{label}</p>
+      <p className="text-xs text-silver-400">{label}</p>
       <p className="mono mt-1 text-[20px] leading-tight text-paper">{value}</p>
-      <p className="mono mt-0.5 text-[12px] text-silver-400">{sub}</p>
+      <p className="mono mt-0.5 text-xs text-silver-400">{sub}</p>
     </div>
   )
 }
@@ -87,7 +87,7 @@ export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3
         <figure className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center gap-3">
             <Segmented<OverlayLayer> label="Terrain layer" value={layer} onChange={setLayer} options={LAYERS} />
-            <span className="mono text-[12px] text-cyan">Measured · {ready.id}</span>
+            <span className="mono text-xs text-cyan">Measured · {ready.id}</span>
           </div>
           <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-[#0c0f13]">
             {img?.status === 'done' ? (
@@ -98,7 +98,7 @@ export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3
               </div>
             )}
           </div>
-          <figcaption className="mono mt-2 text-[12px] leading-relaxed text-silver-400">
+          <figcaption className="mono mt-2 text-xs leading-relaxed text-silver-400">
             {img?.status === 'done' ? `${img.data.layer} · ${img.data.value_range[0].toFixed(0)} to ${img.data.value_range[1].toFixed(0)} ${img.data.unit} · ` : ''}
             {ready.region ? `${ready.region.bbox_lonlat[1]}–${ready.region.bbox_lonlat[3]}°N, ${ready.region.bbox_lonlat[0]}–${ready.region.bbox_lonlat[2]}°E · ` : ''}Mars Global Surveyor MOLA
           </figcaption>
@@ -118,7 +118,7 @@ export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3
             <div className="mt-1 overflow-x-auto" tabIndex={0} role="region" aria-label="Slope and roughness table, scrollable">
               <table className="w-full min-w-[22rem] border-collapse text-left">
                 <caption className="sr-only">Slope and roughness of the Jezero region at three analysis scales</caption>
-                <thead><tr className="text-[12px] text-silver-400"><th scope="col" className="pb-2 font-medium">Scale</th><th scope="col" className="pb-2 text-right font-medium">Mean slope</th><th scope="col" className="pb-2 text-right font-medium">P90</th><th scope="col" className="pb-2 text-right font-medium">Roughness</th></tr></thead>
+                <thead><tr className="text-xs text-silver-400"><th scope="col" className="pb-2 font-medium">Scale</th><th scope="col" className="pb-2 text-right font-medium">Mean slope</th><th scope="col" className="pb-2 text-right font-medium">P90</th><th scope="col" className="pb-2 text-right font-medium">Roughness</th></tr></thead>
                 <tbody>
                   {(p.scales ?? []).map((s) => (
                     <tr key={s.scale_m} className="border-t border-[var(--line)]">
@@ -132,7 +132,7 @@ export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3
               </table>
             </div>
           )}
-          {p && <p className="mono mt-2 text-[12px] leading-relaxed text-silver-400">{(p.coverage.valid_fraction * 100).toFixed(1)}% valid cells · measured on a local {p.provenance.working_pixel_size_m.toFixed(0)} m grid, because the source pixel is not true-scale away from the equator</p>}
+          {p && <p className="mono mt-2 text-xs leading-relaxed text-silver-400">{(p.coverage.valid_fraction * 100).toFixed(1)}% valid cells · measured on a local {p.provenance.working_pixel_size_m.toFixed(0)} m grid, because the source pixel is not true-scale away from the equator</p>}
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export default function MarsReference({ heading = 'h2' }: { heading?: 'h2' | 'h3
         <div className="space-y-3 pb-2">
           <p><span className="font-medium text-paper">{ready.name}.</span> {ready.citation}</p>
           {d && (
-            <dl className="mono grid gap-x-4 gap-y-1 text-[12px] text-silver-400 sm:grid-cols-[10rem_1fr]">
+            <dl className="mono grid gap-x-4 gap-y-1 text-xs text-silver-400 sm:grid-cols-[10rem_1fr]">
               {Object.entries({ Instrument: d.instrument, Product: d.product_type, 'PDS dataset': d.pds3_dataset_id, 'PDS4 bundle': d.pds4_bundle, Acquired: d.acquired, Processing: d.processing }).map(([k, v]) => v && (
                 <div key={k} className="contents"><dt>{k}</dt><dd className="text-silver-300">{v}</dd></div>
               ))}

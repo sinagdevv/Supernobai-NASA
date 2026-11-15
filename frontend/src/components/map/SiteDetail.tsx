@@ -29,7 +29,7 @@ function Metric({ graphic, value, caption }: { graphic: ReactNode; value: string
       <div aria-hidden>{graphic}</div>
       <div>
         <p className="mono text-[14px] text-paper">{value}</p>
-        <p className="text-[12px] leading-snug text-silver-400">{caption}</p>
+        <p className="text-xs leading-snug text-silver-400">{caption}</p>
       </div>
     </div>
   )
@@ -50,23 +50,23 @@ function MarsSiteDetail({ id }: { id: string }) {
         </header>
         <section aria-label="Terrain profile" className="px-4 pb-4">
           <ProfileThumb seed={site.seed} w={320} h={46} sunEl={SUN_EL} className="h-[46px] w-full" label={`Terrain profile of ${site.name} (schematic)`} />
-          <p className="mt-1.5 text-[12px] text-silver-400">Schematic profile, illustrative. Measured terrain for Earth regions is under Live terrain on the map.</p>
+          <p className="mt-1.5 text-xs text-silver-400">Schematic profile, illustrative. Measured terrain for Earth regions is under Live terrain on the map.</p>
         </section>
         <section aria-label="Location" className="flex items-center gap-3 border-t border-[var(--line)] px-4 py-3">
           <GeoDot lat={site.lat} lon={site.lon} className="h-9 w-[72px] shrink-0 rounded-[var(--radius-xs)]" />
-          <p className="mono text-[12px] leading-relaxed text-silver-200">{fmtLat(site.lat)} {fmtLon(site.lon)}<br /><span className="text-silver-400">{site.elevM.toLocaleString('en-US')} m</span></p>
-          <p className="ml-auto text-right text-[12px] leading-snug text-silver-400">{site.terrain}</p>
+          <p className="mono text-xs leading-relaxed text-silver-200">{fmtLat(site.lat)} {fmtLon(site.lon)}<br /><span className="text-silver-400">{site.elevM.toLocaleString('en-US')} m</span></p>
+          <p className="ml-auto text-right text-xs leading-snug text-silver-400">{site.terrain}</p>
         </section>
         <section aria-label="Mars assessment" className="border-t border-[var(--line)] px-4 py-4">
-          <p className="mono flex items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase"><i aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />No Mars verdict for this example site</p>
+          <p className="mono flex items-center gap-2 text-xs tracking-[0.04em] text-silver-300 uppercase"><i aria-hidden className="h-1.5 w-1.5 rounded-full bg-amber" />No Mars verdict for this example site</p>
           <p className="mt-2 text-[13px] leading-relaxed text-silver-300">This example site is illustrative, so it carries no verdict. Stored Earth datasets are assessed against the Mars criteria from Live terrain on the map, and compared with Jezero on the Comparison screen.</p>
           <div className="mt-1">
             <Disclosure title={<span className="text-[13px] font-medium text-silver-200">Data &amp; limits</span>}>
-              <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
+              <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
                 <dt className="text-silver-500">Grid</dt><dd className="text-silver-200">{site.dem.resM} m ({site.dem.name})</dd>
                 <dt className="text-silver-500">Values</dt><dd className="text-silver-200">Illustrative fixtures</dd>
               </dl>
-              <p className="mt-3 text-[12px] text-silver-400">{site.summary}</p>
+              <p className="mt-3 text-xs text-silver-400">{site.summary}</p>
               <ul className="mt-3 list-disc space-y-1 pl-4 text-[13px] text-silver-300">{site.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
             </Disclosure>
           </div>
@@ -104,22 +104,22 @@ function LunarSiteDetail({ id }: { id: string }) {
           <h2 className="font-display mt-1 text-[28px] leading-[1.06] text-paper">{shortName(site)}</h2>
           <p className="text-[14px] text-silver-400">{site.place}</p>
           <p className="mt-3 flex items-center gap-2 text-[14px] text-silver-200"><StatusGlyph status={a.overall} size={18} /><span>{verdict(a)}</span></p>
-          <p className="mt-0.5 pl-[26px] text-[12px] text-silver-400">Screened criteria only. <span className="sr-only">{STATUS_LABEL[a.overall]}.</span></p>
+          <p className="mt-0.5 pl-[26px] text-xs text-silver-400">Screened criteria only. <span className="sr-only">{STATUS_LABEL[a.overall]}.</span></p>
         </header>
 
         {/* Lunar reference above, this Earth site below, both lit by the same low sun. */}
         <section aria-label="Terrain profile comparison" className="px-4 pb-4">
-          <p className="text-[12px] font-medium text-silver-300">Lunar reference</p>
+          <p className="text-xs font-medium text-silver-300">Lunar reference</p>
           <ProfileThumb kind="moon" w={320} h={46} sunEl={SUN_EL} className="mt-0.5 h-[46px] w-full" />
-          <p className="mt-2 text-[12px] font-medium text-cyan">{shortName(site)}</p>
+          <p className="mt-2 text-xs font-medium text-cyan">{shortName(site)}</p>
           <ProfileThumb seed={site.seed} w={320} h={46} sunEl={SUN_EL} className="mt-0.5 h-[46px] w-full" label={`Terrain profile of ${site.name} (schematic)`} />
-          <p className="mt-1.5 text-[12px] text-silver-400">Schematic profiles lit at <span className="mono">{SUN_EL}°</span>. Illustrative, not survey data.</p>
+          <p className="mt-1.5 text-xs text-silver-400">Schematic profiles lit at <span className="mono">{SUN_EL}°</span>. Illustrative, not survey data.</p>
         </section>
 
         <section aria-label="Location" className="flex items-center gap-3 border-t border-[var(--line)] px-4 py-3">
           <GeoDot lat={site.lat} lon={site.lon} className="h-9 w-[72px] shrink-0 rounded-[var(--radius-xs)]" />
-          <p className="mono text-[12px] leading-relaxed text-silver-200">{fmtLat(site.lat)} {fmtLon(site.lon)}<br /><span className="text-silver-400">{site.elevM.toLocaleString('en-US')} m · {site.tzLabel.split(' ')[0]}</span></p>
-          <p className="ml-auto text-right text-[12px] leading-snug text-silver-400">{site.terrain}</p>
+          <p className="mono text-xs leading-relaxed text-silver-200">{fmtLat(site.lat)} {fmtLon(site.lon)}<br /><span className="text-silver-400">{site.elevM.toLocaleString('en-US')} m · {site.tzLabel.split(' ')[0]}</span></p>
+          <p className="ml-auto text-right text-xs leading-snug text-silver-400">{site.terrain}</p>
         </section>
 
         <section aria-label="Mission metrics" className="space-y-3.5 border-t border-[var(--line)] px-4 py-4">
@@ -153,31 +153,31 @@ function LunarSiteDetail({ id }: { id: string }) {
           <p className="min-h-[2.75rem] text-[13px] leading-snug text-silver-300" aria-live="polite">
             {active ? <><span className="font-medium text-paper">{active.label}.</span> {active.reason}</> : 'Hover or tap a symbol for its criterion.'}
           </p>
-          <p className="mt-1 text-[12px] leading-snug text-silver-400">Earth cannot reproduce lunar gravity, vacuum, radiation or polar thermal extremes.</p>
+          <p className="mt-1 text-xs leading-snug text-silver-400">Earth cannot reproduce lunar gravity, vacuum, radiation or polar thermal extremes.</p>
           <div className="mt-1">
             <Disclosure title={<span className="text-[13px] font-medium text-silver-200">Details</span>}>
               <ul className="space-y-3">
                 {a.criteria.map((c) => (
                   <li key={c.id} className="flex gap-2.5">
                     <span className="mt-0.5 shrink-0"><StatusGlyph status={c.status} size={16} /></span>
-                    <span><span className="font-medium text-paper">{c.label}.</span> {c.reason}<span className="mt-0.5 block text-[12px] text-silver-400">{c.detail}</span></span>
+                    <span><span className="font-medium text-paper">{c.label}.</span> {c.reason}<span className="mt-0.5 block text-xs text-silver-400">{c.detail}</span></span>
                   </li>
                 ))}
               </ul>
             </Disclosure>
             <Disclosure title={<span className="text-[13px] font-medium text-silver-200">Data &amp; limits</span>}>
-              <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
+              <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
                 <dt className="text-silver-500">DEM</dt><dd className="text-silver-200">{site.dem.name}</dd>
                 <dt className="text-silver-500">Grid</dt><dd className="text-silver-200">{site.dem.resM} m · baselines ≥ {2 * site.dem.resM} m</dd>
                 <dt className="text-silver-500">Values</dt><dd className="text-silver-200">Illustrative fixtures</dd>
               </dl>
-              <p className="mt-3 text-[12px] text-silver-400">{site.summary}{site.heritage ? ` ${site.heritage}` : ''}</p>
+              <p className="mt-3 text-xs text-silver-400">{site.summary}{site.heritage ? ` ${site.heritage}` : ''}</p>
               <ul className="mt-3 list-disc space-y-1 pl-4 text-[13px] text-silver-300">{site.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
               <p className="mt-3 text-[13px] font-medium text-paper">Earth cannot reproduce</p>
               <ul className="mt-1 space-y-1.5 text-[13px]">
                 {NOT_REPRODUCIBLE.map((n) => <li key={n.id}><span className="text-paper">{n.label}.</span> {n.detail}</li>)}
               </ul>
-              <p className="mt-3 text-[12px] text-silver-500">Product names and resolutions are demonstration assumptions. Verify against the real dataset.</p>
+              <p className="mt-3 text-xs text-silver-500">Product names and resolutions are demonstration assumptions. Verify against the real dataset.</p>
             </Disclosure>
           </div>
         </section>

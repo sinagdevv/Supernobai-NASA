@@ -14,7 +14,7 @@ export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, on
   return (
     <div role="status" className="grid gap-6 rounded-[var(--radius-lg)] border border-[var(--line-strong)] bg-ink-850 p-5 md:grid-cols-[minmax(0,1fr)_minmax(0,15rem)] md:p-6">
       <div className="min-w-0">
-        <p className="mono flex items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase">
+        <p className="mono flex items-center gap-2 text-xs tracking-[0.04em] text-silver-300 uppercase">
           <i aria-hidden className={`h-1.5 w-1.5 rounded-full ${checking ? 'bg-silver-500' : 'bg-bad'}`} />
           {checking ? 'Checking service' : kind === 'dataset' ? 'Dataset not retrieved' : 'Service unavailable'}
         </p>
@@ -24,13 +24,13 @@ export function ServiceUnavailable({ kind, title, heading: H = 'h3', context, on
         <details className="mt-5 text-[13px] text-silver-400">
           <summary className="min-h-11 cursor-pointer py-2 text-silver-300">For developers</summary>
           <p className="max-w-[34rem]">The measurements and calculations (terrain, solar geometry, suitability) come from the TERRAWINDOW service, which the hosted frontend cannot reach unless it is deployed alongside it. Nothing is shown in place of a result it could not give. Setup and the service command are in the <a className="text-cyan underline underline-offset-2 hover:text-paper" href={SETUP_DOCS} target="_blank" rel="noreferrer noopener">README<span className="sr-only"> (opens in new tab)</span></a>.</p>
-          {setup && <p className="mono mt-2 text-[12px] break-words text-silver-500">{setup}</p>}
+          {setup && <p className="mono mt-2 text-xs break-words text-silver-500">{setup}</p>}
         </details>
       </div>
       {preview && (
         <figure className="min-w-0 self-start">
           <img src={preview.src} alt={preview.alt} width={270} height={258} loading="lazy" className="block h-auto w-full rounded-[var(--radius-md)] border border-[var(--line)]" />
-          <figcaption className="mt-2 text-[12px] leading-snug text-silver-400">{preview.caption}</figcaption>
+          <figcaption className="mt-2 text-xs leading-snug text-silver-400">{preview.caption}</figcaption>
         </figure>
       )}
     </div>

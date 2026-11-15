@@ -1,11 +1,12 @@
 import { motion } from 'motion/react'
 import { Check, Copy, Download, Printer } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Lockup } from '../../brand/Logo'
 import { Pips, evidenceOf } from '../../components/analysis/figures'
 import { buildReport, toMarkdown, toSummary, type Row } from '../../components/analysis/report'
 import { DataTable, NoSite, Note } from '../../components/analysis/shared'
-import { StatusBadge, cx } from '../../components/ui'
+import { Button, StatusBadge, cx } from '../../components/ui'
+import { Term } from '../../components/ui/Term'
 import { GeoDot, ProfileThumb, SunArc } from '../../components/viz'
 import { DEMO_HORIZON_DAYS } from '../../data/mission'
 import { DISCLAIMER, SOURCES } from '../../data/sources'
@@ -25,7 +26,7 @@ const reveal = {
 /** Sections reveal on scroll; print CSS forces them visible so an unscrolled page still prints completely. */
 function Section({ n, title, children }: { n: string; title: string; children: ReactNode }) {
   return (
-    <motion.section {...reveal} className="print-avoid-break border-t border-[var(--line-strong)] py-8 print:opacity-100! print:transform-none! md:grid md:grid-cols-[3.5rem_minmax(0,1fr)] md:gap-x-4">
+    <motion.section id={`dos-${n}`} {...reveal} className="print-avoid-break scroll-mt-[calc(var(--topbar-h)+64px)] border-t border-[var(--line-strong)] py-10 print:opacity-100! print:transform-none! md:grid md:grid-cols-[3.5rem_minmax(0,1fr)] md:gap-x-4">
       <span className="mono text-[13px] text-graphite-soft md:pt-2.5">{n}</span>
       <div className="min-w-0">
         <h2 className="font-display mb-6 text-[26px] md:text-[30px]">{title}</h2>
@@ -37,10 +38,10 @@ function Section({ n, title, children }: { n: string; title: string; children: R
 
 function KV({ rows }: { rows: Row[] }) {
   return (
-    <dl className="text-[14px]">
+    <dl className="text-[15px]">
       {rows.map(([k, v]) => (
-        <div key={k + v} className="grid grid-cols-[7.5rem_1fr] gap-x-4 border-b border-[var(--line)] py-2">
-          <dt className="text-[13px] text-graphite-soft">{k}</dt>
+        <div key={k + v} className="grid grid-cols-[7.5rem_1fr] gap-x-4 border-b border-[var(--line)] py-2.5">
+          <dt className="text-[13px] font-medium text-graphite-soft">{k}</dt>
           <dd className="[overflow-wrap:anywhere]">{v}</dd>
         </div>
       ))}
@@ -50,8 +51,38 @@ function KV({ rows }: { rows: Row[] }) {
 
 /** Dark plate for graphics drawn in the app's dark palette; colours are kept when printing. */
 const Plate = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <div className={cx('rounded-[var(--radius-sm)] bg-ink-900 p-4 text-paper [-webkit-print-color-adjust:exact] [print-color-adjust:exact]', className)}>{children}</div>
+  <div className={cx('plate rounded-[var(--radius-sm)] p-4 [-webkit-print-color-adjust:exact] [print-color-adjust:exact]', className)}>{children}</div>
 )
+
+const NAV: [string, string][] = [['01', 'Mission'], ['02', 'Candidate'], ['03', 'Terrain'], ['04', 'Windows'], ['05', 'Criteria'], ['06', 'Limits'], ['07', 'Provenance'], ['08', 'Computed'], ['09', 'Field steps']]
+
+/** A slim sticky index of the sections: it shows where you are and jumps to another. (Buttons, not hash links: the hash is the route.) */
+function SectionNav() {
+  const [on, setOn] = useState('01')
+  useEffect(() => {
+    const io = new IntersectionObserver((es) => {
+      const v = es.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+      if (v) setOn(v.target.id.slice(4))
+    }, { rootMargin: '-140px 0px -60% 0px' })
+    NAV.forEach(([n]) => { const el = document.getElementById(`dos-${n}`); if (el) io.observe(el) })
+    return () => io.disconnect()
+  }, [])
+  return (
+    <nav aria-label="Dossier sections" className="no-print sticky top-[var(--topbar-h)] z-30 border-y border-[var(--line)] bg-ink-900">
+      <ul className="scroll-thin mx-auto flex max-w-[860px] gap-1 overflow-x-auto px-2 md:px-0">
+        {NAV.map(([n, label]) => (
+          <li key={n} className="shrink-0">
+            <button type="button" aria-current={on === n ? 'location' : undefined} onClick={() => document.getElementById(`dos-${n}`)?.scrollIntoView({ block: 'start' })}
+              className={cx('relative flex min-h-11 items-center gap-1.5 px-2.5 text-[13px] whitespace-nowrap transition-colors md:min-h-10', on === n ? 'font-medium text-paper' : 'text-silver-300 hover:text-paper')}>
+              <span className="mono text-xs text-silver-400">{n}</span>{label}
+              {on === n && <span aria-hidden className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-amber" />}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
 
 export default function Dossier() {
   const { selectedId, mission, assessments, date } = useApp()
@@ -105,23 +136,22 @@ export default function Dossier() {
       say(ok ? 'Summary copied' : 'Copy failed — use Download Markdown')
     }
   }
-  const btn = 'inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] px-3.5 text-[13px] font-medium transition-[background-color,transform] duration-[var(--duration-fast)] active:scale-[0.97] md:min-h-9'
-
   return (
-    <div className="bg-ink-900 pb-10 md:px-6 md:py-10 print:bg-white print:p-0">
-      <div className="no-print mx-auto mb-4 flex max-w-[860px] flex-wrap items-center gap-2 px-4 pt-6 md:px-0 md:pt-0">
-        <button type="button" onClick={() => window.print()} className={cx(btn, 'bg-amber text-ink-900 hover:bg-[#efb872]')}><Printer size={15} aria-hidden />Print / Save as PDF</button>
-        <button type="button" onClick={download} className={cx(btn, 'border border-[var(--line-strong)] text-paper hover:bg-white/8')}><Download size={15} aria-hidden />Download Markdown</button>
-        <button type="button" onClick={copy} className={cx(btn, 'border border-[var(--line-strong)] text-paper hover:bg-white/8')}><Copy size={15} aria-hidden />Copy summary</button>
-        <span role="status" aria-live="polite" className="mono flex min-h-5 items-center gap-1 text-[12px] text-ok">{note && <><Check size={13} aria-hidden />{note}</>}</span>
+    <div className="bg-ink-900 pb-12 print:bg-white print:p-0">
+      <div className="no-print mx-auto flex max-w-[860px] flex-wrap items-center gap-2 px-4 pt-6 pb-4 md:px-0 md:pt-8">
+        <Button variant="primary" onClick={() => window.print()}><Printer size={16} aria-hidden />Print / Save as PDF</Button>
+        <Button onClick={download}><Download size={16} aria-hidden />Download Markdown</Button>
+        <Button onClick={copy}><Copy size={16} aria-hidden />Copy summary</Button>
+        <span role="status" aria-live="polite" className="mono flex min-h-5 items-center gap-1 text-xs text-ok">{note && <><Check size={13} aria-hidden />{note}</>}</span>
       </div>
-
-      <article className="paper print-page mx-auto max-w-[860px] px-5 py-8 shadow-paper sm:px-10 md:rounded-[var(--radius-md)] md:px-14 md:py-12" aria-label="Research dossier">
+      <SectionNav />
+      <div className="md:px-6 md:pt-8 print:p-0">
+      <article className="paper paper-page print-page mx-auto max-w-[860px] px-5 py-8 text-[15px] leading-[1.6] sm:px-10 md:rounded-[var(--radius-md)] md:px-14 md:py-14" aria-label="Research dossier">
         {/* Header + summary */}
         <motion.header {...reveal} className="pb-10 print:opacity-100! print:transform-none!">
           <div className="flex items-center justify-between gap-4">
             <Lockup className="h-6 text-graphite" />
-            <p className="mono text-[12px] text-graphite-soft">Prototype 0.1 · demo snapshot</p>
+            <p className="mono text-xs text-graphite-soft">Prototype 0.1 · demo snapshot</p>
           </div>
           <p className="eyebrow mt-12">Moon · South polar · Research dossier</p>
           <h1 className="font-display mt-3 max-w-[18ch] text-[40px] md:text-[54px]">Prototype preliminary assessment</h1>
@@ -130,7 +160,7 @@ export default function Dossier() {
           <div className="mt-8 grid gap-x-10 gap-y-6 border-y border-[var(--line-strong)] py-6 md:grid-cols-[minmax(0,13rem)_1fr]">
             <div>
               <StatusBadge status={a.overall} paper />
-              <p className="mt-2 text-[12px] leading-snug text-graphite-soft">screened criteria only · {a.assessedCount} of {a.totalCount} assessed · no single similarity score</p>
+              <p className="mt-2 text-xs leading-snug text-graphite-soft">screened criteria only · {a.assessedCount} of {a.totalCount} assessed · no single similarity score</p>
             </div>
             <dl className="space-y-3 text-[15px] leading-snug">
               {findings.map(([k, v]) => (
@@ -167,7 +197,7 @@ export default function Dossier() {
             <Plate className="space-y-3">
               {([['moon', 'Lunar reference', region.seed, region.dem.resM], ['earth', 'Earth candidate', site.seed, site.dem.resM]] as const).map(([k, label, seed, res]) => (
                 <div key={k} className="grid items-center gap-x-4 gap-y-1 sm:grid-cols-[9rem_1fr]">
-                  <div><p className={cx('text-[13px] font-medium', k === 'earth' ? 'text-cyan' : 'text-silver-200')}>{label}</p><p className="mono text-[12px] text-silver-400">{res} m cells</p></div>
+                  <div><p className={cx('text-[13px] font-medium', k === 'earth' ? 'text-cyan' : 'text-silver-200')}>{label}</p><p className="mono text-xs text-silver-400">{res} m cells</p></div>
                   <ProfileThumb kind={k} seed={seed} sunEl={3} w={640} h={48} className="h-12 w-full" label={`${label} terrain profile lit by a 3° sun (schematic)`} />
                 </div>
               ))}
@@ -191,12 +221,18 @@ export default function Dossier() {
         </Section>
 
         <Section n="05" title="Criterion assessment">
-          <div className="scroll-thin print-avoid-break overflow-x-auto">
+          <p className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2" aria-label="Criteria by outcome">
+            {(['potential', 'not-suitable', 'not-assessed'] as const).map((st) => (
+              <span key={st} className="inline-flex items-center gap-2"><StatusBadge status={st} paper compact /><span className="mono text-[13px] text-graphite-soft">{a.criteria.filter((c) => c.id !== 'environment' && c.status === st).length}</span></span>
+            ))}
+            <span className="text-[13px] text-graphite-soft">of {a.criteria.filter((c) => c.id !== 'environment').length} screened criteria; the environment criterion is excluded and not reproducible on Earth.</span>
+          </p>
+          <div className="scroll-thin print-avoid-break overflow-x-auto" tabIndex={0} role="region" aria-label="Assessment by criterion, scrollable">
             <table className="w-full min-w-[540px] border-collapse text-left text-[14px]">
               <caption className="sr-only">Assessment by criterion</caption>
               <thead>
-                <tr className="text-[13px] text-graphite-soft">
-                  {['Criterion', 'Category', 'Evidence', 'Basis'].map((h) => <th key={h} scope="col" className="border-b border-[var(--line-strong)] py-2 pr-4 font-medium">{h}</th>)}
+                <tr className="text-[13px] text-graphite">
+                  {['Criterion', 'Category', 'Evidence', 'Basis'].map((h) => <th key={h} scope="col" className="border-b-2 border-[var(--line-strong)] py-2.5 pr-4 font-semibold">{h}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -204,7 +240,7 @@ export default function Dossier() {
                   <tr key={c.id} className="border-b border-[var(--line)] align-top">
                     <th scope="row" className="py-3 pr-4 font-medium">{c.label}</th>
                     <td className="py-3 pr-4"><StatusBadge status={c.status} paper compact label={c.id === 'environment' ? 'Not reproducible' : STATUS_LABEL[c.status]} /></td>
-                    <td className="py-3 pr-4">{c.id === 'environment' ? <span className="text-[12px] text-graphite-soft">n/a</span> : <Pips level={evidenceOf(c)} paper />}</td>
+                    <td className="py-3 pr-4">{c.id === 'environment' ? <span className="text-xs text-graphite-soft">n/a</span> : <Pips level={evidenceOf(c)} paper />}</td>
                     <td className="py-3 text-[13px] text-graphite-soft">{c.reason}</td>
                   </tr>
                 ))}
@@ -215,9 +251,9 @@ export default function Dossier() {
 
         <Section n="06" title="Limits and gaps">
           <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
-            <div><h3 className="mb-2 text-[13px] font-medium text-graphite-soft">What this site cannot reproduce</h3><KV rows={report.gaps.filter(([k]) => /gravity|vacuum|radiation|thermal/i.test(k))} /></div>
+            <div><h3 className="mb-2 text-[16px] font-semibold">What this site cannot reproduce</h3><KV rows={report.gaps.filter(([k]) => /gravity|vacuum|radiation|thermal/i.test(k))} /></div>
             <div>
-              <h3 className="mb-2 text-[13px] font-medium text-graphite-soft">Still to measure</h3>
+              <h3 className="mb-2 text-[16px] font-semibold">Still to measure</h3>
               <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)] text-[14px]">
                 {report.missing.map((m) => <li key={m} className="flex gap-3 py-2"><i aria-hidden className="mt-1.5 h-3 w-3 shrink-0 rounded-[2px] border border-dashed border-graphite-soft" /><span>{m}</span></li>)}
               </ul>
@@ -232,12 +268,12 @@ export default function Dossier() {
             ))}
           </ul>
           <div className="mt-4"><KV rows={report.provenance.slice(SOURCES.length)} /></div>
-          <p className="mt-3 text-[12px] text-graphite-soft">Listing a resource does not imply endorsement by, or affiliation with, any agency.</p>
+          <p className="mt-3 text-[13px] text-graphite-soft">Listing a resource does not imply endorsement by, or affiliation with, any agency. <Term id="provenance">What provenance means here</Term>.</p>
         </Section>
 
         <Section n="08" title="Computed evidence · Layer 4 and 5">
-          <Plate><ComputedEvidence planet="moon" /></Plate>
-          <p className="mt-3 max-w-[66ch] text-[13px] leading-relaxed text-graphite-soft">This section is about the stored lunar candidate, not the example Earth site above. It is computed live when the service is running, is not stored, and has not been compared with observations. Everything else in this dossier is illustrative.</p>
+          <p className="mb-5 max-w-[66ch] text-[14px] leading-relaxed text-graphite-soft">This section is about the stored lunar candidate, not the example Earth site above. It is <Term id="computed">computed, not validated</Term>: produced live when the service is running, not stored, and not compared with observations. Everything else in this dossier is illustrative.</p>
+          <ComputedEvidence planet="moon" />
         </Section>
 
         <Section n="09" title="Field-verification steps">
@@ -249,9 +285,10 @@ export default function Dossier() {
         </Section>
 
         <footer className="mt-2 border-t border-[var(--line-strong)] pt-5">
-          <p className="mono text-[12px] leading-relaxed text-graphite-soft">TERRAWINDOW prototype preliminary assessment · illustrative demonstration data, except section 08 (computed, not stored) · not an official NASA qualification · no endorsement implied.</p>
+          <p className="mono text-xs leading-relaxed text-graphite-soft">TERRAWINDOW prototype preliminary assessment · illustrative demonstration data, except section 08 (computed, not stored) · not an official NASA qualification · no endorsement implied.</p>
         </footer>
       </article>
+      </div>
     </div>
   )
 }

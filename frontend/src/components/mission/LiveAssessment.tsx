@@ -41,7 +41,7 @@ export function LiveAssessment() {
       <div className="mt-3 grid grid-cols-3 gap-2" aria-live="polite">
         {ORDER.map((s) => (
           <div key={s}>
-            <div className="flex items-center gap-1.5 text-[12px] leading-tight text-silver-300"><StatusGlyph status={s} size={14} />{STATUS_LABEL[s]}</div>
+            <div className="flex items-center gap-1.5 text-xs leading-tight text-silver-300"><StatusGlyph status={s} size={14} />{STATUS_LABEL[s]}</div>
             <div className="mono mt-1 text-[28px] leading-none font-medium">{counts[s]}</div>
           </div>
         ))}
@@ -65,11 +65,11 @@ export function LiveAssessment() {
           )
         })}
       </ul>
-      <p className="mt-2 text-[12px] leading-snug text-silver-400">Per row: share of area under the rover limit, then roughness against scale (dashed where the grid can’t resolve it). Open a row to inspect it.</p>
+      <p className="mt-2 text-xs leading-snug text-silver-400">Per row: share of area under the rover limit, then roughness against scale (dashed where the grid can’t resolve it). Open a row to inspect it.</p>
 
-      <Button variant="primary" className="mt-5 w-full" onClick={() => go('#/app/analogs')}>Explore Earth analogs <ArrowRight size={16} aria-hidden /></Button>
+      <Button className="mt-5 w-full" onClick={() => go('#/app/analogs')}>Explore Earth analogs <ArrowRight size={16} aria-hidden /></Button>
 
-      <p className="mt-6 border-t border-[var(--line)] pt-4 text-[12px] leading-relaxed text-silver-400">
+      <p className="mt-6 border-t border-[var(--line)] pt-4 text-xs leading-relaxed text-silver-400">
         Illustrative prototype data, not NASA results. Only slope, roughness and low-sun availability are screened; every other criterion stays Not Yet Assessed.{' '}
         {SOURCES.map((x, i) => (
           <span key={x.id}><a className="text-cyan underline underline-offset-2 hover:text-paper" href={x.url} target="_blank" rel="noreferrer noopener">{x.name.split(' (')[0]}</a>{i < SOURCES.length - 1 ? ' · ' : ''}</span>

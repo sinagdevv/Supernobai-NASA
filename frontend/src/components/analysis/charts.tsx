@@ -63,10 +63,10 @@ export function SlopeChart({ region, site, mission }: { region: LunarRegion; sit
           <YAxis tick={tickStyle} unit="%" label={axisLabel('Share of area (%)', -90)} width={52} stroke={C.grid} />
           <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.05)' }} formatter={(v) => `${show(v)} %`} />
           <Bar dataKey="moon" name="Lunar reference" fill={C.moon} isAnimationActive={!reduce} animationDuration={500}>
-            {data.map((d) => <Cell key={d.bin} fillOpacity={d.lo >= mission.slopeMax ? 0.35 : 1} />)}
+            {data.map((d) => <Cell key={d.bin} fillOpacity={d.lo >= mission.slopeMax ? 0.55 : 1} />)}
           </Bar>
           <Bar dataKey="earth" name="Earth candidate" fill={C.earth} isAnimationActive={!reduce} animationDuration={500}>
-            {data.map((d) => <Cell key={d.bin} fillOpacity={d.lo >= mission.slopeMax ? 0.35 : 1} />)}
+            {data.map((d) => <Cell key={d.bin} fillOpacity={d.lo >= mission.slopeMax ? 0.55 : 1} />)}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -127,7 +127,7 @@ export function RoughnessChart({ region, site, mission }: { region: LunarRegion;
           <Line dataKey="eU" name="Earth (unresolved)" stroke={C.earth} strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 3, fill: C.bg }} connectNulls={false} isAnimationActive={false} legendType="none" />
         </LineChart>
       </ResponsiveContainer>
-      <p className="mt-2 px-1 text-[12px] leading-relaxed text-silver-400">
+      <p className="mt-2 px-1 text-xs leading-relaxed text-silver-400">
         {unresolvedEarth.length || unresolvedMoon.length ? (
           <>
             Below 2× grid spacing, a dataset cannot resolve the baseline (hollow markers, dashed lines).{' '}
@@ -165,7 +165,7 @@ function Grid({ res, label, color }: { res: number; label: string; color: string
       </svg>
       <figcaption className="mt-2">
         <p className="text-[13px] font-medium" style={{ color }}>{label}</p>
-        <p className="mono text-[12px] text-silver-300">{res} m cells · {cells.toLocaleString()} cell{cells === 1 ? '' : 's'} in this area</p>
+        <p className="mono text-xs text-silver-300">{res} m cells · {cells.toLocaleString()} cell{cells === 1 ? '' : 's'} in this area</p>
       </figcaption>
     </figure>
   )
@@ -177,7 +177,7 @@ export function ResolutionGrid({ region, site }: { region: LunarRegion; site: Si
         <Grid res={region.dem.resM} label="Lunar reference grid" color={C.moon} />
         <Grid res={site.dem.resM} label="Earth candidate grid" color={C.earth} />
       </div>
-      <p className="mt-3 max-w-xl text-[12px] leading-relaxed text-silver-400">Amber = one elevation sample. Grids of different spacing are <strong className="font-medium text-paper">not equivalent detail</strong>: hazards under about 2 cells are invisible. Fixture values.</p>
+      <p className="mt-3 max-w-xl text-xs leading-relaxed text-silver-400">Amber = one elevation sample. Grids of different spacing are <strong className="font-medium text-paper">not equivalent detail</strong>: hazards under about 2 cells are invisible. Fixture values.</p>
     </div>
   )
 }

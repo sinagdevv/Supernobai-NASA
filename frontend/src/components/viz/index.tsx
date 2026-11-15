@@ -53,7 +53,7 @@ export function SlopeSpark({ hist, limit, w = 72, h = 28, color = 'var(--color-c
       {hist.map((v, i) => {
         const bh = Math.max(1.5, (v / max) * (h - 4))
         const within = SLOPE_EDGES[i + 1] <= limit
-        return <rect key={i} x={i * bw + 1} y={h - bh} width={bw - 2} height={bh} fill={color} fillOpacity={within ? 0.95 : 0.28} />
+        return <rect key={i} x={i * bw + 1} y={h - bh} width={bw - 2} height={bh} fill={color} fillOpacity={within ? 0.95 : 0.55} />
       })}
       <line x1={lx} x2={lx} y1="0" y2={h} stroke="var(--color-amber)" strokeWidth="1.5" />
     </svg>
@@ -72,7 +72,7 @@ export function RoughSpark({ rough, resM, baseline, max, w = 72, h = 28, color =
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className={className} role="img" aria-label={`Roughness ${at.toFixed(2)} m RMS at ${baseline} m baseline${resolvable(resM, baseline) ? '' : ' (below this dataset’s resolving power)'}; limit ${max.toFixed(1)} m`}>
       <line x1="0" x2={w} y1={Y(max)} y2={Y(max)} stroke="var(--color-amber)" strokeWidth="1" strokeDasharray="2 2" />
-      {segs.map((s, i) => <path key={i} d={s.d} fill="none" stroke={color} strokeWidth="1.6" strokeOpacity={s.ok ? 1 : 0.4} strokeDasharray={s.ok ? undefined : '2 2'} />)}
+      {segs.map((s, i) => <path key={i} d={s.d} fill="none" stroke={color} strokeWidth="1.6" strokeOpacity={s.ok ? 1 : 0.65} strokeDasharray={s.ok ? undefined : '2 2'} />)}
       <circle cx={X(baseline)} cy={Y(at)} r="2.6" fill={resolvable(resM, baseline) ? color : 'none'} stroke={color} strokeWidth="1.2" />
     </svg>
   )

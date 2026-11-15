@@ -17,7 +17,7 @@ export function Button({ variant = 'secondary', size = 'md', paper, className, .
     secondary: paper ? 'border border-[var(--line-strong)] text-graphite hover:bg-black/5' : 'border border-[var(--line-strong)] text-paper hover:bg-white/8',
     ghost: paper ? 'text-graphite hover:bg-black/5' : 'text-silver-300 hover:text-paper hover:bg-white/8',
   }[variant]
-  return <button type="button" className={cx(base, sz, v, className)} {...p} />
+  return <button type="button" data-variant={variant} className={cx(base, sz, v, className)} {...p} />
 }
 
 /* ─────────────── Status badge: glyph + label + colour ─────────────── */
@@ -29,7 +29,7 @@ const STATUS_STYLE: Record<Status, { Icon: typeof CircleCheck; dark: string; pap
 export function StatusBadge({ status, paper, compact, label }: { status: Status; paper?: boolean; compact?: boolean; label?: string }) {
   const { Icon, dark, paper: p } = STATUS_STYLE[status]
   return (
-    <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[12px] font-medium leading-5 whitespace-nowrap', paper ? p : dark)}>
+    <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium leading-5 whitespace-nowrap', paper ? p : dark)}>
       <Icon size={compact ? 13 : 14} aria-hidden strokeWidth={2.2} />
       {label ?? STATUS_LABEL[status]}
     </span>
@@ -76,7 +76,7 @@ export function Slider({ label, value, min, max, step = 1, unit = '', onChange, 
       <input id={id} type="range" min={min} max={max} step={step} value={value} aria-valuetext={txt}
         style={{ ['--fill' as string]: `${((value - min) / (max - min)) * 100}%` }}
         onChange={(e) => onChange(+e.target.value)} />
-      {hint && <p className="-mt-1 text-[12px] leading-snug text-silver-500">{hint}</p>}
+      {hint && <p className="-mt-1 text-xs leading-snug text-silver-500">{hint}</p>}
     </div>
   )
 }
@@ -87,9 +87,9 @@ export function Toggle({ label, checked, onChange, hint }: { label: string; chec
     <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)} className="flex min-h-11 w-full items-center justify-between gap-3 text-left">
       <span>
         <span className="block text-[13px] font-medium text-silver-200">{label}</span>
-        {hint && <span className="block text-[12px] text-silver-500">{hint}</span>}
+        {hint && <span className="block text-xs text-silver-500">{hint}</span>}
       </span>
-      <span className={cx('relative h-6 w-10 shrink-0 rounded-full border transition-colors duration-[var(--duration-base)]', checked ? 'border-amber bg-amber/25' : 'border-[var(--line-strong)] bg-white/5')}>
+      <span className={cx('relative h-6 w-10 shrink-0 rounded-full border transition-colors duration-[var(--duration-base)]', checked ? 'border-amber bg-amber/25' : 'border-[var(--control-edge)] bg-white/5')}>
         <span className={cx('absolute top-0.5 h-5 w-5 rounded-full transition-[left,background-color] duration-[var(--duration-base)] ease-[var(--ease-out)]', checked ? 'left-[18px] bg-amber' : 'left-0.5 bg-silver-400')} />
       </span>
     </button>
@@ -105,7 +105,7 @@ export function Select({ label, value, onChange, options, id: idProp }: { label:
       <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-silver-200">{label}</label>
       <div className="relative">
         <select id={id} value={value} onChange={(e) => onChange(e.target.value)}
-          className="min-h-11 w-full appearance-none rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-800 py-2 pr-10 pl-3 text-[14px] text-paper transition-colors hover:border-silver-500">
+          className="min-h-11 w-full appearance-none rounded-[var(--radius-md)] border border-[var(--control-edge)] bg-ink-800 py-2 pr-10 pl-3 text-[14px] text-paper transition-colors hover:border-silver-500">
           {options.map((o) => <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>)}
         </select>
         <ChevronDown size={16} aria-hidden className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-silver-400" />
@@ -207,7 +207,7 @@ export function Panel({ title, aside, children, className, boxed }: { title?: Re
 }
 export function ProtoNote({ children, paper }: { children?: ReactNode; paper?: boolean }) {
   return (
-    <p className={cx('mono text-[12px] leading-relaxed', paper ? 'text-graphite-soft' : 'text-silver-500')}>
+    <p className={cx('mono text-xs leading-relaxed', paper ? 'text-graphite-soft' : 'text-silver-500')}>
       {children ?? 'ILLUSTRATIVE PROTOTYPE DATA — not validated NASA results.'}
     </p>
   )

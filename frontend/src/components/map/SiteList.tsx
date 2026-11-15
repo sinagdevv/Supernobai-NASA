@@ -2,21 +2,22 @@ import { ArrowRight, Check, Plus, Search, SlidersHorizontal, X } from 'lucide-re
 import { useEffect, useMemo, useState } from 'react'
 import { DEMO_HORIZON_DAYS } from '../../data/mission'
 import { shortName, siteById } from '../../data/sites'
-import { STATUS_LABEL } from '../../lib/assess'
+import { resolvable, rmsAt, shareBelow } from '../../lib/assess'
 import { usePlanet } from '../../lib/planet'
 import { go, href } from '../../lib/router'
 import { useApp } from '../../lib/store'
 import { ProfileThumb, RoughSpark, SlopeSpark } from '../viz'
-import { Button, cx, StatusGlyph } from '../ui'
+import { Button, cx, StatusBadge } from '../ui'
 import { activeFilterCount, EMPTY_FILTERS } from './shared'
 
 const MAX_COMPARE = 3
 type Sort = 'fit' | 'name' | 'sun'
 
-function Measure({ label, children }: { label: string; children: React.ReactNode }) {
+function Measure({ label, value, children }: { label: string; value: string; children: React.ReactNode }) {
   return (
     <span className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className="text-[12px] leading-none whitespace-nowrap text-silver-400">{label}</span>
+      <span className="text-xs leading-none whitespace-nowrap text-silver-400">{label}</span>
+      <span className="mono text-[13px] leading-tight text-paper">{value}</span>
       {children}
     </span>
   )
@@ -73,19 +74,19 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
             </select>}
             <button type="button" onClick={onFilters} className="hidden min-h-11 items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 text-[13px] font-medium text-silver-200 transition-[background-color,transform] hover:bg-white/6 active:scale-[0.97] lg:flex">
               <SlidersHorizontal size={15} aria-hidden /> Filters
-              {nFilters > 0 && <span className="mono grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-[12px] leading-none text-ink-900" aria-label={`${nFilters} active`}>{nFilters}</span>}
+              {nFilters > 0 && <span className="mono grid h-4 min-w-4 place-items-center rounded-full bg-amber px-1 text-xs leading-none text-ink-900" aria-label={`${nFilters} active`}>{nFilters}</span>}
             </button>
           </div>
         </div>
         {mars ? (
-          <p className="text-[12px] leading-snug text-silver-400">Earth terrain, alphabetical. Not assessed for Mars.</p>
+          <p className="text-xs leading-snug text-silver-400">Earth terrain, alphabetical. Not assessed for Mars.</p>
         ) : (
-          <p className="text-[12px] leading-snug text-silver-400">
+          <p className="text-xs leading-snug text-silver-400">
             Slope ≤ <span className="mono">{mission.slopeMax}°</span> · rough ≤ <span className="mono">{mission.roughMax.toFixed(1)} m</span> · sun <span className="mono">{mission.elMin}–{mission.elMax}°</span>{' '}
             <a className="text-amber underline underline-offset-2" href={href({ page: 'app', screen: 'mission' })}>Edit</a>
           </p>
         )}
-        {notice && <p role="status" className="rounded-[var(--radius-sm)] bg-amber-soft px-2 py-1 text-[12px] text-amber">{notice}</p>}
+        {notice && <p role="status" className="rounded-[var(--radius-sm)] bg-amber-soft px-2 py-1 text-xs text-amber">{notice}</p>}
       </header>
 
       {results.length === 0 ? (
@@ -111,20 +112,17 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
                       <span className="block truncate text-[15px] leading-tight font-medium text-paper">{shortName(s)}</span>
                       <span className="block truncate text-[13px] text-silver-400">{s.place}</span>
                     </span>
-                    {!mars && <span className="shrink-0"><StatusGlyph status={a.overall} size={18} /></span>}
                   </span>
+                  {!mars && <span className="mt-2 block"><StatusBadge status={a.overall} compact /></span>}
                   {mars ? (
-                    <span className="mono mt-2 flex items-center justify-between gap-3 text-[12px] text-silver-400"><span className="truncate">{s.terrain}</span><span className="shrink-0">{s.dem.resM} m grid</span></span>
+                    <span className="mono mt-2 flex items-center justify-between gap-3 text-xs text-silver-400"><span className="truncate">{s.terrain}</span><span className="shrink-0">{s.dem.resM} m grid</span></span>
                   ) : <>
-                  <span className="sr-only">{STATUS_LABEL[a.overall]}. Slope, roughness and low-sun days shown below.</span>
-                  <span aria-hidden className="mt-2.5 flex gap-3">
-                    <Measure label="Slope"><SlopeSpark hist={s.slopeHist} limit={mission.slopeMax} w={64} h={20} className="h-5 w-full" /></Measure>
-                    <Measure label="Roughness"><RoughSpark rough={s.rough} resM={s.dem.resM} baseline={mission.roughBaseline} max={mission.roughMax} w={64} h={20} className="h-5 w-full" /></Measure>
-                    <Measure label="Low sun">
-                      <span className="block">
-                        <span className="mt-1 block h-1.5 rounded-full bg-white/10"><span className="block h-full rounded-full bg-amber" style={{ width: `${maxFrac * 100}%` }} /></span>
-                        <span className="mono mt-1 block text-[12px] leading-none whitespace-nowrap text-silver-300">{a.qualifyingDays}/{DEMO_HORIZON_DAYS} days</span>
-                      </span>
+                  <span className="sr-only">Slope, roughness and low-sun days shown below.</span>
+                  <span className="mt-2.5 flex gap-3">
+                    <Measure label="Slope" value={`${shareBelow(s.slopeHist, mission.slopeMax).toFixed(0)} % ≤ ${mission.slopeMax}°`}><span aria-hidden><SlopeSpark hist={s.slopeHist} limit={mission.slopeMax} w={64} h={20} className="h-5 w-full" /></span></Measure>
+                    <Measure label="Roughness" value={resolvable(s.dem.resM, mission.roughBaseline) ? `${rmsAt(s.rough, mission.roughBaseline).toFixed(2)} m RMS` : 'unresolved'}><span aria-hidden><RoughSpark rough={s.rough} resM={s.dem.resM} baseline={mission.roughBaseline} max={mission.roughMax} w={64} h={20} className="h-5 w-full" /></span></Measure>
+                    <Measure label="Low sun" value={`${a.qualifyingDays}/${DEMO_HORIZON_DAYS} days`}>
+                      <span aria-hidden className="block h-1.5 rounded-full bg-white/10"><span className="block h-full rounded-full bg-amber" style={{ width: `${maxFrac * 100}%` }} /></span>
                     </Measure>
                   </span></>}
                 </button>
@@ -145,7 +143,7 @@ export function SiteList({ onHover, onPick, onFilters }: { onHover: (id: string 
           <ul aria-label="Selected for comparison" className="flex min-w-0 flex-1 flex-wrap gap-1.5">
             {compareIds.map((id) => (
               <li key={id}>
-                <button type="button" onClick={() => toggleCompare(id)} aria-label={`Remove ${siteById(id)!.name} from comparison`} className="flex min-h-8 items-center gap-1 rounded-full border border-cyan/40 bg-cyan-soft py-1 pr-1.5 pl-2.5 text-[12px] text-cyan transition-transform active:scale-[0.96]">
+                <button type="button" onClick={() => toggleCompare(id)} aria-label={`Remove ${siteById(id)!.name} from comparison`} className="flex min-h-8 items-center gap-1 rounded-full border border-cyan/40 bg-cyan-soft py-1 pr-1.5 pl-2.5 text-xs text-cyan transition-transform active:scale-[0.96]">
                   <span className="max-w-[7.5rem] truncate">{shortName(siteById(id)!)}</span><X size={12} aria-hidden />
                 </button>
               </li>

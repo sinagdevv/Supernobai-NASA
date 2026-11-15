@@ -20,14 +20,14 @@ export const PATCH_STATUS: Record<PatchStatus, { status: Status; label: string }
 }
 
 export const LivePill = ({ children = 'LIVE · LAYER 3' }: { children?: string }) => (
-  <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-[12px] leading-4 text-cyan">{children}</span>
+  <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-xs leading-4 text-cyan">{children}</span>
 )
 
 function Failure({ req }: { req: Req<unknown> }) {
   if (req.status !== 'error') return null
   const x = explain(req.error)
   return (
-    <div role="alert" className="rounded-[var(--radius-md)] border border-bad/50 p-2.5 text-[12px] leading-snug">
+    <div role="alert" className="rounded-[var(--radius-md)] border border-bad/50 p-2.5 text-xs leading-snug">
       <p className="font-medium text-bad">Could not compute ({req.error.code})</p>
       <p className="mt-1 text-silver-300">{x.text}</p>
       {x.setup && <p className="mono mt-1.5 break-words text-silver-400">{x.setup}</p>}
@@ -37,7 +37,7 @@ function Failure({ req }: { req: Req<unknown> }) {
 
 function Unavailable({ list }: { list: StoredDataset[] }) {
   return (
-    <ul className="space-y-2.5 text-[12px] leading-snug">
+    <ul className="space-y-2.5 text-xs leading-snug">
       {list.map((d) => (
         <li key={d.id} className="rounded-[var(--radius-md)] border border-dashed border-silver-500 p-2.5">
           <p className="font-medium text-silver-200">{d.name}</p>
@@ -68,22 +68,22 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
     <div className="w-[min(300px,calc(100vw-120px))] space-y-3.5">
       <div className="flex items-center justify-between gap-2">
         <h2 className="text-[13px] font-medium text-paper">Live terrain</h2>
-        {state.status === 'online' ? <LivePill /> : <span className="mono text-[12px] text-silver-400">{state.status === 'offline' ? 'SERVICE OFFLINE' : 'CHECKING…'}</span>}
+        {state.status === 'online' ? <LivePill /> : <span className="mono text-xs text-silver-400">{state.status === 'offline' ? 'SERVICE OFFLINE' : 'CHECKING…'}</span>}
       </div>
 
       {state.status === 'offline' && (
-        <div className="space-y-2 text-[12px] leading-snug text-silver-300">
+        <div className="space-y-2 text-xs leading-snug text-silver-300">
           <p>The Layer 3 service is not running, so no measured terrain can be shown. The example sites on the map are demonstration data and still work.</p>
           <Button size="sm" onClick={recheck}>Check again</Button>
         </div>
       )}
 
-      {state.status === 'online' && lunarOnly && <p className="text-[12px] leading-snug text-silver-300">The service has no Earth datasets in its store. Fetch some with Layer 2 (see the README).</p>}
+      {state.status === 'online' && lunarOnly && <p className="text-xs leading-snug text-silver-300">The service has no Earth datasets in its store. Fetch some with Layer 2 (see the README).</p>}
 
       {state.status === 'online' && earth.length > 0 && (
         <>
           {ready.length > 0 ? (
-            <label className="block text-[12px] text-silver-400">
+            <label className="block text-xs text-silver-400">
               Stored dataset
               <select value={sel?.id ?? ''} onChange={(e) => live.chooseDataset(e.target.value || null)} className="mt-1 block min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-850 px-2.5 text-[13px] text-paper">
                 <option value="">Choose a dataset…</option>
@@ -91,10 +91,10 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
               </select>
             </label>
           ) : (
-            <p className="text-[12px] leading-snug text-silver-300">No Earth dataset is ready to use on this machine.</p>
+            <p className="text-xs leading-snug text-silver-300">No Earth dataset is ready to use on this machine.</p>
           )}
           {blocked.length > 0 && (
-            <details className="text-[12px] text-silver-300">
+            <details className="text-xs text-silver-300">
               <summary className="min-h-11 cursor-pointer py-2 text-silver-200">{blocked.length} need{blocked.length === 1 ? 's' : ''} setup</summary>
               <Unavailable list={blocked} />
             </details>
@@ -103,14 +103,14 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
           {sel && (
             <>
               <div className="space-y-1.5">
-                <p className="text-[12px] text-silver-400">Terrain layer</p>
+                <p className="text-xs text-silver-400">Terrain layer</p>
                 <Segmented<OverlayLayer | 'off'> label="Terrain layer" value={live.layer} onChange={live.setLayer} options={LAYERS} />
-                {live.overlay.status === 'loading' && <p role="status" className="text-[12px] text-silver-400">Rendering from the raster…</p>}
+                {live.overlay.status === 'loading' && <p role="status" className="text-xs text-silver-400">Rendering from the raster…</p>}
                 <Failure req={live.overlay} />
               </div>
 
               <div className="space-y-2.5 border-t border-[var(--line)] pt-3">
-                <p className="text-[12px] text-silver-400">Screen for candidate patches</p>
+                <p className="text-xs text-silver-400">Screen for candidate patches</p>
                 <Segmented<number> label="Patch size" value={live.params.patchSizeM} onChange={(v) => live.setParams({ ...live.params, patchSizeM: v })} options={SIZES} />
                 <Slider label="Mean slope up to" value={live.params.slopeMeanMax} min={2} max={20} unit="°" onChange={(v) => live.setParams({ ...live.params, slopeMeanMax: v })} />
                 <Button variant="primary" size="sm" onClick={live.runScreen} disabled={scr.status === 'loading'} className="w-full">{scr.status === 'loading' ? 'Screening…' : 'Screen patches'}</Button>
@@ -118,16 +118,16 @@ export function LivePanel({ live }: { live: LiveTerrain }) {
                 {scr.status === 'done' && (
                   <div className="space-y-1.5">
                     {scr.data.summary.cells === 0 ? (
-                      <p className="text-[12px] text-silver-300">No patches fit this dataset at that size.</p>
+                      <p className="text-xs text-silver-300">No patches fit this dataset at that size.</p>
                     ) : (
                       (Object.keys(PATCH_STATUS) as PatchStatus[]).map((k) => (
-                        <p key={k} className="flex items-center justify-between gap-2 text-[12px] text-silver-300">
+                        <p key={k} className="flex items-center justify-between gap-2 text-xs text-silver-300">
                           <StatusBadge status={PATCH_STATUS[k].status} label={PATCH_STATUS[k].label} compact />
                           <span className="mono text-paper">{scr.data.summary[k]}</span>
                         </p>
                       ))
                     )}
-                    <p className="text-[12px] leading-snug text-silver-400">A passing patch is a shortlist entry for these criteria, not a suitability verdict. Select a patch on the map for its evidence.</p>
+                    <p className="text-xs leading-snug text-silver-400">A passing patch is a shortlist entry for these criteria, not a suitability verdict. Select a patch on the map for its evidence.</p>
                   </div>
                 )}
               </div>
@@ -155,7 +155,7 @@ export function LiveChip({ live }: { live: LiveTerrain }) {
   const limits = sc?.limitations ?? []
   const ramp = ov ? `linear-gradient(90deg, ${ov.legend.map((l) => l.color).join(', ')})` : null
   return (
-    <div className="glass absolute top-2.5 left-2.5 z-10 w-[min(272px,calc(100%-80px))] rounded-[var(--radius-md)] border border-[var(--line-strong)] p-2.5 text-[12px] leading-snug shadow-[var(--shadow-pop)]">
+    <div className="glass absolute top-2.5 left-2.5 z-10 w-[min(272px,calc(100%-80px))] rounded-[var(--radius-md)] border border-[var(--line-strong)] p-2.5 text-xs leading-snug shadow-[var(--shadow-pop)]">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0"><LivePill /><p className="mt-1.5 font-medium break-words text-paper">{prov.dataset_name}</p></div>
         <button type="button" onClick={live.clear} aria-label="Remove live layers" className="-mt-1 -mr-1 grid h-11 w-11 shrink-0 place-items-center rounded-full text-silver-400 transition-[color,transform] hover:text-paper active:scale-95"><X size={15} aria-hidden /></button>
@@ -184,7 +184,7 @@ export function PatchCard({ live }: { live: LiveTerrain }) {
   if (!f) return null
   const p = f.properties, st = PATCH_STATUS[p.status]
   return (
-    <div className="glass absolute bottom-[calc(var(--sheet-offset,0px)+76px)] left-2.5 z-10 w-[min(272px,calc(100%-80px))] rounded-[var(--radius-md)] border border-amber/50 p-2.5 text-[12px] leading-snug shadow-[var(--shadow-pop)]">
+    <div className="glass absolute bottom-[calc(var(--sheet-offset,0px)+76px)] left-2.5 z-10 w-[min(272px,calc(100%-80px))] rounded-[var(--radius-md)] border border-amber/50 p-2.5 text-xs leading-snug shadow-[var(--shadow-pop)]">
       <div className="flex items-start justify-between gap-2">
         <div><StatusBadge status={st.status} label={st.label} compact /><p className="mono mt-1.5 text-silver-400">Patch {p.id} · {(p.patch_size_m / 1000).toFixed(1)} km · {p.center_lat.toFixed(3)}°, {p.center_lon.toFixed(3)}°</p></div>
         <button type="button" onClick={() => live.setPatchId(null)} aria-label="Close patch details" className="-mt-1 -mr-1 grid h-11 w-11 shrink-0 place-items-center rounded-full text-silver-400 transition-[color,transform] hover:text-paper active:scale-95"><X size={15} aria-hidden /></button>

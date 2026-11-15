@@ -10,7 +10,7 @@ import { CompactAssessment } from './ComputedEvidence'
 
 function Side({ planet, title, target }: { planet: Planet; title: string; target: RehearsalTarget | null }) {
   const ev = useEvidence()
-  if (!target) return <div><h4 className="text-[13px] font-medium text-paper">{title}</h4><p className="mt-1 text-[12px] leading-snug text-silver-400">No Layer 4 or 5 evidence is defined for this dataset, so none is shown.</p></div>
+  if (!target) return <div><h4 className="text-[13px] font-medium text-paper">{title}</h4><p className="mt-1 text-xs leading-snug text-silver-400">No Layer 4 or 5 evidence is defined for this dataset, so none is shown.</p></div>
   const entry = ev.assessments[assessKey(planet, target.key)]
   // A rehearsal result applies to a Moon target, or to the Moon's Earth analog. Mars criteria never carry Earth's sun.
   const showL4 = planet === 'moon' || target.body === 'mars'

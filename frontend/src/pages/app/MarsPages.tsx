@@ -1,13 +1,13 @@
 import LiveEvidence from '../../components/LiveEvidence'
 import MarsReference from '../../components/MarsReference'
 import { ComputedEvidence } from '../../components/evidence/ComputedEvidence'
+import { PageHeader } from '../../components/ui/Page'
 
 /** Mars Comparison: measured Martian terrain against measured Earth terrain, per criterion at one stated scale. No verdict, no score. */
 export function MarsCompare() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 md:px-8 lg:py-12">
-      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Jezero against Earth</h1>
-      <p className="mt-2 max-w-2xl text-[15px] text-silver-300">Measured terrain on both sides, criterion by criterion, at one stated scale. A match at 926 m is not a suitability verdict.</p>
+      <PageHeader eyebrow="Mars · Jezero regional terrain · Earth candidate" title="Jezero against Earth" lede="Measured terrain on both sides, criterion by criterion, at one stated scale. A match at 926 m is not a suitability verdict." />
       <LiveEvidence planet="mars" />
     </div>
   )
@@ -20,7 +20,7 @@ const Section = ({ n, title, tag, children }: { n: string; title: string; tag: k
   <section className="border-t border-[var(--line)] py-7">
     <h2 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[17px] font-semibold">
       <span className="mono text-[13px] font-normal text-silver-400">{n}</span>{title}
-      <span className={`mono rounded-[var(--radius-sm)] border px-2 py-0.5 text-[12px] font-normal ${TAG[tag]}`}>{TAG_LABEL[tag]}</span>
+      <span className={`mono rounded-[var(--radius-sm)] border px-2 py-0.5 text-xs font-normal ${TAG[tag]}`}>{TAG_LABEL[tag]}</span>
     </h2>
     <div className="mt-4">{children}</div>
   </section>
@@ -30,9 +30,7 @@ const Section = ({ n, title, tag, children }: { n: string; title: string; tag: k
 export function MarsDossier() {
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 md:px-8 lg:py-12">
-      <p className="eyebrow">Mars · Jezero regional terrain</p>
-      <h1 className="font-display mt-3 text-[38px] font-medium md:text-[54px]">Terrain evidence dossier</h1>
-      <p className="mt-2 max-w-2xl text-[15px] text-silver-300">A preliminary summary of measured terrain, with the Layer 4 and 5 results you have computed. It is not stored, not validated, and carries no certification.</p>
+      <PageHeader eyebrow="Mars · Jezero regional terrain" title="Terrain evidence dossier" lede="A preliminary summary of measured terrain, with the Layer 4 and 5 results you have computed. It is not stored, not validated, and carries no certification." />
 
       <Section n="01" tag="measured" title="Planetary reference"><MarsReference heading="h3" /></Section>
       <Section n="02" tag="scope" title="Mission objective">

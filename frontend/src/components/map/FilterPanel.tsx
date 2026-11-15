@@ -31,7 +31,7 @@ export function FilterPanel({ onDone }: { onDone?: () => void }) {
       <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-4 py-3">
         <div>
           <h2 className="text-[15px] font-semibold">Filters</h2>
-          <p className="mono text-[12px] text-silver-400">{results.length} of {SITES.length} sites match</p>
+          <p className="mono text-xs text-silver-400">{results.length} of {SITES.length} sites match</p>
         </div>
         <Button variant="ghost" size="sm" disabled={!active} onClick={() => setFilters(EMPTY_FILTERS)}>Clear filters</Button>
       </div>
@@ -51,7 +51,7 @@ export function FilterPanel({ onDone }: { onDone?: () => void }) {
           {TERRAIN_CLASSES.map((t) => (
             <Check key={t} checked={filters.terrain.includes(t)} onChange={() => setFilters({ terrain: toggle(filters.terrain, t) })}>
               <span className="flex-1">{t}</span>
-              <span className="mono text-[12px] text-silver-400">{SITES.filter((s) => s.terrain === t).length}</span>
+              <span className="mono text-xs text-silver-400">{SITES.filter((s) => s.terrain === t).length}</span>
             </Check>
           ))}
         </fieldset>
@@ -65,10 +65,10 @@ export function FilterPanel({ onDone }: { onDone?: () => void }) {
             <Check key={s} checked={filters.statuses.includes(s)} onChange={() => setFilters({ statuses: toggle(filters.statuses, s) })}>
               <StatusGlyph status={s} size={16} />
               <span className="flex-1">{STATUS_LABEL[s]}</span>
-              <span className="mono text-[12px] text-silver-400">{countBy(s)}</span>
+              <span className="mono text-xs text-silver-400">{countBy(s)}</span>
             </Check>
           ))}
-          <p className="mt-1 text-[12px] leading-snug text-silver-500">Screened criteria only — set in your mission workspace.</p>
+          <p className="mt-1 text-xs leading-snug text-silver-500">Screened criteria only — set in your mission workspace.</p>
         </fieldset>}
       </div>
 

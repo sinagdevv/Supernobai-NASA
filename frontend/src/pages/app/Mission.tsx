@@ -1,10 +1,13 @@
-import { Lock } from 'lucide-react'
+import { ArrowRight, Lock } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { HorizonDiagram, RoughChart, SlopeChart } from '../../components/mission/charts'
 import { AssessmentWorkspace } from '../../components/mission/AssessmentWorkspace'
 import { LiveAssessment } from '../../components/mission/LiveAssessment'
 import { RegionPicker } from '../../components/mission/RegionPicker'
-import { cx, Segmented, Slider } from '../../components/ui'
+import { Button, cx, Segmented, Slider } from '../../components/ui'
+import { PageHeader, ReadingKey } from '../../components/ui/Page'
+import { Term } from '../../components/ui/Term'
+import { go } from '../../lib/router'
 import { RegionProfile } from '../../components/mission/RegionProfile'
 import { OBJECTIVES, ROUGH_BASELINES } from '../../data/mission'
 import { siteById } from '../../data/sites'
@@ -42,18 +45,14 @@ const chip = (on: boolean, locked?: boolean) =>
 function MarsMission() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 lg:py-12">
-      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Jezero region</h1>
-      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Regional terrain measured from NASA MOLA topography: elevation, slope and roughness at the scales the data can support.</p>
+      <PageHeader eyebrow="Mars · Jezero regional terrain · secondary target" title="Jezero region" lede="Regional terrain measured from NASA MOLA topography: elevation, slope and roughness at the scales the data can support."
+        actions={<Button variant="primary" onClick={() => go({ page: 'app', screen: 'compare' })}>Compare with Earth <ArrowRight size={16} aria-hidden /></Button>} />
+      <ReadingKey className="mt-8" items={[
+        { term: 'Measured now', text: <>Elevation, slope, roughness and relief from 463 m to 1.8 km, with <Term id="coverage">coverage</Term> and <Term id="provenance">provenance</Term>.</> },
+        { term: 'Needs finer data', text: 'Rover-scale slope, rocks and traction need a HiRISE or CTX terrain model of the site.' },
+        { term: <Term id="computed">Computed, not validated</Term>, text: 'Rehearsal windows (Layer 4) and the suitability assessment (Layer 5) below are computed by the service. Neither has been checked against observations.' },
+      ]} />
       <div className="mt-8"><MarsReference /></div>
-      <section aria-label="What this supports" className="mt-10 grid gap-x-8 gap-y-5 border-t border-[var(--line)] pt-6 sm:grid-cols-3">
-        {[
-          ['Measured now', 'Elevation, slope, roughness and relief from 463 m to 1.8 km, with coverage and provenance.'],
-          ['Needs finer data', 'Rover-scale slope, rocks and traction need a HiRISE or CTX terrain model of the site.'],
-          ['Computed, not validated', 'Rehearsal windows (Layer 4) and the suitability assessment (Layer 5) below are computed by the service. Neither has been checked against observations.'],
-        ].map(([t, b]) => (
-          <div key={t}><h2 className="text-[14px] font-medium text-paper">{t}</h2><p className="mt-1 text-[13px] leading-relaxed text-silver-400">{b}</p></div>
-        ))}
-      </section>
       <div className="mt-10"><AssessmentWorkspace planet="mars" /></div>
     </div>
   )
@@ -72,8 +71,13 @@ function LunarMission() {
 
   return (
     <div className="mx-auto max-w-[1320px] px-4 py-8 md:px-8 lg:py-12">
-      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Mission</h1>
-      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">What the rover must handle. Test the stored lunar terrain against your criteria, then screen example Earth sites.</p>
+      <PageHeader eyebrow="Moon · lunar south pole · primary mission" title="Mission" lede="What the rover must handle. Test the stored lunar terrain against your criteria, then screen example Earth sites."
+        actions={<Button variant="primary" onClick={() => go({ page: 'app', screen: 'analogs' })}>Explore Earth candidate sites <ArrowRight size={16} aria-hidden /></Button>} />
+      <ReadingKey className="mt-8" items={[
+        { term: 'Measured terrain', text: <>The assessment tests stored lunar Site01 terrain. Terrain criteria are measured at a stated <Term id="scale">analysis scale</Term> and can pass or fail.</> },
+        { term: <Term id="computed">Computed, not validated</Term>, text: 'Light criteria and the verdict are computed by the service. Nothing is checked against observations, and nothing is stored.' },
+        { term: 'Illustrative examples', text: 'The example Earth sites further down, and their screening, are fixtures, not measurements.' },
+      ]} />
       <div className="mt-8"><AssessmentWorkspace planet="moon" /></div>
 
       <div className="mt-12 grid gap-x-12 gap-y-10 border-t border-[var(--line)] pt-8 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -97,7 +101,7 @@ function LunarMission() {
             <RegionPicker value={m.regionId} onChange={(id) => setMission({ regionId: id })} />
             <figure>
               <RegionProfile seed={region.seed} w={640} h={96} sunEl={Math.max(0.5, mid)} className="h-24 w-full" label={`${region.name} reference terrain profile, lit by a sun at ${mid.toFixed(1)} degrees (schematic)`} />
-              <figcaption className="mono mt-2 text-[12px] text-silver-400">{region.name} · {region.approxLat} · sun {mid.toFixed(1)}° · schematic profile, not LRO data</figcaption>
+              <figcaption className="mono mt-2 text-xs text-silver-400">{region.name} · {region.approxLat} · sun {mid.toFixed(1)}° · schematic profile, not LRO data</figcaption>
             </figure>
           </Area>
 
@@ -125,7 +129,7 @@ function LunarMission() {
               <Slider label="Minimum time in band" value={m.minDuration} min={5} max={120} step={5} unit=" min" onChange={(v) => setMission({ minDuration: v })} />
             </>}>
               <HorizonDiagram m={m} site={site} date={date} />
-              <p className="mt-2 text-[12px] text-silver-400">The band stands in for the lunar lighting to rehearse. Lunar illumination timelines need ephemerides and are not computed here. Natural sunlight only.</p>
+              <p className="mt-2 text-xs text-silver-400">The band stands in for the lunar lighting to rehearse. Lunar illumination timelines need ephemerides and are not computed here. Natural sunlight only.</p>
             </Criterion>
           </Area>
         </div>

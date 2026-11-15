@@ -73,7 +73,7 @@ export function DayCalendar({ y, m, days, selected, onSelect, onMonth }: Props) 
       <div ref={grid} role="grid" aria-label={`${MONTHS[m - 1]} ${y}: days with sun inside the lunar reference band`} onKeyDown={onKey}>
         <div role="row" className="grid grid-cols-7">
           {WEEK.map((w) => (
-            <div key={w} role="columnheader" className="mono py-1 text-center text-[12px] text-silver-500">
+            <div key={w} role="columnheader" className="mono py-1 text-center text-xs text-silver-500">
               {w}
             </div>
           ))}
@@ -99,13 +99,13 @@ export function DayCalendar({ y, m, days, selected, onSelect, onMonth }: Props) 
                     <span className="relative text-[13px] font-medium leading-none">{day}</span>
                     {has ? (
                       <>
-                        <span className="mono relative text-[12px] leading-none text-amber">{short(d.minutes)}</span>
+                        <span className="mono relative text-xs leading-none text-amber">{short(d.minutes)}</span>
                         <span aria-hidden className="relative h-[2px] w-[60%] overflow-hidden rounded bg-white/10">
                           <span className="block h-full rounded bg-amber" style={{ width: `${Math.max(12, (d.minutes / maxMin) * 100)}%` }} />
                         </span>
                       </>
                     ) : (
-                      <span className="mono relative text-[12px] leading-none text-silver-500" aria-hidden>
+                      <span className="mono relative text-xs leading-none text-silver-500" aria-hidden>
                         —
                       </span>
                     )}
@@ -116,7 +116,7 @@ export function DayCalendar({ y, m, days, selected, onSelect, onMonth }: Props) 
           </div>
         ))}
       </div>
-      <p className="mt-2 px-3 text-[12px] leading-snug text-silver-500 sm:px-0">
+      <p className="mt-2 px-3 text-xs leading-snug text-silver-500 sm:px-0">
         Amber bar and minutes = time in band; — = no window.
       </p>
     </div>

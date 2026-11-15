@@ -1,6 +1,7 @@
 import { MotionConfig } from 'motion/react'
 import { Suspense, useEffect, useState } from 'react'
 import { AppShell } from './components/AppShell'
+import { GuideProvider } from './components/Guide'
 import { Intro } from './components/Intro'
 import { useRoute, type Screen } from './lib/router'
 import { MarsCompare, MarsDossier } from './pages/app/MarsPages'
@@ -56,6 +57,7 @@ export default function App() {
       <EvidenceProvider>
       <PlanetProvider>
       <AppProvider>
+      <GuideProvider ready={!intro} inApp={route.page === 'app'}>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-amber focus:px-3 focus:py-2 focus:text-ink-900">Skip to content</a>
         {route.page === 'home' ? (
           <Landing introPlayed={introPlayed} heroIn={heroIn} introDone={!intro} />
@@ -68,6 +70,7 @@ export default function App() {
           </AppShell>
         )}
         {intro && route.page === 'home' && <Intro onDock={() => setHeroIn(true)} onDone={done} />}
+      </GuideProvider>
       </AppProvider>
       </PlanetProvider>
       </EvidenceProvider>

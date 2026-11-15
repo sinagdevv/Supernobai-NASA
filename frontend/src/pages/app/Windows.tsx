@@ -7,6 +7,7 @@ import { SolarPlot, type TrackPt } from '../../components/windows/SolarPlot'
 import { TimeScrubber } from '../../components/windows/TimeScrubber'
 import { TerrainCanvas } from '../../components/TerrainCanvas'
 import { SunArc } from '../../components/viz'
+import { PageHeader } from '../../components/ui/Page'
 import { Button, cx, Disclosure, EmptyState, Panel, Segmented, Select, Slider, StatusBadge, Tabs } from '../../components/ui'
 import { SITES, siteById } from '../../data/sites'
 import { NOT_REPRODUCIBLE } from '../../data/sources'
@@ -33,8 +34,7 @@ export default function Windows() {
 function MarsWindows() {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 md:px-8 lg:py-12">
-      <h1 className="font-display text-[38px] font-medium md:text-[48px]">Rehearsal windows</h1>
-      <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Where the sun is over the Jezero region, and whether terrain or missing data stops us saying so. Computed on the 1.85 km MOLA grid.</p>
+      <PageHeader eyebrow="Mars · Jezero regional terrain" title="Rehearsal windows" lede="Where the sun is over the Jezero region, and whether terrain or missing data stops us saying so. Computed on the 1.85 km MOLA grid." />
       <div className="mt-8"><ComputedWindows planet="mars" /></div>
       <div className="mt-10"><MarsFacts /></div>
     </div>
@@ -53,8 +53,7 @@ function LunarWindows() {
   return (
     <div>
       <div className="mx-auto max-w-[1180px] px-4 pt-8 pb-10 md:px-8 lg:pt-12">
-        <h1 className="font-display text-[38px] font-medium md:text-[48px]">Rehearsal windows</h1>
-        <p className="mt-2 max-w-[40rem] text-[15px] text-silver-300">Where the sun is, and whether terrain blocks it, at the lunar south pole or on an Earth analog.</p>
+        <PageHeader eyebrow="Moon · lunar south pole" title="Rehearsal windows" lede="Where the sun is, and whether terrain blocks it, at the lunar south pole or on an Earth analog." />
         <div className="mt-8"><ComputedWindows planet="moon" /></div>
       </div>
       {showPreview && (
@@ -94,7 +93,7 @@ function Chip({ active, onClick, children }: { active?: boolean; onClick: () => 
 function BandBadge({ inside }: { inside: boolean }) {
   const Icon = inside ? CircleCheck : CircleMinus
   return (
-    <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[12px] font-medium leading-5 whitespace-nowrap', inside ? 'border-amber/50 bg-amber-soft text-amber' : 'border-silver-500 bg-white/4 text-silver-300')}>
+    <span className={cx('inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium leading-5 whitespace-nowrap', inside ? 'border-amber/50 bg-amber-soft text-amber' : 'border-silver-500 bg-white/4 text-silver-300')}>
       <Icon size={14} aria-hidden strokeWidth={2.2} />
       {inside ? 'Inside lunar reference band' : 'Outside band'}
     </span>
@@ -203,7 +202,7 @@ function Explorer({ site }: { site: Site }) {
           <span>{region.name}</span>
           <span className="mono text-amber">{lo}–{hi}° · ≥ {minDur} min</span>
           <button type="button" aria-expanded={caveat} aria-controls="caveat" onClick={() => setCaveat((v) => !v)}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-amber/40 px-3 text-[12px] font-medium text-amber transition-[background-color,transform] hover:bg-amber-soft active:scale-[0.97] md:min-h-8">
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-amber/40 px-3 text-xs font-medium text-amber transition-[background-color,transform] hover:bg-amber-soft active:scale-[0.97] md:min-h-8">
             <Info size={14} aria-hidden /> Illustrative · simplified solar model <ChevronDown size={14} aria-hidden className={cx('transition-transform duration-[var(--duration-fast)]', caveat && 'rotate-180')} />
           </button>
         </div>
@@ -213,7 +212,7 @@ function Explorer({ site }: { site: Site }) {
       {/* Mobile: the time scrubber stays reachable while scrolling the shadow previews */}
       <div className="glass sticky top-[var(--topbar-h)] z-30 -mx-3 border-b border-[var(--line)] px-3 pt-1 md:hidden">
         {scrubber}
-        <p className="mono pb-2 text-[12px] text-silver-300" aria-live="polite">
+        <p className="mono pb-2 text-xs text-silver-300" aria-live="polite">
           {natural ? 'Sun' : 'Lamp'} el {light.el.toFixed(1)}° · az {light.az.toFixed(0)}° {compass(light.az)} · {below ? 'below horizon' : inBand ? 'inside band' : 'outside band'}
         </p>
       </div>
@@ -226,7 +225,7 @@ function Explorer({ site }: { site: Site }) {
               <DayCalendar y={view.y} m={view.m} days={days} selected={date} onSelect={(d) => { setSmooth(true); setWhen(d, dayWindows(site, d, lo, hi, minDur).segments[0]?.startMin) }} onMonth={moveMonth} />
             </div>
           </Panel>
-          <Panel title={`Sun that day · ${fmtDate(date, false)}`} aside={<span className="mono text-[12px] text-amber">{day.minutes ? `${day.minutes} min in band` : 'no window'}</span>}>
+          <Panel title={`Sun that day · ${fmtDate(date, false)}`} aside={<span className="mono text-xs text-amber">{day.minutes ? `${day.minutes} min in band` : 'no window'}</span>}>
             <SunArc site={site} date={date} lo={lo} hi={hi} minDur={minDur} minute={minute} w={296} h={56} className="h-auto w-full" />
           </Panel>
           {nextDays.length > 0 && (
@@ -247,7 +246,7 @@ function Explorer({ site }: { site: Site }) {
           <Panel title="Sun position" aside={<Segmented label="Plot scale" value={zoom ? 'z' : 'f'} onChange={(v) => setZoom(v === 'z')} options={[{ value: 'f', label: 'Full day' }, { value: 'z', label: 'Low-sun zoom' }]} />}>
             <figure>
               <SolarPlot site={site} date={date} track={track} segments={day.segments} lo={lo} hi={hi} sun={sun} mode={lighting} lampEl={lampEl} heading={heading} zoom={zoom} smooth={smooth} description={description} />
-              <figcaption className="mt-2 text-[12px] leading-snug text-silver-400">
+              <figcaption className="mt-2 text-xs leading-snug text-silver-400">
                 Azimuth (N = 0°, clockwise) · elevation · <span className="text-amber">thick amber</span> = in band ≥ {minDur} min
               </figcaption>
             </figure>
@@ -272,14 +271,14 @@ function Explorer({ site }: { site: Site }) {
                 ['1 m rock shadow', below ? 'sun below horizon' : ratio > 99 ? '> 99 m' : `≈ ${ratio.toFixed(ratio < 10 ? 2 : 1)} m`],
               ].map(([k, v]) => (
                 <div key={k} className="min-w-0">
-                  <dt className="text-[12px] text-silver-400">{k}</dt>
+                  <dt className="text-xs text-silver-400">{k}</dt>
                   <dd className="mono mt-0.5 text-[15px] break-words text-paper" aria-live="polite">{v}</dd>
                 </div>
               ))}
             </dl>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <BandBadge inside={inBand} />
-              {below && <span className="inline-flex items-center gap-1.5 text-[12px] text-silver-300"><Moon size={14} aria-hidden /> Sun below horizon</span>}
+              {below && <span className="inline-flex items-center gap-1.5 text-xs text-silver-300"><Moon size={14} aria-hidden /> Sun below horizon</span>}
             </div>
           </Panel>
 
@@ -298,7 +297,7 @@ function Explorer({ site }: { site: Site }) {
                 </figure>
               ))}
             </div>
-            <p className="mt-3 text-[12px] leading-snug text-silver-400">
+            <p className="mt-3 text-xs leading-snug text-silver-400">
               Illustrative synthetic terrain · 10 m/px · ×3 exaggeration · lit at the current {natural ? 'sun' : 'lamp'} geometry.
             </p>
           </Panel>
@@ -313,7 +312,7 @@ function Explorer({ site }: { site: Site }) {
             <motion.div key={tab} role="tabpanel" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12, ease: EASE }} className="pt-4">
               {tab === 'windows' && (
                 <>
-                  {!natural && <p className="mb-3 text-[12px] text-silver-400">Natural sun only; a lamp rig can run any time.</p>}
+                  {!natural && <p className="mb-3 text-xs text-silver-400">Natural sun only; a lamp rig can run any time.</p>}
                   {day.segments.length ? (
                     <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
                       {day.segments.map((s) => {
@@ -327,10 +326,10 @@ function Explorer({ site }: { site: Site }) {
                               <span className="min-w-0 flex-1 pr-2">
                                 <span className="flex items-baseline justify-between gap-2 text-[14px]">
                                   <span className="mono text-paper">{fmtMin(s.startMin)}–{fmtMin(s.endMin)}</span>
-                                  <span className="mono text-[12px] text-silver-400">{fmtDur(s.durationMin)}</span>
+                                  <span className="mono text-xs text-silver-400">{fmtDur(s.durationMin)}</span>
                                 </span>
                                 <span aria-hidden className="relative mt-1.5 block h-1.5 rounded-full bg-white/8"><span className="absolute inset-y-0 rounded-full bg-amber" style={{ left: `${(s.startMin / 1440) * 100}%`, width: `${Math.max(1.5, (s.durationMin / 1440) * 100)}%` }} /></span>
-                                <span className="mono mt-1.5 block text-[12px] text-silver-300">{s.elStart.toFixed(1)}° → {s.elEnd.toFixed(1)}° · {s.azStart.toFixed(0)}° {compass(s.azStart)} → {s.azEnd.toFixed(0)}° {compass(s.azEnd)}</span>
+                                <span className="mono mt-1.5 block text-xs text-silver-300">{s.elStart.toFixed(1)}° → {s.elEnd.toFixed(1)}° · {s.azStart.toFixed(0)}° {compass(s.azStart)} → {s.azEnd.toFixed(0)}° {compass(s.azEnd)}</span>
                               </span>
                             </button>
                           </li>
@@ -365,20 +364,20 @@ function Explorer({ site }: { site: Site }) {
                       return (
                         <li key={r.title} className="flex gap-3">
                           <Icon size={18} aria-hidden className={cx('mt-0.5 shrink-0', r.ok === null ? 'text-silver-400' : r.ok ? 'text-ok' : 'text-bad')} />
-                          <p className="text-[13px] leading-snug"><span className="font-medium text-paper">{r.title}</span> <span className="mono text-[12px] text-silver-400">{r.ok === null ? 'scope' : r.ok ? 'met' : 'not met'}</span></p>
+                          <p className="text-[13px] leading-snug"><span className="font-medium text-paper">{r.title}</span> <span className="mono text-xs text-silver-400">{r.ok === null ? 'scope' : r.ok ? 'met' : 'not met'}</span></p>
                         </li>
                       )
                     })}
                   </ul>
                   <div className="mt-5">
-                    <p className="text-[12px] text-silver-400">Weather limitation by month (illustrative)</p>
+                    <p className="text-xs text-silver-400">Weather limitation by month (illustrative)</p>
                     <div role="img" aria-label={`Qualitative weather-limitation risk by month: ${MONTHS.map((m, i) => `${m} ${{ L: 'low', M: 'moderate', H: 'high' }[site.seasonalRisk[i]]}`).join(', ')}`} className="mt-2">
                       <div className="grid grid-cols-12 gap-0.5">
                         {site.seasonalRisk.split('').map((c, i) => (
-                          <span key={i} className={cx('mono grid h-9 place-items-center rounded-[3px] text-[12px]', c === 'H' ? 'bg-bad/25 text-bad' : c === 'M' ? 'bg-white/10 text-silver-200' : 'bg-ok/15 text-ok', i === month && 'ring-1 ring-amber ring-offset-1 ring-offset-ink-900')}>{c}</span>
+                          <span key={i} className={cx('mono grid h-9 place-items-center rounded-[3px] text-xs', c === 'H' ? 'bg-bad/25 text-bad' : c === 'M' ? 'bg-white/10 text-silver-200' : 'bg-ok/15 text-ok', i === month && 'ring-1 ring-amber ring-offset-1 ring-offset-ink-900')}>{c}</span>
                         ))}
                       </div>
-                      <div aria-hidden className="mt-0.5 grid grid-cols-12 text-center text-[12px] text-silver-500">{MONTHS.map((m) => <span key={m}>{m[0]}</span>)}</div>
+                      <div aria-hidden className="mt-0.5 grid grid-cols-12 text-center text-xs text-silver-500">{MONTHS.map((m) => <span key={m}>{m[0]}</span>)}</div>
                     </div>
                     <p className="mt-2 text-[13px] text-paper">{riskWord} risk in {MONTHS[month]}</p>
                     <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px] text-silver-300">{site.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
@@ -420,18 +419,18 @@ function ElevationBars({ lo, hi, el, natural, below, inBand }: { lo: number; hi:
   return (
     <div>
       <div className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-x-3 gap-y-2.5">
-        <span className="text-[12px] text-silver-300">Lunar band</span>
+        <span className="text-xs text-silver-300">Lunar band</span>
         <div className="relative h-3 rounded-full bg-white/6" aria-hidden>
           <div className="absolute inset-y-0 rounded-full bg-silver-300" style={{ left: `${pct(lo)}%`, width: `${Math.max(2, pct(hi) - pct(lo))}%` }} />
         </div>
-        <span className="text-[12px] text-cyan">{natural ? 'Earth sun now' : 'Lamp elevation'}</span>
+        <span className="text-xs text-cyan">{natural ? 'Earth sun now' : 'Lamp elevation'}</span>
         <div className="relative h-3 rounded-full bg-white/6" aria-hidden>
           <div className="absolute inset-y-0 -translate-x-1/2" style={{ left: `${over ? 98 : pct(Math.max(0, el))}%` }}>
             <div className="h-3 w-1.5 rounded-full bg-cyan ring-2 ring-ink-900" />
           </div>
         </div>
         <span aria-hidden />
-        <div className="mono relative h-4 text-[12px] text-silver-500" aria-hidden>
+        <div className="mono relative h-4 text-xs text-silver-500" aria-hidden>
           {[0, 6, 12].map((v) => (
             <span key={v} className="absolute -translate-x-1/2" style={{ left: `${pct(v)}%` }}>{v}°</span>
           ))}

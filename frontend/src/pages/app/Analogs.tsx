@@ -151,7 +151,7 @@ export default function Analogs() {
             {selected && !mars && <StatusGlyph status={assessments.get(selected.id)!.overall} size={18} />}
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[15px] font-semibold text-paper">{summary}</span>
-              <span className="block text-[12px] text-silver-400">{sheet === 'open' ? 'Tap or drag down to see the map' : selected ? 'Tap or drag up for evidence' : 'Tap or drag up to browse and compare'}</span>
+              <span className="block text-xs text-silver-400">{sheet === 'open' ? 'Tap or drag down to see the map' : selected ? 'Tap or drag up for evidence' : 'Tap or drag up to browse and compare'}</span>
             </span>
             <ChevronUp size={18} aria-hidden className={cx('shrink-0 text-silver-400 transition-transform duration-[var(--duration-base)] ease-[var(--ease-out)]', sheet === 'open' && 'rotate-180')} />
           </span>

@@ -23,18 +23,18 @@ export function CompactAssessment({ a, loading, className }: { a: MissionAssessm
     <div className={cx('space-y-3 [overflow-wrap:anywhere]', loading && 'opacity-60', className)}>
       <OverallChip verdict={a.overall_status} />
       <p className="text-[13px] leading-snug text-paper">{a.overall_explanation}</p>
-      <p className="text-[12px] leading-snug text-silver-400">{OVERALL_META[a.overall_status].caution}</p>
-      <p className="mono text-[12px] text-silver-300">{t.pass} pass · {t.fail} fail · {t.claim} unverified claim · {t.missing} missing evidence</p>
+      <p className="text-xs leading-snug text-silver-400">{OVERALL_META[a.overall_status].caution}</p>
+      <p className="mono text-xs text-silver-300">{t.pass} pass · {t.fail} fail · {t.claim} unverified claim · {t.missing} missing evidence</p>
       <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
         {a.criterion_results.map((c) => (
           <li key={c.criterion_id} className="py-2">
             <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1"><span className="min-w-0 text-[13px] text-paper">{c.name}</span><VerdictChip verdict={c.status} /></div>
-            <p className="mono mt-1 text-[12px] text-silver-300">{c.measured_value !== null ? `measured ${fmtValue(c.measured_value, c.unit)}` : c.claimed_value !== null ? `claimed ${fmtValue(c.claimed_value, c.unit)} (unverified)` : 'no value'} <span className="text-silver-400">· needs {fmtTarget(c)}</span></p>
-            {CRITERION_META[c.status].tone === 'missing' && <p className="mt-0.5 text-[12px] leading-snug text-silver-400">{c.explanation}</p>}
+            <p className="mono mt-1 text-xs text-silver-300">{c.measured_value !== null ? `measured ${fmtValue(c.measured_value, c.unit)}` : c.claimed_value !== null ? `claimed ${fmtValue(c.claimed_value, c.unit)} (unverified)` : 'no value'} <span className="text-silver-400">· needs {fmtTarget(c)}</span></p>
+            {CRITERION_META[c.status].tone === 'missing' && <p className="mt-0.5 text-xs leading-snug text-silver-400">{c.explanation}</p>}
           </li>
         ))}
       </ul>
-      {a.suitability_gaps.length > 0 && <p className="text-[12px] leading-snug text-silver-400">{a.suitability_gaps.length} evidence {a.suitability_gaps.length === 1 ? 'gap' : 'gaps'} recorded. Layer 4 values are unverified, and nothing has been checked against observations.</p>}
+      {a.suitability_gaps.length > 0 && <p className="text-xs leading-snug text-silver-400">{a.suitability_gaps.length} evidence {a.suitability_gaps.length === 1 ? 'gap' : 'gaps'} recorded. Layer 4 values are unverified, and nothing has been checked against observations.</p>}
     </div>
   )
 }
@@ -44,12 +44,12 @@ export function RehearsalSummary({ r }: { r: RehearsalResult }) {
   return (
     <div className="space-y-2.5">
       <p className="text-[13px] leading-snug text-paper">{h.text}</p>
-      <dl className="mono grid grid-cols-2 gap-x-6 gap-y-1.5 text-[12px] sm:grid-cols-4">
+      <dl className="mono grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs sm:grid-cols-4">
         {[['Span (UTC)', `${utc(r.start_utc).slice(5, 16)} → ${utc(r.end_utc).slice(5, 16)}`], ['Qualifying light', fmtDuration(s.qualifyingSeconds)], ['Peak terrain shadow', `${r.terrain_obstruction_max_percent.toFixed(1)} %`], ['Sample step', `${fmtDuration(r.step_seconds)} (±${fmtDuration(r.boundary_uncertainty_seconds)})`]].map(([k, v]) => (
           <div key={k}><dt className="text-silver-500">{k}</dt><dd className="mt-0.5 text-silver-200">{v}</dd></div>
         ))}
       </dl>
-      <p className="text-[12px] leading-snug text-silver-400">{evidenceLines(r).slice(0, 2).map((l) => `${l.label}: ${l.value.split(' — ')[0]}`).join(' · ')}.</p>
+      <p className="text-xs leading-snug text-silver-400">{evidenceLines(r).slice(0, 2).map((l) => `${l.label}: ${l.value.split(' — ')[0]}`).join(' · ')}.</p>
     </div>
   )
 }
@@ -67,9 +67,9 @@ export function ComputedEvidence({ planet, heading: H = 'h3' }: { planet: Planet
   const place = planet === 'moon' ? 'Site01, lunar south pole' : 'Jezero region'
   return (
     <div className="space-y-6">
-      <p className="mono text-[12px] tracking-[0.04em] text-silver-300 uppercase">{NOT_STORED}</p>
+      <p className="mono text-xs tracking-[0.04em] text-silver-300 uppercase">{NOT_STORED}</p>
       <div>
-        <H className="text-[14px] font-medium text-paper">Rehearsal windows · Layer 4 · {place}</H>
+        <H className="text-[16px] font-semibold text-paper">Rehearsal windows · Layer 4 · {place}</H>
         <div className="mt-2">
           {l4?.data ? <RehearsalSummary r={l4.data} /> : l4?.error ? (
             <p className="text-[13px] leading-snug text-silver-300">The calculation did not complete ({l4.error.code}): {explain(l4.error).text} No window is reported.</p>
@@ -79,7 +79,7 @@ export function ComputedEvidence({ planet, heading: H = 'h3' }: { planet: Planet
         </div>
       </div>
       <div>
-        <H className="text-[14px] font-medium text-paper">Suitability assessment · Layer 5 · {place}</H>
+        <H className="text-[16px] font-semibold text-paper">Suitability assessment · Layer 5 · {place}</H>
         <div className="mt-2">
           {l5?.data ? <CompactAssessment a={l5.data} loading={l5.loading} /> : l5?.error ? (
             <p className="text-[13px] leading-snug text-silver-300">The assessment did not complete ({l5.error.code}): {explain(l5.error).text} No assessment is reported.</p>
@@ -88,7 +88,7 @@ export function ComputedEvidence({ planet, heading: H = 'h3' }: { planet: Planet
           )}
         </div>
       </div>
-      <p className="text-[12px] leading-snug text-silver-400">Computed by the service for this session and lost on reload. Not checked against observations. Thresholds in the assessment are assumptions set in the Mission workspace.</p>
+      <p className="text-xs leading-snug text-silver-400">Computed by the service for this session and lost on reload. Not checked against observations. Thresholds in the assessment are assumptions set in the Mission workspace.</p>
     </div>
   )
 }

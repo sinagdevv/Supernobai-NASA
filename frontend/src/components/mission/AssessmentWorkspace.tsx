@@ -32,14 +32,14 @@ function CriterionRow({ spec, planet }: { spec: CriterionSpec; planet: Planet })
       <div className="flex items-start gap-3">
         <input id={`${id}-on`} type="checkbox" checked={e.enabled} onChange={(ev) => setEdit(planet, spec.def.id, { enabled: ev.target.checked })} className="mt-1 h-5 w-5 shrink-0 accent-[var(--color-amber)]" aria-label={`Include ${spec.def.name}`} />
         <div className="min-w-0 flex-1">
-          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[14px] font-medium text-paper">{spec.def.name}{claim && <span className="mono rounded-[var(--radius-sm)] border border-dashed border-amber/60 px-1.5 text-[12px] leading-5 font-normal text-amber">Layer 4 claim</span>}</p>
-          <p className="mt-0.5 text-[12px] leading-snug text-silver-400">{spec.def.description}</p>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[14px] font-medium text-paper">{spec.def.name}{claim && <span className="mono rounded-[var(--radius-sm)] border border-dashed border-amber/60 px-1.5 text-xs leading-5 font-normal text-amber">Layer 4 claim</span>}</p>
+          <p className="mt-0.5 text-xs leading-snug text-silver-400">{spec.def.description}</p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
             <label htmlFor={`${id}-v`} className="flex items-center gap-2 text-[13px] text-silver-200">
               <span aria-hidden className="mono text-silver-400">{op}</span><span className="sr-only">{spec.def.operator === 'lte' ? 'at most' : 'at least'}</span>
               <input id={`${id}-v`} type="number" inputMode="decimal" disabled={!e.enabled} value={Number((e.target / f).toFixed(4))} min={spec.min / f} max={spec.max / f} step={spec.step / f}
                 onChange={(ev) => { const v = Number(ev.target.value); if (Number.isFinite(v) && ev.target.value !== '') setEdit(planet, spec.def.id, { target: Math.min(spec.max, Math.max(spec.min, v * f)) }) }}
-                className="mono min-h-11 w-28 rounded-[var(--radius-md)] border border-[var(--line-strong)] bg-ink-800 px-3 text-[14px] text-paper hover:border-silver-500" />
+                className="mono min-h-11 w-28 rounded-[var(--radius-md)] border border-[var(--control-edge)] bg-ink-800 px-3 text-[14px] text-paper hover:border-silver-500" />
               <span className="text-silver-400">{unit}</span>
             </label>
             <label className="flex min-h-11 items-center gap-2 text-[13px] text-silver-300">
@@ -61,10 +61,10 @@ function Editor({ planet }: { planet: Planet }) {
         <h3 className="text-[15px] font-medium">Your criteria</h3>
         <Button size="sm" variant="ghost" onClick={() => resetEdits(planet)}><RotateCcw size={14} aria-hidden />Defaults</Button>
       </div>
-      <p className="mt-1 text-[12px] leading-snug text-silver-400">Starting points for {planet === 'moon' ? 'lunar south-polar rover mobility' : 'regional Martian terrain'}, set for this planet alone. They are assumptions you can change, not standards. Every change re-runs the assessment.</p>
+      <p className="mt-1 text-xs leading-snug text-silver-400">Starting points for {planet === 'moon' ? 'lunar south-polar rover mobility' : 'regional Martian terrain'}, set for this planet alone. They are assumptions you can change, not standards. Every change re-runs the assessment.</p>
       {categoriesOf(planet).map((cat) => (
         <div key={cat} className="mt-4">
-          <h4 className="mono text-[12px] tracking-[0.04em] text-silver-400 uppercase">{CATEGORY_LABEL[cat] ?? cat}</h4>
+          <h4 className="mono text-xs tracking-[0.04em] text-silver-400 uppercase">{CATEGORY_LABEL[cat] ?? cat}</h4>
           <ul className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
             {SPECS[planet].filter((s) => s.def.category === cat).map((s) => <CriterionRow key={s.def.id} spec={s} planet={planet} />)}
           </ul>
@@ -80,12 +80,12 @@ function ResultRow({ c }: { c: CriterionResult }) {
   return (
     <li className="py-3">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <p className="min-w-0 text-[14px] font-medium text-paper">{c.name}{!c.required && <span className="ml-2 text-[12px] font-normal text-silver-400">optional</span>}</p>
+        <p className="min-w-0 text-[14px] font-medium text-paper">{c.name}{!c.required && <span className="ml-2 text-xs font-normal text-silver-400">optional</span>}</p>
         <VerdictChip verdict={c.status} />
       </div>
       <p className="mono mt-1 text-[13px] text-silver-200">{value} <span className="text-silver-400">· required {fmtTarget(c)}</span></p>
-      <p className="mt-1 text-[12px] leading-snug text-silver-400">{c.explanation}</p>
-      {m.tone === 'claim' && <p className="mt-1 text-[12px] leading-snug text-amber">{m.meaning}</p>}
+      <p className="mt-1 text-xs leading-snug text-silver-400">{c.explanation}</p>
+      {m.tone === 'claim' && <p className="mt-1 text-xs leading-snug text-amber">{m.meaning}</p>}
     </li>
   )
 }
@@ -110,7 +110,7 @@ function Panel({ planet, entry, hasLayer4 }: { planet: Planet; entry: AssessEntr
           : <>No rehearsal windows have been computed for this target, so the illumination criteria have no evidence and stay indeterminate. <a href="#/app/windows" onClick={() => go({ page: 'app', screen: 'windows' })} className="inline-flex min-h-11 items-center gap-1 font-medium text-amber underline-offset-4 hover:underline">Compute windows <ArrowRight size={14} aria-hidden /></a></>}
       </p>
 
-      {entry?.loading && <p role="status" className="mono mt-3 text-[12px] text-silver-300">{a ? 'Updating with your change…' : 'Assessing…'}</p>}
+      {entry?.loading && <p role="status" className="mono mt-3 text-xs text-silver-300">{a ? 'Updating with your change…' : 'Assessing…'}</p>}
 
       {err && !entry?.loading && (
         err.code === 'unreachable' || err.code === 'unavailable' || err.code === 'rate_limited' ? (
@@ -141,10 +141,10 @@ function Body({ a, loading }: { a: MissionAssessment; loading: boolean }) {
         <p className="mt-1 max-w-prose text-[13px] leading-snug text-silver-300">{o.caution}</p>
         <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-4">
           {([['Pass', t.pass], ['Fail', t.fail], ['Unverified claim', t.claim], ['Missing evidence', t.missing]] as const).map(([k, v]) => (
-            <div key={k}><dt className="text-[12px] text-silver-400">{k}</dt><dd className="mono mt-0.5 text-[24px] leading-none text-paper">{v}</dd></div>
+            <div key={k}><dt className="text-xs text-silver-400">{k}</dt><dd className="mono mt-0.5 text-[24px] leading-none text-paper">{v}</dd></div>
           ))}
         </dl>
-        <p className="mt-3 text-[12px] leading-snug text-silver-400">Profile {a.profile_completeness.status.toLowerCase()}: {cats.map(([k, v]) => `${CATEGORY_LABEL[k] ?? k} ${v.toLowerCase().replace(/_/g, ' ')}`).join(' · ')}. A verdict of “suitable” needs every declared category to have a required, measured pass.</p>
+        <p className="mt-3 text-xs leading-snug text-silver-400">Profile {a.profile_completeness.status.toLowerCase()}: {cats.map(([k, v]) => `${CATEGORY_LABEL[k] ?? k} ${v.toLowerCase().replace(/_/g, ' ')}`).join(' · ')}. A verdict of “suitable” needs every declared category to have a required, measured pass.</p>
       </div>
 
       <div>
@@ -168,11 +168,11 @@ function Body({ a, loading }: { a: MissionAssessment; loading: boolean }) {
       )}
 
       <div className="border-t border-[var(--line)]">
-        <Disclosure title={<span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] font-medium">Does the Layer 4 result describe this terrain?{sp && <span className="mono text-[12px] font-normal text-silver-300">{SPATIAL_META[sp.status]?.label ?? sp.status}</span>}</span>}>
+        <Disclosure title={<span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] font-medium">Does the Layer 4 result describe this terrain?{sp && <span className="mono text-xs font-normal text-silver-300">{SPATIAL_META[sp.status]?.label ?? sp.status}</span>}</span>}>
           {sp ? (
             <>
               <p>{SPATIAL_META[sp.status]?.text}</p>
-              <dl className="mono mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[12px]">
+              <dl className="mono mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
                 {Object.entries(sp.checks).map(([k, v]) => <div key={k} className="contents"><dt className="text-silver-500">{k.replace(/_/g, ' ')}</dt><dd className="text-silver-200">{v}</dd></div>)}
               </dl>
               <ul className="mt-3 list-disc space-y-1 pl-5">{sp.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
@@ -183,14 +183,14 @@ function Body({ a, loading }: { a: MissionAssessment; loading: boolean }) {
           <ul className="list-disc space-y-1.5 pl-5">{a.uncertainty_and_limitations.map((l) => <li key={l}>{l}</li>)}</ul>
         </Disclosure>
         <Disclosure title={<span className="text-[14px] font-medium">Provenance</span>}>
-          <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
+          <dl className="mono grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
             <dt className="text-silver-500">Terrain</dt><dd className="break-words text-silver-200">{a.layer3_provenance?.dataset_name ?? a.candidate.dataset_id}</dd>
             <dt className="text-silver-500">Assessed</dt><dd className="text-silver-200">{utc(a.assessed_at_utc).slice(0, 19)} UTC</dd>
             <dt className="text-silver-500">Profile</dt><dd className="break-words text-silver-200">{a.mission_profile_name}</dd>
             <dt className="text-silver-500">Layer 4 trust</dt><dd className="text-silver-200">{a.layer4_provenance?.trust_status ?? 'no Layer 4 result supplied'}</dd>
           </dl>
-          {a.layer3_provenance?.citation && <p className="mt-3 text-[12px] text-silver-400">{a.layer3_provenance.citation}</p>}
-          <p className="mt-3 text-[12px] text-silver-400">Computed for this session only. It is not stored: Layer 6 (research storage) is not connected.</p>
+          {a.layer3_provenance?.citation && <p className="mt-3 text-xs text-silver-400">{a.layer3_provenance.citation}</p>}
+          <p className="mt-3 text-xs text-silver-400">Computed for this session only. It is not stored: Layer 6 (research storage) is not connected.</p>
         </Disclosure>
       </div>
     </div>
@@ -223,7 +223,7 @@ export function AssessmentWorkspace({ planet }: { planet: Planet }) {
     <section aria-labelledby="aw-h" className="border-t border-[var(--line)] pt-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <h2 id="aw-h" className="text-[20px] font-semibold">{planet === 'moon' ? 'Assess the lunar candidate' : 'Assess the Jezero region'}</h2>
-        <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-[12px] leading-4 text-cyan">LAYER 5 · SUITABILITY EVIDENCE</span>
+        <span className="mono rounded-[var(--radius-sm)] border border-cyan/50 px-1.5 py-0.5 text-xs leading-4 text-cyan">LAYER 5 · SUITABILITY EVIDENCE</span>
       </div>
       <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-silver-300">
         {planet === 'moon'

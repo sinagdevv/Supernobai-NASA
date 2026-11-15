@@ -34,7 +34,7 @@ export function TimeScrubber({ minute, onChange, segments, tz, smooth, label = '
           </div>
         </div>
       </div>
-      <div aria-hidden className="relative -mt-1 h-4 text-[12px] text-silver-500">
+      <div aria-hidden className="relative -mt-1 h-4 text-xs text-silver-500">
         {[0, 6, 12, 18, 24].map((h) => (
           <span key={h} className="mono absolute top-0" style={{ left: `calc(10px + (100% - 20px) * ${h / 24})`, transform: `translateX(-${h === 0 ? 0 : h === 24 ? 100 : 50}%)` }}>
             {String(h).padStart(2, '0')}

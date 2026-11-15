@@ -51,7 +51,7 @@ export function SlopeChart({ region, m }: { region: LunarRegion; m: Mission }) {
           const within = SLOPE_EDGES[i + 1] <= m.slopeMax
           return (
             <g key={i}>
-              <rect x={L + i * bw + 4} y={Y(v)} width={bw - 8} height={Math.max(1, Tp + ih - Y(v))} fill="var(--color-silver-300)" fillOpacity={within ? 0.95 : 0.3} />
+              <rect x={L + i * bw + 4} y={Y(v)} width={bw - 8} height={Math.max(1, Tp + ih - Y(v))} fill="var(--color-silver-300)" fillOpacity={within ? 0.95 : 0.5} />
               <text x={L + i * bw + bw / 2} y={Y(v) - 5} textAnchor="middle" fill="var(--color-paper)" fillOpacity={within ? 1 : 0.6} style={T}>{v.toFixed(0)}</text>
               <text x={L + i * bw} y={H - 26} fill={mute} style={T}>{i === 5 ? '30+' : SLOPE_EDGES[i]}</text>
             </g>
@@ -136,7 +136,7 @@ export function HorizonDiagram({ m, site, date }: { m: Mission; site?: Site; dat
       {site && (
         <div className="mt-3">
           <SunArc site={site} date={date} lo={m.elMin} hi={m.elMax} minDur={m.minDuration} w={W} h={56} className="block w-full" />
-          <p className="mono mt-1 text-[12px] text-silver-400">{site.name.split(' ').slice(0, 3).join(' ')} · {date} · {minutes ? `${minutes} min in band` : 'no window'}</p>
+          <p className="mono mt-1 text-xs text-silver-400">{site.name.split(' ').slice(0, 3).join(' ')} · {date} · {minutes ? `${minutes} min in band` : 'no window'}</p>
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import { usePlanet } from '../lib/planet'
 import { contextStatus, evidenceSnapshot, PLANET_CONTEXT } from '../lib/status'
 import { useEvidence } from '../lib/api/evidence'
 import { PlanetSwitcher } from './PlanetSwitcher'
+import { GuideButton } from './Guide'
 import { useApp } from '../lib/store'
 import { cx, Modal } from './ui'
 
@@ -62,7 +63,7 @@ export function AboutModal({ open, onClose }: { open: boolean; onClose: () => vo
         </div>
         <div>
           <h3 className="eyebrow mb-2">Basemap credits</h3>
-          <ul className="space-y-1 text-[12px] text-silver-400">{BASEMAP_CREDITS.map((c) => <li key={c}>{c}</li>)}</ul>
+          <ul className="space-y-1 text-xs text-silver-400">{BASEMAP_CREDITS.map((c) => <li key={c}>{c}</li>)}</ul>
         </div>
       </div>
     </Modal>
@@ -130,13 +131,14 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
     <div className="tw-shell flex min-h-dvh flex-col" style={{ paddingBottom: 'var(--tabbar-h)' }}>
       <header className="no-print glass sticky top-0 z-40" style={{ height: 'var(--topbar-h)' }}>
         {/* Level 1: the planet. Everything below it is about that planet. */}
-        <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-3 px-3 md:gap-5 md:px-5">
+        <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-2 px-3 sm:gap-3 md:gap-5 md:px-5">
           <a href="#/" aria-label="TERRAWINDOW home" className="vt-lockup -ml-1 flex h-11 shrink-0 items-center rounded-md px-1 text-paper">
             <Lockup className="hidden h-[22px] md:block" />
             <LogoMark className="h-7 md:hidden" />
           </a>
           <PlanetSwitcher />
           <div className="ml-auto flex items-center gap-1">
+            <GuideButton />
             <button type="button" onClick={resetAll} className="grid h-11 w-11 place-items-center rounded-md text-silver-400 transition-[color,transform] hover:text-paper active:scale-[0.97]" aria-label="Reset demonstration state" title="Reset demonstration state"><RotateCcw size={16} aria-hidden /></button>
           </div>
         </div>
@@ -160,12 +162,12 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
             </ul>
           </nav>
           <div className="ml-auto flex min-w-0 items-center gap-3">
-            <p className="mono flex min-w-0 items-center gap-2 text-[12px] tracking-[0.04em] text-silver-300 uppercase" aria-label={`Research context: ${ctx.title}, ${ctx.place}`}>
+            <p className="mono flex min-w-0 items-center gap-2 text-xs tracking-[0.04em] text-silver-300 uppercase" aria-label={`Research context: ${ctx.title}, ${ctx.place}`}>
               <i aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: planet === 'mars' ? '#c9876a' : 'var(--color-silver-300)' }} />
               <span className="truncate"><span className="font-medium text-paper">{ctx.title}</span><span className="hidden sm:inline"> / {ctx.place}</span></span>
             </p>
             <button type="button" onClick={() => setAbout(true)} aria-label={`Data status: ${status.label}. ${status.detail} Open details.`} title={status.detail}
-              className="flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line-strong)] px-3 text-[12px] text-silver-200 transition-[color,transform,border-color] hover:border-silver-500 hover:text-paper active:scale-[0.97]">
+              className="flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line-strong)] px-3 text-xs text-silver-200 transition-[color,transform,border-color] hover:border-silver-500 hover:text-paper active:scale-[0.97]">
               <i aria-hidden className={cx('h-1.5 w-1.5 rounded-full', STATE_DOT[status.state])} />
               {status.label}
             </button>
@@ -184,7 +186,7 @@ export function AppShell({ screen, children }: { screen: Screen; children: React
             return (
               <li key={t.id} className="relative">
                 <a href={href({ page: 'app', screen: t.id })} aria-current={on ? 'page' : undefined} onPointerDown={() => prefetch(t.id)}
-                  className={cx('flex h-full flex-col items-center justify-center gap-0.5 text-[12px] font-medium transition-colors active:opacity-70', on ? 'text-paper' : 'text-silver-400')}>
+                  className={cx('flex h-full flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors active:opacity-70', on ? 'text-paper' : 'text-silver-400')}>
                   <t.Icon size={20} aria-hidden strokeWidth={on ? 2.1 : 1.6} className={on ? 'text-amber' : undefined} />
                   {t.short}
                 </a>
