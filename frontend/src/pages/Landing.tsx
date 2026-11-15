@@ -29,7 +29,7 @@ const Nav = memo(function Nav() {
             <a key={h} href={h} className="flex min-h-11 items-center rounded-md px-3 text-[14px] text-silver-300 transition-colors hover:text-paper">{l}</a>
           ))}
         </nav>
-        <div className="flex items-center gap-1"><GuideButton /><Button variant="primary" size="sm" onClick={enter}><span className="min-[400px]:hidden">Workspace</span><span className="hidden min-[400px]:inline">Open workspace</span> <ArrowRight size={15} aria-hidden /></Button></div>
+        <div className="flex items-center gap-1"><GuideButton /><Button variant="primary" size="sm" onClick={enter} data-guide="open-workspace"><span className="min-[400px]:hidden">Workspace</span><span className="hidden min-[400px]:inline">Open workspace</span> <ArrowRight size={15} aria-hidden /></Button></div>
       </div>
     </header>
   )
@@ -96,7 +96,7 @@ const Problem = memo(function Problem() {
 const SHOTS = [
   { id: 'mission', label: 'Mission', title: 'Define the experiment', body: 'Rover limits and the lighting band; candidates re-sort live.' },
   { id: 'analogs', label: 'Analog Explorer', title: 'Find ground worth testing', body: 'A map with a visual candidate browser and a per-site inspector.' },
-  { id: 'windows', label: 'Rehearsal Windows', title: 'Find the days the sun is right', body: 'Calendar, solar track and terrain shadows as one instrument.' },
+  { id: 'windows', label: 'Rehearsal Windows', title: 'Find the days the sun is right', body: 'Computed sun elevation, terrain shadow and candidate windows for the Moon. Computed, not independently validated.', src: '/shots/windows-computed.jpg', w: 1320, h: 1175, alt: 'The Rehearsal Windows tab of the TERRAWINDOW workspace: a computed lunar result for Site01 labelled Computed and Not independently validated, with a sun-elevation timeline, a solar diagram and one candidate window (captured from the running application)' },
   { id: 'compare', label: 'Comparison', title: 'See what the evidence supports', body: 'Earth against the lunar reference, criterion by criterion.' },
   { id: 'dossier', label: 'Dossier', title: 'Take it into the field', body: 'A printable preliminary assessment with provenance.' },
 ] as const
@@ -107,19 +107,16 @@ const Workspace = memo(function Workspace() {
   return (
     <section id="workspace" aria-labelledby="workspace-title" className="scroll-mt-14 border-t border-[var(--line)] py-16 md:py-24">
       <div className="mx-auto max-w-[1680px] px-4 md:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-6">
-          <div>
-            <p className="mono text-[13px] tracking-[0.04em] text-amber">04 — Enter the workspace</p>
-            <h2 id="workspace-title" className="font-display mt-3 text-[clamp(32px,4vw,60px)] leading-[1.02]">Open the instrument.</h2>
-          </div>
-          <Magnetic><Button variant="primary" onClick={enter} className="min-h-12 px-6 text-[16px]">Enter the workspace <ArrowRight size={18} aria-hidden /></Button></Magnetic>
+        <div>
+          <p className="mono text-[13px] tracking-[0.04em] text-amber">04 — Enter the workspace</p>
+          <h2 id="workspace-title" className="font-display mt-3 text-[clamp(32px,4vw,60px)] leading-[1.02]">Open the instrument.</h2>
         </div>
 
         <div className="mt-10 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--line-strong)] bg-ink-850 shadow-[var(--shadow-pop)]">
           <div className="bg-ink-900 px-2"><Tabs label="Workspace screens" value={id} onChange={setId} tabs={SHOTS.map((x) => ({ id: x.id, label: x.label }))} /></div>
           <div className="relative aspect-[16/9.6]">
             {SHOTS.map((x) => (
-              <img key={x.id} src={`/shots/${x.id}.jpg`} alt={`The ${x.label} tab of the TERRAWINDOW workspace (illustrative prototype data)`} width={1440} height={900} loading="lazy" decoding="async"
+              <img key={x.id} src={'src' in x ? x.src : `/shots/${x.id}.jpg`} alt={'alt' in x ? x.alt : `The ${x.label} tab of the TERRAWINDOW workspace (illustrative prototype data)`} width={'w' in x ? x.w : 1440} height={'h' in x ? x.h : 900} loading="lazy" decoding="async"
                 className={cx('absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-200 ease-out', x.id === id ? 'opacity-100' : 'pointer-events-none opacity-0')} />
             ))}
             {/* The crop is deliberate: the window fades into the page instead of ending mid-widget. */}

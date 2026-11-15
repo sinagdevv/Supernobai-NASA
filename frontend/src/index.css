@@ -429,3 +429,22 @@ html { scrollbar-gutter: stable; }
 /* Workspace header: row 1 is the planet (56 px), row 2 the tools and data status (44 px; 32 px on phones, where the tools move to the bottom bar). */
 .tw-shell { --topbar-h: 88px; }
 @media (min-width: 768px) { .tw-shell { --topbar-h: 100px; } }
+
+/* Guide: the spotlight dims the page around one real control and never takes a click; the card's arrow points back at it. */
+.tw-spot {
+  border-radius: 10px;
+  box-shadow: 0 0 0 2px var(--color-amber), 0 0 0 100vmax rgb(6 8 12 / 0.58);
+  transition: transform 0.32s var(--ease-out), width 0.32s var(--ease-out), height 0.32s var(--ease-out);
+}
+.tw-guide-wrap { transition: transform 0.32s var(--ease-out); }
+@media (prefers-reduced-motion: no-preference) {
+  .tw-spot::after { content: ''; position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--color-amber); animation: tw-ring 2.2s ease-out infinite; }
+  .tw-guide-arrow { animation: tw-nudge 1.4s ease-in-out infinite; }
+}
+@keyframes tw-ring { from { opacity: 0.7; transform: scale(1); } to { opacity: 0; transform: scale(1.06); } }
+@keyframes tw-nudge { 50% { translate: var(--nx, 0) var(--ny, 0); } }
+.tw-guide-arrow { position: absolute; width: 12px; height: 12px; background: var(--color-ink-800); border: 1px solid var(--line-strong); rotate: 45deg; margin: -6px 0 0 -6px; }
+.tw-guide-arrow-bottom { top: 0; border-right: 0; border-bottom: 0; --ny: -3px; }
+.tw-guide-arrow-top { top: 100%; border-left: 0; border-top: 0; --ny: 3px; }
+.tw-guide-arrow-right { left: 0; border-top: 0; border-right: 0; --nx: -3px; }
+.tw-guide-arrow-left { left: 100%; border-bottom: 0; border-left: 0; --nx: 3px; }

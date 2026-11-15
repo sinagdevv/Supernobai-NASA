@@ -57,7 +57,7 @@ export default function App() {
       <EvidenceProvider>
       <PlanetProvider>
       <AppProvider>
-      <GuideProvider ready={!intro} inApp={route.page === 'app'}>
+      <GuideProvider ready={!intro} route={route}>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-amber focus:px-3 focus:py-2 focus:text-ink-900">Skip to content</a>
         {route.page === 'home' ? (
           <Landing introPlayed={introPlayed} heroIn={heroIn} introDone={!intro} />
